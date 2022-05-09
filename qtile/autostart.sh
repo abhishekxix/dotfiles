@@ -5,7 +5,8 @@ picom &
 mictray &
 xbindkeys &
 flameshot &
-deadd-notification-center &
+# deadd-notification-center &
+dunst &
 volumeicon &
 copyq &
 nm-applet &
