@@ -203,7 +203,7 @@ widget_defaults = dict(
     fontsize=12,
     padding=3,
     background=colors["background"],
-    foreground=colors["color16"],
+    foreground=colors["color9"],
 )
 
 extension_defaults = widget_defaults.copy()
@@ -219,7 +219,10 @@ screens = [
                 widget.Image(
                     filename="~/.config/qtile/icons/arch.svg",
                     scale=True,
-                    margin=3
+                    margin=3,
+                    mouse_callbacks={
+                        "Button1": lazy.spawn(my_menu)
+                    }
                 ),
                 widget.Sep(
                     linewidth=0,
@@ -234,30 +237,58 @@ screens = [
                     rounded=True,
                     highlight_method="line",
                     highlight_color=colors["background"],
-                    active=colors["color16"], inactive="#6272a4",
+                    active=colors["color9"], inactive="#6272a4",
                     this_current_screen_border=colors["foreground"]
+                ),
+                widget.Sep(
+                    linewidth=0,
+                    padding=12,
+                ),
+
+                widget.TaskList(
+                    border_width=1,
+                    border=colors["color16"]
+                ),
+
+
+
+                widget.Spacer(length=bar.STRETCH),
+                widget.Net(
+                    fmt="{}",
+                    format="{down} ↓↑ {up}",
+                ),
+                widget.Sep(
+                    linewidth=0,
+                    padding=12,
+                ),
+                widget.CPU(),
+
+                widget.Sep(
+                    linewidth=0,
+                    padding=12,
                 ),
 
                 widget.Sep(
                     linewidth=0,
                     padding=12,
                 ),
-                widget.CurrentLayoutIcon(
-                    custom_icon_paths=[
-                        os.path.expanduser("~/.config/qtile/icons")],
-                    padding=0,
-                    scale=0.7
-                ),
-
-                # widget.CurrentLayout(),
-                # widget.Sep(
-                #     linewidth=0,
-                #     padding=12,
-                # ),
-                # widget.WindowName(),
+                widget.Memory(fmt="MEM:{}", measure_mem="M"),
 
                 widget.Spacer(length=bar.STRETCH),
 
+
+
+
+                widget.Sep(
+                    linewidth=0,
+                    padding=12,
+                ),
+
+                widget.Systray(icon_size=20),
+                widget.Sep(
+                    linewidth=0,
+                    padding=12,
+                ),
                 widget.Clock(
                     format="%Y-%m-%d %a",
                     fmt="{}"
@@ -270,32 +301,17 @@ screens = [
                     format="%I:%M:%S %p",
                     fmt="{}"
                 ),
-                widget.Spacer(length=bar.STRETCH),
-
-
-                widget.Net(
-                    fmt="🖧 {}",
-                    format="{down} ↓↑ {up}",
-                ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-                widget.Memory(fmt="MEM:{}", measure_mem="M"),
 
                 widget.Sep(
                     linewidth=0,
                     padding=12,
                 ),
-
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
+                widget.CurrentLayoutIcon(
+                    custom_icon_paths=[
+                        os.path.expanduser("~/.config/qtile/icons")],
+                    padding=0,
+                    scale=0.6
                 ),
-
-
-
-                widget.Systray(icon_size=20),
                 widget.Sep(
                     linewidth=0,
                     padding=12,
@@ -304,23 +320,7 @@ screens = [
             ],
             30,
             **bar_theme, margin=[2, 100, 0, 100]
-        ),
-        # bottom=bar.Bar(
-        #     [
-        #         widget.Sep(
-        #             linewidth=0,
-        #             padding=12,
-        #         ),
-
-
-
-        #         # widget.Chord(
-        #         #     chords_colors={
-        #         #         "launch": ("#ff0000", "#ffffff"),
-        #         #     },
-        #         #     name_transform=lambda name: name.upper(),
-        #         # ),
-        #     ], 25, **bar_theme, margin=[2, 600, 2, 600])
+        )
     ),
 ]
 
