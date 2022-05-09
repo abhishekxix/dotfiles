@@ -170,7 +170,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock = wibox.widget.textclock()
+mytextclock = wibox.widget.textclock('<span font="Ubuntu Mono 13">%I:%M %p</span>')
 
 -- Create a wibox for each screen and add it
 local taglist_buttons =
@@ -330,7 +330,18 @@ awful.screen.connect_for_each_screen(
         }
 
         -- Create the wibox
-        s.mywibox = awful.wibar({position = "top", screen = s, width = 1880, height = 24})
+        s.mywibox =
+            awful.wibar(
+            {
+                position = "top",
+                screen = s,
+                height = 25,
+                width = 1880,
+                opacity = 0.8,
+                shape = gears.shape.rounded_rect,
+                border_width = 4
+            }
+        )
 
         -- Add widgets to the wibox
         s.mywibox:setup {
