@@ -583,14 +583,6 @@ globalkeys =
     ),
     awful.key(
         {modkey},
-        "w",
-        function()
-            awful.spawn("google-chrome-stable")
-        end,
-        {description = "launch google chrome"}
-    ),
-    awful.key(
-        {modkey},
         "e",
         function()
             awful.spawn("code")

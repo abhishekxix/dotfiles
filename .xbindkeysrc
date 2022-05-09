@@ -108,5 +108,10 @@
     m:0x0 + c:107
     Print 
 
+#lock
+"lxlock"
+    m:0x50 + c:22
+    Mod2+Mod4 + BackSpace 
+
 #
 # End of xbindkeys configuration
