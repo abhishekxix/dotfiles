@@ -249,12 +249,12 @@ screens = [
                     scale=0.7
                 ),
 
-                widget.CurrentLayout(),
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-                widget.WindowName(),
+                # widget.CurrentLayout(),
+                # widget.Sep(
+                #     linewidth=0,
+                #     padding=12,
+                # ),
+                # widget.WindowName(),
 
                 widget.Spacer(length=bar.STRETCH),
 
