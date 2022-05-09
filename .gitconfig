@@ -1,0 +1,38 @@
+# This is Git's per-user configuration file.
+[user]
+	name = Abhishek Singh
+	email = abhisheksinghxix@gmail.com
+
+[core]
+	editor = code --wait
+	autocrlf = input
+
+[diff]
+	tool = vscode
+
+[difftool "vscode"]
+	cmd = "code --wait --diff $LOCAL $REMOTE"
+
+[color]
+	ui = auto
+
+[merge]
+	conflictstyle = diff3
+	tool = p4merge
+	# ff = false
+
+[alias]
+	lga = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+	lgb = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
+	lg = !"git lga"
+	unstage-all = restore --staged .
+	unstage = restore --staged
+
+[credential]
+	helper = store
+
+[init]
+	defaultBranch = main
+
+[mergetool "p4merge"]
+	path = /usr/bin/p4merge

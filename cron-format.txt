@@ -1,0 +1,11 @@
+SHELL=/bin/bash
+# * - wildcard -> all possbile values.
+# , -> list multiple values separated by comma.
+# - -> specify a range.
+# / -> specify a periodicity/frequency using a slash.
+# minute hour day_of_month month day_of_week command
+# @reboot, @yearly, @annually, @monthly, @weekly, @daily, @midnight, @ho
+urly.
+
+30 * * * * /bin/bash $HOME/dotfiles/auto-push.sh > $HOME/cron_git 2>&1
+0 9 * * 1-5 /bin/bash $HOME/show-time-table.sh >> cron_logs 2 i>&1
