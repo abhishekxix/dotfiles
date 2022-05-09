@@ -29,16 +29,17 @@ colors = {
     "color15": "#BEBEC1",
     "color16": "#B380F0"
 }
-my_menu = " rofi -combi-modi window,drun,ssh  -font 'hack 10' -show combi -icon-theme 'Papirus' -show-icons"
+my_menu = "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons"
 mod = "mod4"
 my_terminal = "alacritty"
 my_browser = "google-chrome-stable --force-dark-mode"
 my_vscode = "code"
 my_spotify = "spotify"
-my_screensaver = "i3lock-fancy -dgn"
-my_file_manager = "pcmanfm"
+my_screensaver = "xscreensaver-command -lock"
+my_file_manager = "thunar"
 my_video_player = "vlc"
 my_obsidian = "obsidian"
+
 bar_theme = {
     "background": colors["background"],
     "foreground": colors["foreground"],

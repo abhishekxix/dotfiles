@@ -9,5 +9,6 @@ deadd-notification-center &
 volumeicon &
 copyq &
 nm-applet &
-xargs xwallpaper --stretch < ~/.xwallpaper &
+blueman-applet &
+xargs xwallpaper --stretch <~/.xwallpaper &
 # find /home/abhi/dotfiles/wallpapers -type f | shuf -n 1 | xargs xwallpaper --stretch &
