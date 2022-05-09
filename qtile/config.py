@@ -240,15 +240,7 @@ screens = [
                     active=colors["color9"], inactive="#6272a4",
                     this_current_screen_border=colors["foreground"]
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
 
-                widget.TaskList(
-                    border_width=1,
-                    border=colors["color16"]
-                ),
 
 
 
