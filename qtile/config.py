@@ -43,7 +43,7 @@ my_obsidian = "obsidian"
 bar_theme = {
     "background": colors["background"],
     "foreground": colors["foreground"],
-    "opacity": 1.0,
+    "opacity": 0.85,
 }
 
 layout_theme = {
