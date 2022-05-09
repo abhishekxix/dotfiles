@@ -30,6 +30,7 @@ colors = {
     "color16": "#B380F0"
 }
 my_menu = "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons"
+my_run_launcher = "rofi -combi-modi run -show combi"
 mod = "mod4"
 my_terminal = "alacritty"
 my_browser = "google-chrome-stable --force-dark-mode"
@@ -138,7 +139,9 @@ def kbd_shortcuts():
       Key([mod], "o", lazy.spawn(my_obsidian), desc="Launch obsidian"),
 
       #   * launch pavucontrol
-      Key([mod], "p", lazy.spawn("pavucontrol"), desc="Launch video player"),
+      Key([mod], "p", lazy.spawn("pavucontrol"), desc="Launch pavucontrol"),
+      Key(["mod1"], "space", lazy.spawn(
+          my_run_launcher), desc="Launch rofi run"),
 
   ]
 

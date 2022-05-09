@@ -18,7 +18,7 @@
 
 [merge]
 	conflictstyle = diff3
-	tool = p4merge
+	tool = gitkraken
 	# ff = false
 
 [alias]
@@ -34,5 +34,5 @@
 [init]
 	defaultBranch = main
 
-[mergetool "p4merge"]
-	path = /usr/bin/p4merge
+[mergetool "gitkraken"]
+	path = /snap/bin/gitkraken
