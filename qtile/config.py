@@ -220,7 +220,7 @@ screens = [
                     padding=12,
                 ),
                 widget.Image(
-                    filename="~/.config/qtile/icons/arch.svg",
+                    filename="~/.config/qtile/icons/debianlogo.svg",
                     scale=True,
                     margin=3,
                     mouse_callbacks={
