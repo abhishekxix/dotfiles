@@ -37,7 +37,7 @@ my_browser = "google-chrome-stable --force-dark-mode"
 my_vscode = "code"
 my_spotify = "flatpak run com.spotify.Client"
 my_screensaver = "xscreensaver-command -lock"
-my_file_manager = "thunar"
+my_file_manager = "pcmanfm-qt"
 my_video_player = "vlc"
 my_obsidian = "flatpak run md.obsidian.Obsidian"
 
@@ -220,7 +220,7 @@ screens = [
                     padding=12,
                 ),
                 widget.Image(
-                    filename="~/.config/qtile/icons/debianlogo.svg",
+                    filename="~/.config/qtile/icons/arch.svg",
                     scale=True,
                     margin=3,
                     mouse_callbacks={
