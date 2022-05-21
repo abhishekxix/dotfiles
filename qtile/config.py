@@ -274,7 +274,7 @@ screens = [
                 ),
 
                 widget.Backlight(
-                    fmt="Brightness: {}",
+                    fmt="BRIGHTNESS: {}",
                     backlight_name="intel_backlight",
                     brightness_file="brightness"
                 ),
