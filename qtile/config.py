@@ -263,11 +263,21 @@ screens = [
                     padding=12,
                 ),
 
+                widget.Memory(fmt="MEM:{}", measure_mem="M"),
                 widget.Sep(
                     linewidth=0,
                     padding=12,
                 ),
-                widget.Memory(fmt="MEM:{}", measure_mem="M"),
+                widget.Battery(
+                    fmt="BATTERY: {}",
+                    format='{char} {percent:2.0%}'
+                ),
+
+                widget.Backlight(
+                    fmt="Brightness: {}",
+                    backlight_name="intel_backlight",
+                    brightness_file="brightness"
+                ),
 
                 widget.Spacer(length=bar.STRETCH),
 
