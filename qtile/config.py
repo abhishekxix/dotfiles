@@ -37,7 +37,7 @@ my_browser = "google-chrome-stable --force-dark-mode"
 my_vscode = "code"
 my_spotify = "flatpak run com.spotify.Client"
 my_screensaver = "xscreensaver-command -lock"
-my_file_manager = "pcmanfm-qt"
+my_file_manager = "pcmanfm"
 my_video_player = "vlc"
 my_obsidian = "flatpak run md.obsidian.Obsidian"
 
