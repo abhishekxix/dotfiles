@@ -10,7 +10,7 @@ dunst &
 volumeicon &
 copyq &
 nm-applet &
-blueman-applet &
+blueberry &
 xscreensaver --nosplash &
 xargs xwallpaper --stretch <~/.xwallpaper &
 # find /home/abhi/dotfiles/wallpapers -type f | shuf -n 1 | xargs xwallpaper --stretch &
