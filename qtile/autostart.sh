@@ -2,6 +2,7 @@
 
 lxsession &
 picom &
+lxqt-powermanagement &
 mictray &
 xbindkeys &
 flameshot &
