@@ -178,6 +178,7 @@ def setup_groups(groups):
 terminal = my_terminal
 keys = kbd_shortcuts()
 
+
 groups = [Group(i) for i in "123456789"]
 setup_groups(groups)
 
