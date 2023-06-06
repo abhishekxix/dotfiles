@@ -139,7 +139,7 @@ def kbd_shortcuts():
       Key([mod], "o", lazy.spawn(my_obsidian), desc="Launch obsidian"),
 
       #   * launch pavucontrol
-      Key([mod], "p", lazy.spawn("pavucontrol"), desc="Launch pavucontrol"),
+      Key([mod], "p", lazy.spawn("pavucontrol-qt"), desc="Launch pavucontrol"),
       Key(["mod1"], "space", lazy.spawn(
           my_run_launcher), desc="Launch rofi run"),
 
