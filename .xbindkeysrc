@@ -113,5 +113,10 @@
     m:0x50 + c:22
     Mod2+Mod4 + BackSpace 
 
+#lock and sleep
+"lxlock && systemctl suspend"
+    m:0x44 + c:22
+    Control+Mod4 + BackSpace 
+
 #
 # End of xbindkeys configuration
