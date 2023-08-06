@@ -7,7 +7,7 @@ xbindkeys &
 flameshot &
 # deadd-notification-center &
 dunst &
-volumeicon &
+(volumeicon) &
 copyq &
 nm-applet &
 blueberry &
