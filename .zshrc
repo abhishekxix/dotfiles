@@ -8,7 +8,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$PATH:$HOME/.local/bin:$HOME/.ghcup/bin:$HOME/.cabal/bin:/sbin:$HOME/.cargo/bin
+export PATH=$HOME/.config/composer/vendor/bin:$HOME/bin:/usr/local/bin:$PATH:$HOME/.local/bin:$HOME/.ghcup/bin:$HOME/.cabal/bin:/sbin:$HOME/.cargo/bin
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -137,6 +137,7 @@ bindkey '^H' backward-kill-word
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-source /usr/share/nvm/init-nvm.sh
+
+export NODE_ENV='development'
+
 clear
-source /usr/share/nvm/init-nvm.sh

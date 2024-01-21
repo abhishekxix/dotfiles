@@ -18,7 +18,7 @@
 
 [merge]
 	conflictstyle = diff3
-	tool = gitkraken
+	tool = code
 	# ff = false
 
 [alias]
@@ -34,5 +34,5 @@
 [init]
 	defaultBranch = main
 
-[mergetool "gitkraken"]
-	path = /snap/bin/gitkraken
+[mergetool "code"]
+	path = /snap/bin/code

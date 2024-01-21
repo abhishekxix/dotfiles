@@ -1,0 +1,11 @@
+
+** (volumeicon:263384): WARNING **: 19:40:31.557: Binding 'XF86AudioRaiseVolume' failed!
+Failed to bind XF86AudioRaiseVolume
+
+** (volumeicon:263384): WARNING **: 19:40:31.557: Binding 'XF86AudioLowerVolume' failed!
+Failed to bind XF86AudioLowerVolume
+
+** (volumeicon:263384): WARNING **: 19:40:31.558: Binding 'XF86AudioMute' failed!
+Failed to bind XF86AudioMute
+
+(nm-applet:278506): Gdk-CRITICAL **: 19:47:21.709: gdk_window_thaw_toplevel_updates: assertion 'window->update_and_descendants_freeze_count > 0' failed
