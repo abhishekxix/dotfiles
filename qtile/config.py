@@ -53,7 +53,7 @@ bar_theme = {
 
 layout_theme = {
     "border_width": 1,
-    "margin": 1,
+    "margin": 4,
     "border_focus": colors["color9"],
     "border_normal": "#000000"
 }
@@ -416,7 +416,7 @@ screens = [
                     padding=4,
                 ),
                 widget.Clock(
-                    format="%I:%M:%S %p",
+                    format="%H:%M:%S",
                     fmt="{}"
                 ),
 
