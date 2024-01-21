@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# lxsession -s qtile.desktop &
+lxsession  --session=qtile &
 picom &
 # lxqt-powermanagement &
 xbindkeys &
