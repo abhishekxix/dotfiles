@@ -94,7 +94,7 @@
     Mod4 + equal 
 
 #random wallpaper
-"/$HOME/change_wallpaper.sh"
+"$HOME/change_wallpaper.sh"
     m:0x40 + c:61
     Mod4 + slash 
 

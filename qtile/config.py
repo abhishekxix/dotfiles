@@ -11,7 +11,7 @@ SHIFTKEY = "shift"
 TABKEY = "Tab"
 CONTROLKEY = "control"
 
-terminal = "gnome-terminal"
+terminal = "alacritty"
 my_menu = "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons"
 my_run_launcher = "rofi -combi-modi run -show combi"
 
