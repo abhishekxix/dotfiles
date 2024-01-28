@@ -2,7 +2,8 @@
 
 lxsession  --session=qtile &
 
-# gnome-keyring-daemon --start --components=pkcs11,secrets,ssh &
+/usr/libexec/polkitd --no-debug --replace &
+gnome-keyring-daemon --start --components=pkcs11,secrets,ssh &
 
 picom &
 # lxqt-powermanagement &
