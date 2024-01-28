@@ -1,0 +1,1 @@
+**NOTE:** Don't forget to add `"password-store": "gnome"` in `~/.vscode/argv.json`
