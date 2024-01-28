@@ -1,6 +1,9 @@
 #! /usr/bin/env bash
 
 lxsession  --session=qtile &
+
+# gnome-keyring-daemon --start --components=pkcs11,secrets,ssh &
+
 picom &
 # lxqt-powermanagement &
 xbindkeys &
