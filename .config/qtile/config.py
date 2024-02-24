@@ -23,6 +23,7 @@ my_obsidian = "obsidian"
 
 
 colors = {
+    #"background": "#23272E",
     "background": "#23272E",
     "foreground":  "#FDFDFD",
     "highlight": "#44475a",
@@ -42,7 +43,8 @@ colors = {
     "color13": "#B043D1",
     "color14": "#3FDCEE",
     "color15": "#BEBEC1",
-    "color16": "#B380F0"
+    "color16": "#B380F0",
+    "color17": "#DA3450"
 }
 
 bar_theme = {
@@ -54,7 +56,7 @@ bar_theme = {
 layout_theme = {
     "border_width": 1,
     "margin": 4,
-    "border_focus": colors["color9"],
+    "border_focus": colors["color17"],
     "border_normal": "#000000"
 }
 
@@ -322,7 +324,7 @@ widget_defaults = dict(
     fontsize=12,
     padding=3,
     background=colors["background"],
-    foreground=colors["color9"],
+    foreground=colors["color17"],
 )
 
 extension_defaults = widget_defaults.copy()
@@ -359,7 +361,7 @@ screens = [
                     rounded=True,
                     highlight_method="line",
                     highlight_color=colors["background"],
-                    active=colors["color9"], inactive="#6272a4",
+                    active=colors["color17"], inactive="#6272a4",
                     this_current_screen_border=colors["foreground"]
                 ),
 

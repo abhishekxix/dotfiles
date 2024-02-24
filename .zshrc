@@ -117,7 +117,7 @@ source $ZSH/oh-my-zsh.sh
 alias pls='sudo'
 
 # directory and file operations
-alias ls='ls -a --color=auto'
+alias ls='ls --color=auto'
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
