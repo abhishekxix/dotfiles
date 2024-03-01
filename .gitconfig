@@ -2,6 +2,7 @@
 [user]
 	name = Abhishek Singh
 	email = abhisheksinghxix@gmail.com
+	signingkey = 82398D390EF0DDC5
 
 [core]
 	editor = code --wait
@@ -36,3 +37,5 @@
 
 [mergetool "code"]
 	path = /snap/bin/code
+[commit]
+	gpgsign = true
