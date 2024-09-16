@@ -2,7 +2,7 @@
 [user]
 	name = Abhishek Singh
 	email = abhisheksinghxix@gmail.com
-	signingkey = 82398D390EF0DDC5
+	signingkey = D5BB2F451F64A10F
 
 [core]
 	editor = code --wait
