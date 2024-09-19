@@ -86,3 +86,6 @@ style = "Italic"
 [font.normal]
 family = "MesloLGS NF"
 style = "Regular"
+
+[font]
+size = 16
