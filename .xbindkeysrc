@@ -88,11 +88,6 @@
     m:0x0 + c:174
     XF86AudioStop 
 
-#Toggle notification center
-"kill -s USR1 $(pidof deadd-notification-center)"
-    m:0x40 + c:21
-    Mod4 + equal 
-
 #random wallpaper
 "$HOME/change_wallpaper.sh"
     m:0x40 + c:61
@@ -117,6 +112,21 @@
 "lxlock && systemctl suspend"
     m:0x44 + c:22
     Control+Mod4 + BackSpace 
+
+#Notifications show
+"dunstctl history-pop"
+    m:0x40 + c:49
+    Mod4 + grave 
+
+#Notification close
+"dunstctl close"
+    m:0x40 + c:21
+    Mod4 + equal 
+
+#Notification close-all
+"dunstctl close-all"
+    m:0x41 + c:21
+    Shift+Mod4 + equal 
 
 #
 # End of xbindkeys configuration
