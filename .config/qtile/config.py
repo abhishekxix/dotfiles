@@ -1,508 +1,487 @@
 import os
 import subprocess
-import libqtile as qtile
-from libqtile import bar, layout, widget, hook
+from libqtile import bar, layout, hook, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 
+"""
+	! Config dictionary.
+"""
+colors = {
+	"background": "#1d2021",
+	"foreground": "#ebdbb2",
+	"accent":     "#fabd2f",
+	"inactive":   "#6272a4",
+	"highlight":  "#44475a",
+	"color0":     "#282A36",
+	"color1":     "#F37F97",
+	"color2":     "#5ADECD",
+	"color3":     "#F2A272",
+	"color4":     "#8897F4",
+	"color5":     "#C574DD",
+	"color6":     "#79E6F3",
+	"color7":     "#FDFDFD",
+	"color8":     "#414458",
+	"color9":     "#FF4971",
+	"color10":    "#18E3C8",
+	"color11":    "#FF8037",
+	"color12":    "#556FFF",
+	"color13":    "#B043D1",
+	"color14":    "#3FDCEE",
+	"color15":    "#BEBEC1",
+	"color16":    "#B380F0",
+	"color17":    "#DA3450"
+}
+my_config_dict = {
+    "terminal":     "alacritty",
+    "modkey":       "mod4",  # The windows key.
+    "bar_theme":    {
+        "background": colors["background"],
+        "foreground": colors["foreground"],
+        "opacity":    0.95,
+    },
+    "layout_theme": {
+        "border_width": 1,
+        "margin": 2,
+        "border_focus": colors["accent"],
+        "border_normal": "#000000"
+    },
+    "menu":         "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
+    "run_launcher": "rofi -combi-modi run -show combi",
+    "web_browser":  "google-chrome",
+    "file_manager": "nautilus",
+}
+"""
+	! Config dictionary end.
+"""
 
-MODKEY = "mod4"
+
+MODKEY = my_config_dict["modkey"]
 SHIFTKEY = "shift"
 TABKEY = "Tab"
 CONTROLKEY = "control"
 
-terminal = "alacritty"
-my_menu = "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons"
-my_run_launcher = "rofi -combi-modi run -show combi"
+screens = [
+	Screen(
+		top=bar.Bar(
+			[
+				widget.Spacer( length=12 ),
 
-my_browser = "google-chrome"
-my_vscode = "code"
-my_file_manager = "nautilus"
-my_video_player = "vlc"
-my_obsidian = "obsidian"
+				widget.Image(
+					filename=os.path.expanduser(
+						"~/.config/qtile/icons/debianlogo.svg"
+					),
+					scale=True,
+					margin_y=4,
+					mouse_callbacks={
+						"Button1": lazy.spawn(my_config_dict["menu"])
+					}
+				),
 
+				widget.Spacer( length=12 ),
 
-colors = {
-    #"background": "#23272E",
-    "background": "#23272E",
-    "foreground":  "#FDFDFD",
-    "highlight": "#44475a",
-    "color0":  "#282A36",
-    "color1":  "#F37F97",
-    "color2":  "#5ADECD",
-    "color3":  "#F2A272",
-    "color4":  "#8897F4",
-    "color5":  "#C574DD",
-    "color6":  "#79E6F3",
-    "color7":  "#FDFDFD",
-    "color8":  "#414458",
-    "color9":  "#FF4971",
-    "color10": "#18E3C8",
-    "color11": "#FF8037",
-    "color12": "#556FFF",
-    "color13": "#B043D1",
-    "color14": "#3FDCEE",
-    "color15": "#BEBEC1",
-    "color16": "#B380F0",
-    "color17": "#DA3450"
-}
+				widget.GroupBox(
+					border_width=3,
+					rounded=True,
+					highlight_method="line",
+					highlight_color=colors["background"],
+					active=colors["accent"],
+					inactive=colors["inactive"],
+					disable_drag=True,
+					visible_groups=[ '1', '2', '3', '4', '5' ]
+				),
 
-bar_theme = {
-    "background": colors["background"],
-    "foreground": colors["foreground"],
-    "opacity": 0.95,
-}
+				widget.Spacer(length=bar.STRETCH),
 
-layout_theme = {
-    "border_width": 1,
-    "margin": 4,
-    "border_focus": colors["color17"],
-    "border_normal": "#000000"
-}
+				widget.WindowName(),
 
+				widget.Spacer(length=bar.STRETCH),
 
-keys = [
-    # A list of available commands that can be bound to keys can be found
-    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
-    # Switch between windows
-    Key(
-        [MODKEY],
-        "h",
-        lazy.layout.left(),
-        desc="Move focus to left"
-    ),
+				widget.Systray(icon_size=20),
 
-    Key(
-        [MODKEY],
-        "l",
-        lazy.layout.right(),
-        desc="Move focus to right"
-    ),
-    Key(
-        [MODKEY],
-        "j",
-        lazy.layout.down(),
-        desc="Move focus down"
-    ),
-    Key(
-        [MODKEY],
-        "k",
-        lazy.layout.up(),
-        desc="Move focus up"
-    ),
-    Key(
-        [MODKEY],
-        "space",
-        lazy.layout.next(),
-        desc="Move window focus to other window"
-    ),
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    Key(
-        [MODKEY, SHIFTKEY],
-        "h",
-        lazy.layout.shuffle_left(),
-        desc="Move window to the left"
-    ),
-    Key(
-        [MODKEY, SHIFTKEY],
-        "l",
-        lazy.layout.shuffle_right(),
-        desc="Move window to the right"
-    ),
-    Key(
-        [MODKEY, SHIFTKEY],
-        "j",
-        lazy.layout.shuffle_down(),
-        desc="Move window down"
-    ),
-    Key(
-        [MODKEY, SHIFTKEY],
-        "k",
-        lazy.layout.shuffle_up(),
-        desc="Move window up"
-    ),
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    Key(
-        [MODKEY, CONTROLKEY],
-        "h",
-        lazy.layout.grow_left(),
-        desc="Grow window to the left"
-    ),
-    Key(
-        [MODKEY, CONTROLKEY],
-        "l",
-        lazy.layout.grow_right(),
-        desc="Grow window to the right"
-    ),
-    Key(
-        [MODKEY, CONTROLKEY],
-        "j",
-        lazy.layout.grow_down(),
-        desc="Grow window down"
-    ),
-    Key(
-        [MODKEY, CONTROLKEY],
-        "k",
-        lazy.layout.grow_up(),
-        desc="Grow window up"
-    ),
-    Key(
-        [MODKEY],
-        "n",
-        lazy.layout.normalize(),
-        desc="Reset all window sizes"
-    ),
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key(
-        [MODKEY, SHIFTKEY],
-        "Return",
-        lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack",
-    ),
-    Key(
-        [MODKEY],
-        "Return",
-        lazy.spawn(terminal),
-        desc="Launch terminal"
-    ),
-    # Toggle between different layouts as defined below
-    Key(
-        [MODKEY],
-        TABKEY,
-        lazy.next_layout(),
-        desc="Toggle between layouts"
-    ),
-    Key(
-        [MODKEY, SHIFTKEY],
-        TABKEY,
-        lazy.prev_layout(),
-        desc="Toggle between layouts"
-    ),
+				widget.Spacer( length=12 ),
 
-    Key(
-        [MODKEY],
-        "q",
-        lazy.window.kill(),
-        desc="Kill focused window"
-    ),
-    Key(
-        [MODKEY, SHIFTKEY],
-        "f",
-        lazy.window.toggle_fullscreen(),
-        desc="Toggle fullscreen on the focused window",
-    ),
-    Key(
-        [MODKEY, SHIFTKEY],
-        "t",
-        lazy.window.toggle_floating(),
-        desc="Toggle floating on the focused window",
-    ),
-    Key(
-        [MODKEY, CONTROLKEY],
-        "r",
-        lazy.reload_config(),
-        desc="Reload the config"
-    ),
-    Key(
+				widget.Battery(
+					fmt="🗲 {}",
+					format='{char} {percent:2.0%}'
+				),
 
-        [MODKEY, CONTROLKEY],
-        "q",
-        lazy.shutdown(),
-        desc="Shutdown Qtile"
-    ),
-    Key(
-        [MODKEY],
-        "r",
-        lazy.spawn(my_menu),
-        desc="Spawn a command using a prompt widget"
-    ),
-    Key(
-        ["mod1"],
-        "space",
-        lazy.spawn(
-            my_run_launcher
-        ),
-        desc="Launch rofi run"
-    ),
-    Key(
-        [MODKEY],
-        "w",
-        lazy.spawn(
-            my_browser
-        ),
-        desc="Launch web browser"
-    ),
-    Key(
-        [MODKEY],
-        "f",
-        lazy.spawn(
-            my_file_manager
-        ),
-        desc="Launch file manager"
-    ),
-    Key(
-        [MODKEY],
-        "f",
-        lazy.spawn(
-            my_file_manager
-        ),
-        desc="Launch file manager"
-    ),
-    Key(
-        [MODKEY],
-        "v",
-        lazy.spawn(
-            my_video_player
-        ),
-        desc="Launch video player"
-    ),
-    Key(
-        [MODKEY],
-        "o",
-        lazy.spawn(
-            my_obsidian
-        ),
-        desc="Launch obsidian"
-    ),
+				widget.Spacer( length=12 ),
+
+				widget.Backlight(
+					fmt="💡 {}",
+					backlight_name="intel_backlight",
+					brightness_file="brightness"
+				),
+
+				widget.Spacer( length=12 ),
+
+				widget.Clock(
+					format="%Y-%m-%d %a",
+					fmt="{}"
+				),
+
+				widget.Spacer( length=4 ),
+
+				widget.Clock(
+					format="%H:%M:%S",
+					fmt="{}"
+				),
+
+				widget.Spacer( length=12 ),
+
+				widget.CurrentLayoutIcon(
+					padding=0,
+					scale=0.6
+				),
+
+				widget.Spacer( length=12 ),
+			],
+			32,
+			**( my_config_dict["bar_theme"] )
+		)
+	),
+	Screen( top=bar.Bar(
+		[
+			widget.Spacer( length=12 ),
+
+			widget.Image(
+				filename=os.path.expanduser(
+					"~/.config/qtile/icons/debianlogo.svg"
+				),
+				scale=True,
+				margin_y=4,
+				mouse_callbacks={
+					"Button1": lazy.spawn( my_config_dict["menu"] )
+				}
+			),
+
+			widget.Spacer( length=12 ),
+
+			widget.GroupBox(
+				highlight_method="line",
+				highlight_color=colors["background"],
+				active=colors["accent"],
+				inactive=colors["inactive"],
+				disable_drag=True,
+				visible_groups=[ 'a', 's', 'd', 'f', 'g' ]
+
+			),
+
+			widget.Spacer( length=bar.STRETCH ),
+
+			widget.WindowName(),
+
+			widget.Spacer( length=bar.STRETCH ),
+
+			widget.Clock(
+				format="%Y-%m-%d %a",
+				fmt="{}"
+			),
+
+				widget.Spacer( length=4 ),
+
+				widget.Clock(
+					format="%H:%M:%S",
+					fmt="{}"
+				),
+
+				widget.Spacer( length=12 ),
+
+				widget.CurrentLayoutIcon(
+					padding=0,
+					scale=0.6
+				),
+
+				widget.Spacer( length=12 ),
+		],
+		32,
+		**( my_config_dict["bar_theme"] ),
+	) ),
 ]
-
-
-groups = [Group(i) for i in "123456789"]
-
-for i in groups:
-    keys.extend(
-        [
-            # mod1 + letter of group = switch to group
-            Key(
-                [MODKEY],
-                i.name,
-                lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
-            ),
-            # mod1 + shift + letter of group = switch to & move focused window to group
-            Key(
-                [MODKEY, "shift"],
-                i.name,
-                lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(
-                    i.name),
-            ),
-            # Or, use below if you prefer not to switch to that group.
-            # # mod1 + shift + letter of group = move focused window to group
-            # Key([MODKEY, "shift"], i.name, lazy.window.togroup(i.name),
-            #     desc="move focused window to group {}".format(i.name)),
-        ]
-    )
-
 
 layouts = [
-    layout.Columns(
-        border_focus_stack=["#d75f5f", "#8f3d3d"], **layout_theme
-    ),
-    layout.Max(**layout_theme),
-    # Try more layouts by unleashing below layouts.
-    layout.Stack(num_stacks=2, **layout_theme),
-    # layout.Bsp(),
-    layout.Matrix(**layout_theme),
-    # layout.MonadTall(),
-    # layout.MonadWide(),
-    layout.RatioTile(**layout_theme),
-    layout.Tile(**layout_theme),
-    # layout.TreeTab(),
-    layout.VerticalTile(**layout_theme),
-    layout.Zoomy(**layout_theme),
-    layout.Floating(**layout_theme)
+	layout.Columns( **( my_config_dict["layout_theme"] ) ),
+	layout.Max( **( my_config_dict["layout_theme"] ) ),
+	layout.Stack(num_stacks=2, **( my_config_dict["layout_theme"] ) ),
+	layout.Matrix( **( my_config_dict["layout_theme"] ) ),
+	layout.RatioTile( **( my_config_dict["layout_theme"] ) ),
+	layout.Tile( **( my_config_dict["layout_theme"] ) ),
+	layout.VerticalTile( **( my_config_dict["layout_theme"] ) ),
+	layout.Zoomy( **( my_config_dict["layout_theme"] ) ),
+	layout.Floating( **( my_config_dict["layout_theme"] ) )
 ]
 
+groups = [ Group( name, screen_affinity=0 ) for name in "12345" ]
+groups.extend( [ Group( name, screen_affinity=1, label=name.lower() ) for name in "asdfg" ] )
+
+keys = [
+	Key(
+		[ MODKEY ],
+		"h",
+		lazy.layout.left(),
+		desc="Move focus to left"
+	),
+
+	Key(
+		[ MODKEY ],
+		"l",
+		lazy.layout.right(),
+		desc="Move focus to right"
+	),
+	Key(
+		[ MODKEY ],
+		"j",
+		lazy.layout.down(),
+		desc="Move focus down"
+	),
+	Key(
+		[ MODKEY ],
+		"k",
+		lazy.layout.up(),
+		desc="Move focus up"
+	),
+	Key(
+		[ MODKEY ],
+		"space",
+		lazy.layout.next(),
+		desc="Move window focus to other window"
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		"h",
+		lazy.layout.shuffle_left(),
+		desc="Move window to the left"
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		"l",
+		lazy.layout.shuffle_right(),
+		desc="Move window to the right"
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		"j",
+		lazy.layout.shuffle_down(),
+		desc="Move window down"
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		"k",
+		lazy.layout.shuffle_up(),
+		desc="Move window up"
+	),
+	Key(
+		[ MODKEY, CONTROLKEY ],
+		"h",
+		lazy.layout.grow_left(),
+		desc="Grow window to the left"
+	),
+	Key(
+		[ MODKEY, CONTROLKEY ],
+		"l",
+		lazy.layout.grow_right(),
+		desc="Grow window to the right"
+	),
+	Key(
+		[ MODKEY, CONTROLKEY ],
+		"j",
+		lazy.layout.grow_down(),
+		desc="Grow window down"
+	),
+	Key(
+		[ MODKEY, CONTROLKEY ],
+		"k",
+		lazy.layout.grow_up(),
+		desc="Grow window up"
+	),
+	Key(
+		[ MODKEY ],
+		"n",
+		lazy.layout.normalize(),
+		desc="Reset all window sizes"
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		"Return",
+		lazy.layout.toggle_split(),
+		desc="Toggle between split and unsplit sides of stack",
+	),
+	Key(
+		[ MODKEY ],
+		"Return",
+		lazy.spawn( my_config_dict["terminal"] ),
+		desc="Launch terminal"
+	),
+	Key(
+		[ MODKEY ],
+		TABKEY,
+		lazy.next_layout(),
+		desc="Toggle between layouts"
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		TABKEY,
+		lazy.prev_layout(),
+		desc="Toggle between layouts"
+	),
+	Key(
+		[ MODKEY ],
+		"q",
+		lazy.window.kill(),
+		desc="Kill focused window"
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		"f",
+		lazy.window.toggle_fullscreen(),
+		desc="Toggle fullscreen on the focused window",
+	),
+	Key(
+		[ MODKEY, SHIFTKEY ],
+		"t",
+		lazy.window.toggle_floating(),
+		desc="Toggle floating on the focused window",
+	),
+	Key(
+		[ MODKEY, CONTROLKEY ],
+		"r",
+		lazy.reload_config(),
+		desc="Reload the config"
+	),
+	Key(
+
+		[ MODKEY, CONTROLKEY ],
+		"q",
+		lazy.shutdown(),
+		desc="Shutdown Qtile"
+	),
+	Key(
+		[ MODKEY ],
+		"r",
+		lazy.spawn( my_config_dict["menu"] ),
+		desc="Launch rofi run"
+	),
+	Key(
+		[ "mod1" ],
+		"space",
+		lazy.spawn( my_config_dict["run_launcher"] ),
+		desc="Spawn a command using a prompt widget"
+	),
+	Key(
+		[ MODKEY ],
+		"w",
+		lazy.spawn( my_config_dict["web_browser"] ),
+		desc="Launch web browser"
+	),
+]
+
+def go_to_group( name: str ):
+	def _inner( qtile ):
+		if len( qtile.screens ) == 1:
+			qtile.groups_map[ name ].toscreen()
+			return
+
+		if name in '12345':
+			qtile.focus_screen(0)
+		else:
+			qtile.focus_screen(1)
+
+		qtile.groups_map[ name ].toscreen()
+
+	return _inner
+
+def move_window_to_group( name: str ):
+	def _inner( qtile ):
+		
+		qtile.current_window.togroup( name )
+		
+		if len( qtile.screens ) != 1:
+			if name in '12345':
+				qtile.focus_screen(0)
+			else:
+				qtile.focus_screen(1)
+
+		qtile.groups_map[ name ].toscreen()
+	
+	return _inner
+
+
+for group in groups:
+	keys.extend( [
+		Key(
+			[ MODKEY ],
+			group.name,
+			lazy.function( go_to_group( group.name ) )
+		),
+		Key(
+			[ MODKEY, SHIFTKEY ],
+			group.name,
+			lazy.function( move_window_to_group( group.name ) )
+		)
+	] )
+
 widget_defaults = dict(
-    font="Ubuntu Bold",
-    fontsize=12,
-    padding=3,
-    background=colors["background"],
-    foreground=colors["color17"],
+	font="Ubuntu Bold",
+	fontsize=14,
+	background=colors["background"],
+	foreground=colors["foreground"],
 )
 
 extension_defaults = widget_defaults.copy()
 
-
-screens = [
-    Screen(
-        top=bar.Bar(
-            [
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-                widget.Image(
-                    filename=os.path.expanduser(
-                        "~/.config/qtile/icons/ubuntu.svg"
-                    ),
-                    scale=True,
-                    margin=3,
-                    mouse_callbacks={
-                        "Button1": lazy.spawn(my_menu)
-                    }
-                ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
-
-
-                widget.GroupBox(
-                    margin_x=3, margin_y=3,
-                    padding_x=3, padding_y=5,
-                    border_width=3,
-                    rounded=True,
-                    highlight_method="line",
-                    highlight_color=colors["background"],
-                    active=colors["color17"], inactive="#6272a4",
-                    this_current_screen_border=colors["foreground"]
-                ),
-
-                widget.Spacer(length=bar.STRETCH),
-                widget.Net(
-                    fmt="{}",
-                    format="{down} ↓↑ {up}",
-                ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-                widget.CPU(),
-
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-
-                widget.Memory(fmt="MEM:{}", measure_mem="M"),
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-                widget.Battery(
-                    fmt="BATTERY: {}",
-                    format='{char} {percent:2.0%}'
-                ),
-
-                widget.Backlight(
-                    fmt="BRIGHTNESS: {}",
-                    backlight_name="intel_backlight",
-                    brightness_file="brightness"
-                ),
-
-                widget.Spacer(length=bar.STRETCH),
-
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-
-                widget.Systray(icon_size=20),
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-                widget.Clock(
-                    format="%Y-%m-%d %a",
-                    fmt="{}"
-                ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=4,
-                ),
-                widget.Clock(
-                    format="%H:%M:%S",
-                    fmt="{}"
-                ),
-
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-                widget.CurrentLayoutIcon(
-                    custom_icon_paths=[
-                        os.path.expanduser("~/.config/qtile/icons")],
-                    padding=0,
-                    scale=0.6
-                ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=12,
-                ),
-
-            ],
-            30,
-            **bar_theme, margin=[2, 100, 0, 100]
-        )
-    ),
-]
-
+# Drag floating layouts.
 mouse = [
-    Drag(
-        [MODKEY],
-        "Button1",
-        lazy.window.set_position_floating(),
-        start=lazy.window.get_position()
-    ),
-    Drag(
-        [MODKEY],
-        "Button3",
-        lazy.window.set_size_floating(),
-        start=lazy.window.get_size()
-    ),
-    Click(
-        [MODKEY],
-        "Button2",
-        lazy.window.bring_to_front()
-    ),
+	Drag(
+		[ MODKEY ],
+		"Button1",
+		lazy.window.set_position_floating(),
+		start=lazy.window.get_position()
+	),
+	Drag(
+		[ MODKEY ],
+		"Button3",
+		lazy.window.set_size_floating(),
+		start=lazy.window.get_size()
+	),
+	Click(
+		[ MODKEY ],
+		"Button2",
+		lazy.window.bring_to_front()
+	),
 ]
 
 dgroups_key_binder = None
-dgroups_app_rules = []  # type: List
+dgroups_app_rules = []  # type: list
 follow_mouse_focus = True
 bring_front_click = False
-cursor_warp = False
+floats_kept_above = True
+cursor_warp = True
 floating_layout = layout.Floating(
-    float_rules=[
-        # Run the utility of `xprop` to see the wm class and name of an X client.
-        *layout.Floating.default_float_rules,
-        Match(wm_class="confirmreset"),  # gitk
-        Match(wm_class="makebranch"),  # gitk
-        Match(wm_class="maketag"),  # gitk
-        Match(wm_class="ssh-askpass"),  # ssh-askpass
-        Match(title="branchdialog"),  # gitk
-        Match(title="pinentry"),  # GPG key password entry
-        Match(wm_class="blueberry.py"),
-        Match(wm_class="copyq"),
-        Match(wm_class="pavucontrol")
-    ]
+	float_rules=[
+		# Run the utility of `xprop` to see the wm class and name of an X client.
+		*layout.Floating.default_float_rules,
+		Match(wm_class="confirmreset"),  # gitk
+		Match(wm_class="makebranch"),  # gitk
+		Match(wm_class="maketag"),  # gitk
+		Match(wm_class="ssh-askpass"),  # ssh-askpass
+		Match(title="branchdialog"),  # gitk
+		Match(title="pinentry"),  # GPG key password entry
+		Match(wm_class="blueberry.py"),
+		Match(wm_class="copyq"),
+		Match(wm_class="pavucontrol"),
+	]
 )
-
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 reconfigure_screens = True
 
-# If things like steam games want to auto-minimize themselves when losing
-# focus, should we respect this or not?
-auto_minimize = True
-
-
 # * autostart hook
 @hook.subscribe.startup_once
 def autostart():
-    home = os.path.expanduser('~/.config/qtile/autostart.sh')
-    subprocess.run([home])
+	autostart_script = os.path.expanduser('~/.config/qtile/autostart.sh')
+	subprocess.run( [ autostart_script ] )
 
-
-# When using the Wayland backend, this can be used to configure input devices.
-wl_input_rules = None
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the

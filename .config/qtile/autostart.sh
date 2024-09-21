@@ -2,15 +2,16 @@
 
 lxsession  --session=qtile &
 
-#/usr/libexec/polkitd --no-debug --replace &
-#gnome-keyring-daemon --start --components=pkcs11,secrets,ssh &
+xrandr\
+--output HDMI-0 --mode 2560x1440 --pos 1920x0 --rotate normal\
+--output eDP-1-1 --primary --mode 1920x1080 --pos 0x360 --rotate normal
+
+export WINIT_X11_SCALE_FACTOR=1
 
 picom &
-# lxqt-powermanagement &
 xbindkeys &
 flameshot &
-# deadd-notification-center &
-# dunst &
+dunst &
 volumeicon &
 copyq &
 nm-applet &
@@ -19,4 +20,3 @@ blueman-applet &
 xscreensaver --nosplash &
 xargs xwallpaper --stretch < ~/.xwallpaper &
 mictray &
-# find /home/abhi/dotfiles/wallpapers -type f | shuf -n 1 | xargs xwallpaper --stretch &
