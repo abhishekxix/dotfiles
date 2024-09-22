@@ -8,9 +8,9 @@ from libqtile.lazy import lazy
 	! Config dictionary.
 """
 colors = {
-	"background": "#1d2021",
-	"foreground": "#ebdbb2",
-	"accent":     "#fabd2f",
+	"background": "#0d1117",
+	"foreground": "#b3b1ad",
+	"accent":     "#f85149",
 	"inactive":   "#6272a4",
 	"highlight":  "#44475a",
 	"color0":     "#282A36",
@@ -33,23 +33,23 @@ colors = {
 	"color17":    "#DA3450"
 }
 my_config_dict = {
-    "terminal":     "alacritty",
-    "modkey":       "mod4",  # The windows key.
-    "bar_theme":    {
-        "background": colors["background"],
-        "foreground": colors["foreground"],
-        "opacity":    0.95,
-    },
-    "layout_theme": {
-        "border_width": 1,
-        "margin": 2,
-        "border_focus": colors["accent"],
-        "border_normal": "#000000"
-    },
-    "menu":         "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
-    "run_launcher": "rofi -combi-modi run -show combi",
-    "web_browser":  "google-chrome",
-    "file_manager": "nautilus",
+	"terminal":     "alacritty",
+	"modkey":       "mod4",  # The windows key.
+	"bar_theme":    {
+		"background": colors["background"],
+		"foreground": colors["foreground"],
+		"opacity":    0.9,
+	},
+	"layout_theme": {
+		"border_width": 1,
+		"margin": 2,
+		"border_focus": colors["accent"],
+		"border_normal": "#000000"
+	},
+	"menu":         "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
+	"run_launcher": "rofi -combi-modi run -show combi",
+	"web_browser":  "google-chrome",
+	"file_manager": "nautilus",
 }
 """
 	! Config dictionary end.

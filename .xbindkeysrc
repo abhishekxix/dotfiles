@@ -89,7 +89,7 @@
     XF86AudioStop 
 
 #random wallpaper
-"$HOME/change_wallpaper.sh"
+"as-wallpaper-shuffler"
     m:0x40 + c:61
     Mod4 + slash 
 
