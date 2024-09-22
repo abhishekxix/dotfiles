@@ -140,3 +140,4 @@ export NVM_DIR="$HOME/.nvm"
 
 export NODE_ENV='development'
 
+WINIT_X11_SCALE_FACTOR=1
