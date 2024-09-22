@@ -105,8 +105,8 @@
 
 #lock
 "lxlock"
-    m:0x50 + c:22
-    Mod2+Mod4 + BackSpace 
+    m:0x40 + c:22
+    Mod4 + BackSpace 
 
 #lock and sleep
 "lxlock && systemctl suspend"
