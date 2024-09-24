@@ -1,10 +1,11 @@
 #! /usr/bin/env bash
 
-lxsession  --session=qtile &
+lxsession --session=qtile &
 
 gnome-keyring-daemon --start --login --components=pkcs11,secrets,ssh
 
-xrandr --output HDMI-0 --mode 2560x1440 --pos 0x0 --rotate normal --output eDP-1-1 --primary --mode 1920x1080 --pos 2560x360 --rotate normal
+# xrandr --output HDMI-0 --mode 2560x1440 --pos 0x0 --rotate normal --output eDP-1-1 --primary --mode 1920x1080 --pos 2560x360 --rotate normal
+xrandr --output HDMI-0 --mode 2560x1440 --pos 0x0 --rotate normal --output eDP-1-1 --primary --mode 1920x1080 --pos 2560x807 --rotate normal
 
 export WINIT_X11_SCALE_FACTOR=1
 
@@ -18,5 +19,5 @@ nm-applet &
 # blueberry &
 blueman-applet &
 xscreensaver --nosplash &
-xargs xwallpaper --stretch < ~/.xwallpaper &
+xargs xwallpaper --stretch <~/.xwallpaper &
 # mictray &
