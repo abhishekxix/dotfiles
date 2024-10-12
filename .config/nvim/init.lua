@@ -1,7 +1,7 @@
-require './lua/opts'
-require './lua/keymaps'
-require './lua/autocommands'
-require './lua/lazy'
+require 'opts'
+require 'keymaps'
+require 'autocommands'
+require 'lazy-config'
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=4 sts=4 sw=4
