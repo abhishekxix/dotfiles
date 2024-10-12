@@ -12,6 +12,7 @@ return {
 	require 'lazy-plugins.todo-comments',
 	require 'lazy-plugins.mini',
 	require 'lazy-plugins.nvim-treesitter',
+	require 'lazy-plugins.nvim-ts-autotag',
 	require 'kickstart.plugins.debug',
 	-- require 'kickstart.plugins.indent_line',
 	-- require 'kickstart.plugins.lint',
