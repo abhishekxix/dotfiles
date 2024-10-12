@@ -27,7 +27,7 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '→ ', trail = '·', nbsp = '␣', space = '.' }
 
 vim.opt.inccommand = 'split'
 
@@ -389,8 +389,7 @@ require('lazy').setup({
 					end
 					return 'make install_jsregexp'
 				end)(),
-				dependencies = {
-				},
+				dependencies = {},
 			},
 			'saadparwaiz1/cmp_luasnip',
 
@@ -460,8 +459,7 @@ require('lazy').setup({
 		lazy = false,
 		priority = 1000,
 		config = function()
-			require('github-theme').setup {
-			}
+			require('github-theme').setup {}
 
 			vim.cmd 'colorscheme github_dark_default'
 		end,
@@ -530,6 +528,7 @@ require('lazy').setup({
 				'python',
 				'javascript',
 				'typescript',
+				'blade',
 			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
@@ -542,6 +541,26 @@ require('lazy').setup({
 			},
 			indent = { enable = true, disable = { 'ruby' } },
 		},
+		config = function()
+			local parsers = require('nvim-treesitter.parsers').get_parser_configs()
+
+			---@diagnostic disable-next-line: inject-field
+			parsers.blade = {
+				install_info = {
+					url = 'https://github.com/EmranMR/tree-sitter-blade',
+					files = { 'src/parser.c' },
+					branch = 'main',
+					revision = '01e5550cb60ef3532ace0c6df0480f6f406113ff',
+				},
+				filetype = 'blade',
+			}
+
+			vim.filetype.add({
+				pattern = {
+					['.*%.blade%.php'] = 'blade';
+				}
+			})
+		end,
 	},
 
 	require 'kickstart.plugins.debug',
@@ -574,11 +593,3 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=4 sts=4 sw=4
-
-vim.api.nvim_create_autocmd({"BufNewFile", "BufRead"}, {
-    pattern = "*.blade.php",
-    callback = function()
-        vim.bo.filetype = "html"
-    end,
-})
-
