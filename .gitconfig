@@ -5,15 +5,11 @@
 	signingkey = 3D0D436D26266392
 
 [core]
-	editor = code --wait
+	editor = nvim
 	autocrlf = input
 
 [diff]
-	# tool = vscode
 	tool = vimdiff
-
-[difftool "vscode"]
-	cmd = "code --wait --diff $LOCAL $REMOTE"
 
 [difftool "vimdiff"]
 	cmd = "nvim -d $LOCAL $REMOTE"
