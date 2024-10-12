@@ -9,10 +9,14 @@
 	autocrlf = input
 
 [diff]
-	tool = vscode
+	# tool = vscode
+	tool = vimdiff
 
 [difftool "vscode"]
 	cmd = "code --wait --diff $LOCAL $REMOTE"
+
+[difftool "vimdiff"]
+	cmd = "nvim -d $LOCAL $REMOTE"
 
 [color]
 	ui = auto

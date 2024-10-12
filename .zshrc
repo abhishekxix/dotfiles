@@ -124,7 +124,7 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias mkdir='mkdir -pv'
 alias vimdiff='nvim -d'
-
+alias vim='nvim'
 
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
