@@ -508,6 +508,13 @@ require('lazy').setup({
 		build = ':TSUpdate',
 		main = 'nvim-treesitter.configs', -- Sets main module to use for opts
 		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+		config = function()
+			vim.filetype.add {
+				pattern = {
+					['.*%.blade%.php'] = 'html',
+				},
+			}
+		end,
 		opts = {
 			ensure_installed = {
 				'bash',
@@ -528,7 +535,6 @@ require('lazy').setup({
 				'python',
 				'javascript',
 				'typescript',
-				'blade',
 			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
@@ -537,30 +543,10 @@ require('lazy').setup({
 				-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
 				--  If you are experiencing weird indenting issues, add the language to
 				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
-				additional_vim_regex_highlighting = { 'ruby', 'blade' },
+				additional_vim_regex_highlighting = { 'ruby' },
 			},
 			indent = { enable = true, disable = { 'ruby' } },
 		},
-		config = function()
-			local parsers = require('nvim-treesitter.parsers').get_parser_configs()
-
-			---@diagnostic disable-next-line: inject-field
-			parsers.blade = {
-				install_info = {
-					url = 'https://github.com/EmranMR/tree-sitter-blade',
-					files = { 'src/parser.c' },
-					branch = 'main',
-					revision = '01e5550cb60ef3532ace0c6df0480f6f406113ff',
-				},
-				filetype = 'blade',
-			}
-
-			vim.filetype.add({
-				pattern = {
-					['.*%.blade%.php'] = 'blade';
-				}
-			})
-		end,
 	},
 
 	require 'kickstart.plugins.debug',
