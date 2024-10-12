@@ -54,23 +54,23 @@ blinking = "Always"
 shape = "Beam"
 
 [font.bold]
-family = "MesloLGS NF"
+family = "Hack Nerd Font"
 style = "Bold"
 
 [font.bold_italic]
-family = "MesloLGS NF"
+family = "Hack Nerd Font"
 style = "Bold Italic"
 
 [font.italic]
-family = "MesloLGS NF"
+family = "Hack Nerd Font"
 style = "Italic"
 
 [font.normal]
-family = "MesloLGS NF"
+family = "Hack Nerd Font"
 style = "Regular"
 
 [font]
-size = 14
+size = 13
 
 [env]
 WINIT_X11_SCALE_FACTOR = "1"

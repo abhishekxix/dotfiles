@@ -470,6 +470,7 @@ floating_layout = layout.Floating(
 		Match(wm_class="blueberry.py"),
 		Match(wm_class="copyq"),
 		Match(wm_class="pavucontrol"),
+		Match(wm_class="gnome-system-monitor"),
 	]
 )
 auto_fullscreen = True
