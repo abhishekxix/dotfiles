@@ -14,4 +14,30 @@ return {
 			vim.cmd 'colorscheme github_dark_default'
 		end,
 	},
+	catppuccin = {
+		'catppuccin/nvim',
+		name = 'catpuccin',
+		lazy = false,
+		priority = 1000,
+		config = function()
+			require('catppuccin').setup {
+				flavour = 'mocha',
+				-- transparent_background = true,
+			}
+
+			vim.cmd 'colorscheme catppuccin'
+		end,
+	},
+	tokyo_night = {
+		'folke/tokyonight.nvim',
+		lazy = false,
+		priority = 1000,
+		config = function()
+			require('tokyonight').setup({
+				style = "night",
+			})
+
+			vim.cmd 'colorscheme tokyonight'
+		end
+	},
 }

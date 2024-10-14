@@ -8,7 +8,7 @@ return {
 	require 'lazy-plugins.nvim-lspconfig',
 	require 'lazy-plugins.conform',
 	require 'lazy-plugins.nvim-cmp',
-	require('lazy-plugins.my-nvim-theme').github_theme,
+	require('lazy-plugins.my-nvim-theme').tokyo_night,
 	require 'lazy-plugins.todo-comments',
 	require 'lazy-plugins.mini',
 	require 'lazy-plugins.nvim-treesitter',
