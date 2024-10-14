@@ -1,0 +1,69 @@
+* {
+    background-color:            #1A1B26;
+    border-color:                #F85149;
+    text-color:                  #dadeee;
+    font:                        "Ubuntu Regular 11";
+    prompt-font:                 "Ubuntu Bold 10";
+    prompt-background:           #F85149;
+    prompt-foreground:           #0d1117;
+    prompt-padding:              4px;
+    selected-normal-background:  #283457;
+    selected-normal-foreground:  #ffffff;
+    spacing:                     4px;
+}
+
+#window {
+    border:  1px;
+    border-radius: 16px;
+}
+
+#mainbox {
+    border:  0;
+    padding: 8px;
+}
+
+#message {
+    border:       1px dash 0px 0px ;
+    padding:      1px;
+}
+
+#listview {
+    fixed-height: 0;
+    border:       2px solid 0px 0px ;
+    border-color: @prompt-background;
+    spacing:      2px ;
+    scrollbar:    true;
+    padding:      2px 0px 0px ;
+}
+
+#element.selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+
+#entry {
+    padding: 4px 4px;
+    expand: false;
+    width: 10em;
+}
+
+#prompt {
+    padding:          @prompt-padding;
+    background-color: @prompt-background;
+    text-color:       @prompt-foreground;
+    font:             @prompt-font;
+    border-radius:    4px;
+}
+
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+element {
+    spacing: 8px;
+}
+
+element-icon {
+    size: 1.2em;
+}
