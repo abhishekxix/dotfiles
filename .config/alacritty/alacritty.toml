@@ -3,6 +3,9 @@ import = [
 	"./tokyo-night.toml"
 ]
 
+[window]
+opacity = 0.95
+
 [window.padding]
 x = 8
 y = 8

@@ -1,5 +1,5 @@
 * {
-    background-color:            #1A1B26;
+    background-color:            #1a1b26f2;
     border-color:                #F85149;
     text-color:                  #dadeee;
     font:                        "Ubuntu Regular 11";
@@ -7,7 +7,7 @@
     prompt-background:           #F85149;
     prompt-foreground:           #0d1117;
     prompt-padding:              4px;
-    selected-normal-background:  #283457;
+    selected-normal-background:  #283457f2;
     selected-normal-foreground:  #ffffff;
     spacing:                     4px;
 }
