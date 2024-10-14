@@ -93,10 +93,6 @@ return {
 					showSuggestionsAsSnippets = false,
 				},
 			},
-			stylelint_lsp = {
-				filetypes = { 'css', 'scss' },
-			},
-			eslint = {},
 			cssmodules_ls = {},
 			somesass_ls = {},
 			css_variables = {},

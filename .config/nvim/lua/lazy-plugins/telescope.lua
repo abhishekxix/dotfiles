@@ -24,7 +24,7 @@ return {
 			defaults = {
 				file_ignore_patterns = {
 					'^.git/',
-				}
+				},
 			},
 			pickers = {
 				buffers = {
@@ -39,13 +39,9 @@ return {
 					initial_mode = 'normal',
 				},
 				find_files = {
-					initial_mode = 'normal',
 					hidden = 'true',
 				},
 				diagnostics = {
-					initial_mode = 'normal',
-				},
-				oldfiles = {
 					initial_mode = 'normal',
 				},
 			},
