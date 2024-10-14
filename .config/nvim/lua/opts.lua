@@ -16,6 +16,8 @@ vim.opt.undofile = true
 
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 
 vim.opt.signcolumn = 'yes'
 
@@ -27,7 +29,7 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 vim.opt.list = true
-vim.opt.listchars = { tab = '→ ', trail = '·', nbsp = '␣', space = '.' }
+vim.opt.listchars = { tab = '→ ', trail = '·', nbsp = '␣' }
 
 vim.opt.inccommand = 'split'
 
