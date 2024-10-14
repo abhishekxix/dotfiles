@@ -24,19 +24,19 @@ blinking = "Always"
 shape = "Beam"
 
 [font.bold]
-family = "Hack Nerd Font"
+family = "JetbrainsMono NF"
 style = "Bold"
 
 [font.bold_italic]
-family = "Hack Nerd Font"
+family = "JetbrainsMono NF"
 style = "Bold Italic"
 
 [font.italic]
-family = "Hack Nerd Font"
+family = "JetbrainsMono NF"
 style = "Italic"
 
 [font.normal]
-family = "Hack Nerd Font"
+family = "JetbrainsMono NF"
 style = "Regular"
 
 [font]
