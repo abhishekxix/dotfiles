@@ -97,6 +97,7 @@ return {
 			somesass_ls = {},
 			css_variables = {},
 			cssls = {},
+			clangd = {},
 		}
 
 		require('mason').setup()
