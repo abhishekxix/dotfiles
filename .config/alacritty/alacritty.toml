@@ -3,6 +3,11 @@ import = [
 	"./tokyo-night.toml"
 ]
 
+# shell = "/usr/bin/tmux -u"
+[shell]
+program = "/usr/bin/tmux"
+args = [ "-u" ]
+
 [window]
 opacity = 0.95
 
