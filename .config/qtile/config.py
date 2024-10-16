@@ -8,9 +8,9 @@ from libqtile.lazy import lazy
 	! Config dictionary.
 """
 colors = {
-    "background": "#0d1117",
-    "foreground": "#b3b1ad",
-    "accent": "#f85149",
+    "background": "#1a1b26",
+    "foreground": "#c0caf5",
+    "accent": "#a6333f",
     "inactive": "#6272a4",
     "highlight": "#44475a",
     "color0": "#282A36",
@@ -39,7 +39,7 @@ my_config_dict = {
     "bar_theme": {
         "background": colors["background"],
         "foreground": colors["foreground"],
-        "opacity": 0.9,
+        "opacity": 0.95,
     },
     "layout_theme": {
         "border_width": 1,
