@@ -10,3 +10,4 @@
 .config/Slack
 .icons
 .config/test
+.config/qtile/__pycache__
