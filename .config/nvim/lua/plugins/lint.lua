@@ -11,6 +11,7 @@ return {
 				javascript = { 'eslint_d' },
 				css = { 'stylelint' },
 				scss = { 'stylelint' },
+				bash = { 'shellcheck' },
 			}
 
 			-- To allow other plugins to add linters to require('lint').linters_by_ft,
