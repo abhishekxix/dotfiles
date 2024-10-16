@@ -98,7 +98,10 @@ return {
 			css_variables = {},
 			cssls = {},
 			clangd = {},
-			bashls = {},
+			bashls = {
+				filetypes = { 'bash', 'sh' },
+			},
+			pyright = {},
 		}
 
 		require('mason').setup()
