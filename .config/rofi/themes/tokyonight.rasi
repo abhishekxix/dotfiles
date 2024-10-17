@@ -14,7 +14,6 @@
 
 #window {
     border:  1px;
-    border-radius: 16px;
 }
 
 #mainbox {
@@ -52,7 +51,6 @@
     background-color: @prompt-background;
     text-color:       @prompt-foreground;
     font:             @prompt-font;
-    border-radius:    4px;
 }
 
 element-text {
