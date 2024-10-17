@@ -33,8 +33,8 @@ colors = {
     "color17": "#DA3450",
 }
 my_config_dict = {
-    # "terminal":     "alacritty",
-    "terminal": "wezterm start -e tmux -u",
+    "terminal": "alacritty",
+    # "terminal": "wezterm start -e tmux -u",
     "modkey": "mod4",  # The windows key.
     "bar_theme": {
         "background": colors["background"],
