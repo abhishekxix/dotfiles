@@ -39,7 +39,7 @@ my_config_dict = {
     "bar_theme": {
         "background": colors["background"],
         "foreground": colors["foreground"],
-        "opacity": 0.95,
+        # "opacity": 0.95,
     },
     "layout_theme": {
         "border_width": 1,

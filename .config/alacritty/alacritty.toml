@@ -9,7 +9,7 @@ program = "/usr/bin/tmux"
 args = [ "-u" ]
 
 [window]
-opacity = 0.95
+opacity = 1
 
 [window.padding]
 x = 8
