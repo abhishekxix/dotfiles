@@ -93,9 +93,7 @@ return {
 					showSuggestionsAsSnippets = false,
 				},
 			},
-			cssmodules_ls = {},
 			somesass_ls = {},
-			css_variables = {},
 			cssls = {},
 			clangd = {},
 			bashls = {
