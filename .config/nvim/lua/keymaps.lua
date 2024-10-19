@@ -12,3 +12,6 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 vim.keymap.set('n', '<leader>ad', '"+d', { desc = 'Delete to system clipboard' })
 vim.keymap.set('n', '<leader>ay', '"+y', { desc = 'Yank to system clipboard' })
 vim.keymap.set('n', '<leader>ap', '"+p', { desc = 'Put from system clipboard' })
+vim.keymap.set('v', '<leader>ad', '"+d', { desc = 'Delete to system clipboard' })
+vim.keymap.set('v', '<leader>ay', '"+y', { desc = 'Yank to system clipboard' })
+vim.keymap.set('v', '<leader>ap', '"+p', { desc = 'Put from system clipboard' })
