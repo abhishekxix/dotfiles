@@ -82,7 +82,7 @@ return {
 			phpactor = {},
 			ts_ls = {},
 			emmet_ls = {
-				filetypes = { 'css', 'html', 'php', 'blade', 'javascriptreact', 'scss', 'typescriptreact' },
+				filetypes = { 'html', 'php', 'blade', 'javascriptreact', 'typescriptreact' },
 				init_options = {
 					includeLanguages = {
 						blade = 'php',
