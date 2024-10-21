@@ -1,6 +1,6 @@
 import os
 import subprocess
-from libqtile import bar, layout, hook, widget
+from libqtile import bar, layout, hook, widget, qtile
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 
@@ -343,6 +343,13 @@ def autostart():
     autostart_script = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.run([autostart_script])
 
+@hook.subscribe.client_new
+def bring_to_current_group(window):
+    if 'copyq' in window.get_wm_class():
+        group = qtile.current_group
+
+        if window.group != group:
+            window.togroup(group.name)
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
