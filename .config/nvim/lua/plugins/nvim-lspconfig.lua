@@ -95,7 +95,11 @@ return {
 			},
 			somesass_ls = {},
 			cssls = {},
-			clangd = {},
+			clangd = {
+				capabilities = {
+					offsetEncoding = 'utf-8',
+				},
+			},
 			bashls = {
 				filetypes = { 'bash', 'sh' },
 			},
