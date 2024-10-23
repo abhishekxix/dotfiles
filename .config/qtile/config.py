@@ -39,7 +39,8 @@ my_config_dict = {
     "bar_theme": {
         "background": colors["background"],
         "foreground": colors["foreground"],
-        # "opacity": 0.95,
+        "margin": [2, 50, 0, 50],
+        "opacity": 0.95,
     },
     "layout_theme": {
         "border_width": 1,
@@ -343,13 +344,15 @@ def autostart():
     autostart_script = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.run([autostart_script])
 
+
 @hook.subscribe.client_new
 def bring_to_current_group(window):
-    if 'copyq' in window.get_wm_class():
+    if "copyq" in window.get_wm_class():
         group = qtile.current_group
 
         if window.group != group:
             window.togroup(group.name)
+
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
