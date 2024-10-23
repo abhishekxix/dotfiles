@@ -12,10 +12,6 @@
     spacing:                     4px;
 }
 
-#window {
-    border:  1px;
-}
-
 #mainbox {
     border:  0;
     padding: 8px;
