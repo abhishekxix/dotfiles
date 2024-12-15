@@ -44,7 +44,7 @@ my_config_dict = {
     },
     "layout_theme": {
         "border_width": 1,
-        "margin": 4,
+        "margin": 2,
         "border_focus": colors["accent"],
         "border_normal": "#000000",
     },
