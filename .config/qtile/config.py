@@ -52,6 +52,7 @@ my_config_dict = {
     "run_launcher": "rofi -combi-modi run -show combi",
     "web_browser": "google-chrome",
     "file_manager": "nautilus",
+    "pavu": "pavucontrol",
 }
 """
 	! Config dictionary end.
@@ -237,6 +238,12 @@ keys = [
         "w",
         lazy.spawn(my_config_dict["web_browser"]),
         desc="Launch web browser",
+    ),
+    Key(
+        [MODKEY],
+        "p",
+        lazy.spawn(my_config_dict["pavu"]),
+        desc="Launch pavucontrol",
     ),
 ]
 

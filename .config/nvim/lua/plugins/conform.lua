@@ -16,6 +16,7 @@ return {
 			lua = { 'stylua' },
 			bash = { 'shfmt' },
 			python = { 'black' },
+			go = { 'gofmt' },
 		},
 	},
 }
