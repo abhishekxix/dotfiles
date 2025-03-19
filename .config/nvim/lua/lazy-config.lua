@@ -27,7 +27,6 @@ local lazy_plugins = {
 	require 'plugins.autopairs',
 	require 'plugins.neo-tree',
 	require 'plugins.gitsigns',
-	require 'plugins.copilot',
 }
 
 

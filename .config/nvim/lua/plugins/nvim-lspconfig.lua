@@ -104,6 +104,7 @@ return {
 				filetypes = { 'bash', 'sh' },
 			},
 			pyright = {},
+			jsonls = {},
 		}
 
 		require('mason').setup()
