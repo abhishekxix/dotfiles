@@ -17,6 +17,13 @@ return {
 			bash = { 'shfmt' },
 			python = { 'black' },
 			go = { 'gofmt' },
+			javascript = { 'prettier' },
+			typescript = { 'prettier' },
+			javascriptreact = { 'prettier' },
+			typescriptreact = { 'prettier' },
+			json = { 'prettier' },
+			css = { 'prettier' },
+			scss = { 'prettier' },
 		},
 	},
 }
