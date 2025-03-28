@@ -245,6 +245,12 @@ keys = [
         lazy.spawn(my_config_dict["pavu"]),
         desc="Launch pavucontrol",
     ),
+    Key(
+        [MODKEY],
+        "m",
+        lazy.group.unminimize_all(),
+        desc="Toggle minimize state of a window",
+    ),
 ]
 
 
