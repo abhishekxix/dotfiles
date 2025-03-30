@@ -24,6 +24,7 @@ return {
 			json = { 'prettier' },
 			css = { 'prettier' },
 			scss = { 'prettier' },
+			java = {'clang_format'},
 		},
 	},
 }

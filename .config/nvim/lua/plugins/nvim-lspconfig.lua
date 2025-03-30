@@ -105,6 +105,7 @@ return {
 			},
 			pyright = {},
 			jsonls = {},
+			jdtls = {},
 		}
 
 		require('mason').setup()
