@@ -8,8 +8,8 @@ return {
 			lint.linters_by_ft = {
 				typescript = { 'eslint_d' },
 				javascript = { 'eslint_d' },
-				javascriptreact = {'eslint_d'},
-				typescriptreact = {'eslint_d'},
+				javascriptreact = { 'eslint_d' },
+				typescriptreact = { 'eslint_d' },
 				css = { 'stylelint' },
 				scss = { 'stylelint' },
 				bash = { 'shellcheck' },
@@ -19,7 +19,7 @@ return {
 			vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
 				group = lint_augroup,
 				callback = function()
-					lint.try_lint()
+					lint.try_lint(nil, { ignore_errors = true })
 				end,
 			})
 		end,
