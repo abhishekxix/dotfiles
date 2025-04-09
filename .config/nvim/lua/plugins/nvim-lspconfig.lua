@@ -31,6 +31,12 @@ return {
 				map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
 
 				map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
+				map('<leader>cd', vim.diagnostic.open_float, '[C]ode [d]iagnostic')
+
+				-- Hide the virtual text
+				vim.diagnostic.config {
+					virtual_text = false,
+				}
 
 				map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 

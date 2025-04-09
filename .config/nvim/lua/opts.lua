@@ -30,7 +30,7 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 vim.opt.list = true
-vim.opt.listchars = { tab = '→ ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '→  ', trail = '·', nbsp = '␣' }
 
 vim.opt.inccommand = 'split'
 
@@ -43,6 +43,6 @@ vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.opt.foldtext = ''
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 4
-vim.opt.foldnestmax = 4
+vim.opt.foldnestmax = 8
 
 vim.opt.termguicolors = true
