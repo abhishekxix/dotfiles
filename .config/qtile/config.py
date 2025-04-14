@@ -214,7 +214,7 @@ keys = [
     Key([MODKEY], "q", lazy.window.kill(), desc="Kill focused window"),
     Key(
         [MODKEY, SHIFTKEY],
-        "f",
+        "z",
         lazy.window.toggle_fullscreen(),
         desc="Toggle fullscreen on the focused window",
     ),
