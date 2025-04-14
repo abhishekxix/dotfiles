@@ -1,5 +1,5 @@
 import = [
-	"./themes/moonfly.toml"
+	"./themes/rose_pine.toml"
 ]
 
 # shell = "/usr/bin/tmux -u"

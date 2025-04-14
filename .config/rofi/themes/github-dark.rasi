@@ -1,15 +1,15 @@
 * {
-    background-color:            #080808;
-    border-color:                #e65e72;
-    text-color:                  #c6c6c6;
+    background-color:            #0d1117;
+    border-color:                #f78166;
+    text-color:                  #e6edf3;
     font:                        "Ubuntu Regular 11";
     prompt-font:                 "Ubuntu Bold 10";
-    prompt-background:           @border-color;
-    prompt-foreground:           @foreground-color;
+    prompt-background:           #f78166;
+    prompt-foreground:           #0d1117;
     prompt-padding:              4px;
     alternate-normal-background: #1c1f24;
     alternate-normal-foreground: @text-color;
-    selected-normal-background:  @border-color;
+    selected-normal-background:  #ae3f3e;
     selected-normal-foreground:  #ffffff;
     spacing:                     3;
 }
