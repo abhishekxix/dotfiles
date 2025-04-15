@@ -8,29 +8,10 @@ from libqtile.lazy import lazy
 	! Config dictionary.
 """
 colors = {
-    "background": "#191724",
-    "foreground": "#e0def4",
-    "accent": "#eb6f92",
+    "background": "#1a1b26",
+    "foreground": "#e9e9ed",
+    "accent": "#27a1b9",
     "inactive": "#6272a4",
-    "highlight": "#44475a",
-    "color0": "#282A36",
-    "color1": "#F37F97",
-    "color2": "#5ADECD",
-    "color3": "#F2A272",
-    "color4": "#8897F4",
-    "color5": "#C574DD",
-    "color6": "#79E6F3",
-    "color7": "#FDFDFD",
-    "color8": "#414458",
-    "color9": "#FF4971",
-    "color10": "#18E3C8",
-    "color11": "#FF8037",
-    "color12": "#556FFF",
-    "color13": "#B043D1",
-    "color14": "#3FDCEE",
-    "color15": "#BEBEC1",
-    "color16": "#B380F0",
-    "color17": "#DA3450",
 }
 my_config_dict = {
     "terminal": "alacritty",
