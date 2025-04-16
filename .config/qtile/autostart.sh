@@ -20,3 +20,7 @@ blueman-applet &
 xscreensaver --nosplash &
 xargs xwallpaper --stretch <~/.xwallpaper &
 # mictray &
+
+# Set the audio settings.
+pactl load-module module-echo-cancel
+pactl set-default-source echo-cancel-source
