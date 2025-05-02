@@ -3,4 +3,6 @@
 //@theme "/home/abhi/.config/rofi/themes/github-dark.rasi"
 //@theme "/home/abhi/.config/rofi/themes/tokyonight.rasi"
 //@theme "/home/abhi/.config/rofi/themes/rose-pine.rasi"
-@theme "/home/abhi/.config/rofi/themes/tokyonight.rasi"
+//@theme "/home/abhi/.config/rofi/themes/tokyonight.rasi"
+//@theme "/home/abhi/.config/rofi/themes/dracula.rasi"
+@theme "/home/abhi/.config/rofi/themes/dracula.rasi"
