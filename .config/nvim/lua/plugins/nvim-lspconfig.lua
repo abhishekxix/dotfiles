@@ -112,7 +112,7 @@ return {
 			pyright = {},
 			jsonls = {},
 			jdtls = {},
-			-- gopls = {},
+			gopls = {},
 		}
 
 		require('mason').setup()
