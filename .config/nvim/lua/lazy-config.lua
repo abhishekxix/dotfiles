@@ -18,7 +18,7 @@ local lazy_plugins = {
 	require 'plugins.nvim-lspconfig',
 	require 'plugins.conform',
 	require 'plugins.nvim-cmp',
-	require('plugins.my-nvim-theme').tokyo_night,
+	require('plugins.my-nvim-theme').catppuccin,
 	require 'plugins.todo-comments',
 	require 'plugins.mini',
 	require 'plugins.nvim-treesitter',

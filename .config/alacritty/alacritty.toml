@@ -1,5 +1,5 @@
 import = [
-	"./themes/tokyo_night.toml"
+	"./themes/catppuccin_mocha.toml"
 ]
 
 # shell = "/usr/bin/tmux -u"
