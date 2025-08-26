@@ -7,8 +7,8 @@ import = [
 program = "/usr/bin/tmux"
 args = [ "-u" ]
 
-[window]
-opacity = 0.98
+# [window]
+# opacity = 0.95
 
 [window.padding]
 x = 8

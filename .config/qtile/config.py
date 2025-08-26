@@ -21,7 +21,7 @@ my_config_dict = {
         "background": colors["background"],
         "foreground": colors["foreground"],
         # "margin": [2, 50, 0, 50],
-        "opacity": 0.98,
+        # "opacity": 0.95,
     },
     "layout_theme": {
         "border_width": 1,

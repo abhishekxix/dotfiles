@@ -44,13 +44,6 @@ return {
 				diagnostics = {
 					initial_mode = 'normal',
 				},
-				live_grep = {
-					additional_args = function ()
-						return {
-							'--hidden',
-						}
-					end
-				}
 			},
 		}
 
