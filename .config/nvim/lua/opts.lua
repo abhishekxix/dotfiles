@@ -19,6 +19,7 @@ vim.opt.smartcase = true
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.bo.expandtab = true
+vim.opt.wrap = false
 
 vim.opt.signcolumn = 'yes'
 
