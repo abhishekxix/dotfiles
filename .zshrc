@@ -1,8 +1,6 @@
 # env variables
 export EDITOR=nvim
 
-# plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
-
 source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
