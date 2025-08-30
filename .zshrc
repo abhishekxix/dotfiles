@@ -1,12 +1,10 @@
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
-
 # env variables
 export EDITOR=nvim
 
-plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
+# plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
 
-source $ZSH/oh-my-zsh.sh
+source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # ### aliases ###
 # directory and file operations
@@ -15,8 +13,6 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 alias mkdir='mkdir -pv'
-alias vimdiff='nvim -d'
-alias vim='nvim'
 
 #delete complete word with ctrl+bsp
 bindkey '^H' backward-kill-word
