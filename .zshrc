@@ -31,3 +31,4 @@ WINIT_X11_SCALE_FACTOR=1
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export FZF_DEFAULT_OPTS="--info=inline --preview 'batcat -n --color=always {}' --border --margin=1 --padding=1"
+eval "$(starship init zsh)"
