@@ -1,9 +1,6 @@
-import = [
-	"./themes/catppuccin_mocha.toml"
-]
 
 # shell = "/usr/bin/tmux -u"
-[shell]
+[terminal.shell]
 program = "/usr/bin/tmux"
 args = [ "-u" ]
 
@@ -49,3 +46,10 @@ size = 13
 [env]
 WINIT_X11_SCALE_FACTOR = "1"
 TERM = "xterm-256color"
+
+[general]
+import = [
+	"./themes/catppuccin_mocha.toml"
+]
+
+[terminal]
