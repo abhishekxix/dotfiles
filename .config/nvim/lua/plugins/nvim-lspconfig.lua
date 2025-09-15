@@ -107,12 +107,11 @@ return {
 				},
 			},
 			bashls = {
-				filetypes = { 'bash', 'sh' },
+				filetypes = { 'bash', 'sh', 'zsh' },
 			},
 			pyright = {},
 			jsonls = {},
 			jdtls = {},
-			gopls = {},
 			taplo = {},
 		}
 
