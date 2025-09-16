@@ -19,13 +19,14 @@ HISTFILE="$HOME/.zsh_history"
 HISTSIZE=100000
 SAVEHIST=100000
 
+fpath=( $HOME/.zsh/functions $HOME/.zsh/zsh-completions/src $fpath )
+
 autoload -Uz compinit
 compinit
 
 # Plugins.
 source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
-fpath=( $HOME/.zsh/zsh-completions/src $fpath )
 
 # ### aliases ###
 alias ls='ls --color=auto'
