@@ -37,36 +37,12 @@ alias mkdir='mkdir -pv'
 # Delete complete word with ctrl+bsp
 bindkey '^H' backward-kill-word
 
-# nvm Setup.
-lazy-nvm() {
-	unset -f nvm node npm npx
-	export NVM_DIR="$HOME/.nvm"
-	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-}
-
-nvm() {
-	lazy-nvm
-	nvm "$@"
-}
-
-node() {
-	lazy-nvm
-	node "$@"
-}
-
-npm() {
-	lazy-nvm
-	npm "$@"
-}
-
-npx() {
-	lazy-nvm
-	npx "$@"
-}
-
 # FZF setup
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_OPTS="--info=inline --preview 'batcat -n --color=always {}' --border --margin=1 --padding=1"
 
 # Starship setup
 eval "$(starship init zsh)"
+
+#fnm setup
+eval "$(fnm env --use-on-cd --shell zsh)"
