@@ -16,3 +16,5 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+export QT_QPA_PLATFORMTHEME="qt6ct"
