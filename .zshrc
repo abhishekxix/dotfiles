@@ -14,6 +14,11 @@ export EDITOR=vim
 export NODE_ENV='development'
 export WINIT_X11_SCALE_FACTOR=1
 
+# keybinds
+bindkey '^H' backward-kill-word
+bindkey "^[[1;5D" backward-word
+bindkey "^[[1;5C" forward-word
+
 # History.
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=100000
@@ -34,9 +39,6 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 alias mkdir='mkdir -pv'
-
-# Delete complete word with ctrl+bsp
-bindkey '^H' backward-kill-word
 
 # FZF setup
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
