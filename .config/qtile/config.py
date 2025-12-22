@@ -71,6 +71,13 @@ screens = [
                 widget.Spacer(length=bar.STRETCH),
                 widget.Systray(icon_size=20),
                 widget.Spacer(length=12),
+                widget.ThermalSensor(
+                    format=':  {temp: .0f}{unit}',
+                ),
+                widget.NvidiaSensors(
+                    format='󰢮   {temp}°C',
+                ),
+                widget.Spacer(length=12),
                 widget.Battery(fmt="🗲 {}", format="{char} {percent:2.0%}"),
                 widget.Spacer(length=12),
                 widget.Backlight(
@@ -112,6 +119,13 @@ screens = [
                 widget.Spacer(length=bar.STRETCH),
                 widget.WindowName(),
                 widget.Spacer(length=bar.STRETCH),
+                widget.ThermalSensor(
+                    format=':  {temp: .0f}{unit}',
+                ),
+                widget.NvidiaSensors(
+                    format='󰢮   {temp}°C',
+                ),
+                widget.Spacer(length=12),
                 widget.Clock(format="%Y-%m-%d %a", fmt="{}"),
                 widget.Spacer(length=4),
                 widget.Clock(format="%H:%M:%S", fmt="{}"),
