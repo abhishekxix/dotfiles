@@ -113,6 +113,7 @@ return {
 			jsonls = {},
 			jdtls = {},
 			taplo = {},
+			-- gopls = {},
 		}
 
 		require('mason').setup()

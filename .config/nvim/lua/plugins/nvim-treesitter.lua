@@ -29,7 +29,7 @@ return {
 			'typescript',
 			'vim',
 			'vimdoc',
-			'php'
+			'php',
 		},
 		auto_install = true,
 		highlight = {
