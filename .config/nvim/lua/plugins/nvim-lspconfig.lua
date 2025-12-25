@@ -100,6 +100,7 @@ return {
 			},
 			somesass_ls = {},
 			cssls = {},
+			tailwindcss = {},
 			clangd = {
 				capabilities = {
 					offsetEncoding = 'utf-8',
