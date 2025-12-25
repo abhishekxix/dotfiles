@@ -88,10 +88,9 @@ return {
 			phpactor = {},
 			ts_ls = {},
 			emmet_ls = {
-				filetypes = { 'html', 'php', 'blade', 'javascriptreact', 'typescriptreact' },
+				filetypes = { 'html', 'php', 'javascriptreact', 'typescriptreact' },
 				init_options = {
 					includeLanguages = {
-						blade = 'php',
 						php = 'php',
 					},
 					showAbbreviationSuggestions = true,
@@ -111,9 +110,7 @@ return {
 			},
 			pyright = {},
 			jsonls = {},
-			jdtls = {},
 			taplo = {},
-			-- gopls = {},
 		}
 
 		require('mason').setup()

@@ -2,13 +2,6 @@ return {
 	'nvim-treesitter/nvim-treesitter',
 	build = ':TSUpdate',
 	main = 'nvim-treesitter.configs',
-	config = function()
-		vim.filetype.add {
-			pattern = {
-				['.*%.blade%.php'] = 'html',
-			},
-		}
-	end,
 	opts = {
 		ensure_installed = {
 			'bash',

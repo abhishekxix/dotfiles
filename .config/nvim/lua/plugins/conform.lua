@@ -16,7 +16,6 @@ return {
 			lua = { 'stylua' },
 			bash = { 'shfmt' },
 			python = { 'black' },
-			go = { 'gofmt' },
 			javascript = { 'prettier' },
 			typescript = { 'prettier' },
 			javascriptreact = { 'prettier' },
@@ -24,7 +23,6 @@ return {
 			json = { 'prettier' },
 			css = { 'prettier' },
 			scss = { 'prettier' },
-			java = {'clang_format'},
 		},
 	},
 }
