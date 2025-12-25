@@ -27,6 +27,7 @@ return {
 					transparent = true,
 					solid = true,
 				},
+				auto_integrations = true,
 			}
 
 			vim.cmd 'colorscheme catppuccin'

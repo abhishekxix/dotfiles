@@ -47,3 +47,4 @@ vim.opt.foldlevelstart = 4
 vim.opt.foldnestmax = 8
 
 vim.opt.termguicolors = true
+vim.o.winborder = 'rounded'
