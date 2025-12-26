@@ -5,7 +5,7 @@ from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 
 """
-	! Config dictionary.
+  ! Config dictionary.
 """
 colors = {
     "background": "#1e1e2e",
@@ -35,7 +35,7 @@ my_config_dict = {
     "pavu": "pavucontrol",
 }
 """
-	! Config dictionary end.
+  ! Config dictionary end.
 """
 
 
@@ -72,10 +72,10 @@ screens = [
                 widget.Systray(icon_size=20),
                 widget.Spacer(length=12),
                 widget.ThermalSensor(
-                    format=':  {temp: .0f}{unit}',
+                    format=":  {temp: .0f}{unit}",
                 ),
                 widget.NvidiaSensors(
-                    format='󰢮   {temp}°C',
+                    format="󰢮   {temp}°C",
                 ),
                 widget.Spacer(length=12),
                 widget.Battery(fmt="🗲 {}", format="{char} {percent:2.0%}"),
@@ -120,10 +120,10 @@ screens = [
                 widget.WindowName(),
                 widget.Spacer(length=bar.STRETCH),
                 widget.ThermalSensor(
-                    format=':  {temp: .0f}{unit}',
+                    format=":  {temp: .0f}{unit}",
                 ),
                 widget.NvidiaSensors(
-                    format='󰢮   {temp}°C',
+                    format="󰢮   {temp}°C",
                 ),
                 widget.Spacer(length=12),
                 widget.Clock(format="%Y-%m-%d %a", fmt="{}"),
