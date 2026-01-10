@@ -40,6 +40,11 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias mkdir='mkdir -pv'
 
+# Functions
+help() {
+  bash -c "help $1"
+}
+
 # FZF setup
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_OPTS="--info=inline --preview 'batcat -n --color=always {}' --border --margin=1 --padding=1"
