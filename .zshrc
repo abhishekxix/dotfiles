@@ -56,3 +56,6 @@ eval "$(starship init zsh)"
 
 #fnm setup
 eval "$(fnm env --use-on-cd --shell zsh)"
+
+export PATH="/home/abhi/.lando/bin:$PATH"; #landopath
+
