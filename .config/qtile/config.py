@@ -69,6 +69,7 @@ screens = [
                 widget.Spacer(length=bar.STRETCH),
                 widget.WindowName(),
                 widget.Spacer(length=bar.STRETCH),
+                widget.StatusNotifier(icon_size=20, padding=3),
                 widget.Systray(icon_size=20),
                 widget.Spacer(length=12),
                 widget.ThermalSensor(
