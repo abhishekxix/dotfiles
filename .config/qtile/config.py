@@ -267,6 +267,8 @@ def go_to_group(name: str):
 
 def move_window_to_group(name: str):
     def _inner(qtile):
+        if qtile.current_window is None:
+            return
 
         qtile.current_window.togroup(name)
 
@@ -302,12 +304,26 @@ widget_defaults = dict(
 
 extension_defaults = widget_defaults.copy()
 
+
+def drag_window_without_warp(qtile, x, y):
+    window = qtile.current_window
+    if window is None:
+        return
+
+    # Avoid pointer warps while dragging across screens.
+    old_cursor_warp = qtile.config.cursor_warp
+    qtile.config.cursor_warp = False
+    try:
+        window.set_position_floating(x, y)
+    finally:
+        qtile.config.cursor_warp = old_cursor_warp
+
 # Drag floating layouts.
 mouse = [
     Drag(
         [MODKEY],
         "Button1",
-        lazy.window.set_position_floating(),
+        lazy.function(drag_window_without_warp),
         start=lazy.window.get_position(),
     ),
     Drag(
@@ -324,6 +340,7 @@ dgroups_app_rules = []  # type: list
 follow_mouse_focus = True
 bring_front_click = False
 floats_kept_above = True
+# Keep cursor warp enabled generally; drag helper disables it only while dragging.
 cursor_warp = True
 floating_layout = layout.Floating(
     float_rules=[
