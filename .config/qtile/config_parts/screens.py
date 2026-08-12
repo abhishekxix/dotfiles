@@ -7,99 +7,121 @@ from libqtile.config import Screen
 from libqtile.lazy import lazy
 
 
+def _separator(colors):
+    return widget.TextBox(text="│", foreground=colors["inactive"], padding=5)
+
+
+def _group_box(visible_groups, colors):
+    return widget.GroupBox(
+        border_width=3,
+        rounded=True,
+        highlight_method="block",
+        highlight_color=colors["background"],
+        active=colors["foreground"],
+        inactive=colors["inactive"],
+        this_current_screen_border=colors["surface"],
+        block_highlight_text_color=colors["accent"],
+        disable_drag=True,
+        padding=6,
+        visible_groups=visible_groups,
+    )
+
+
+def _temperature_widgets(colors):
+    return [
+        widget.ThermalSensor(
+            format="   {temp:.0f}{unit}",
+            foreground=colors["red"],
+            padding=6,
+        ),
+        widget.NvidiaSensors(
+            format="󰢮   {temp}°C",
+            foreground=colors["red"],
+            padding=6,
+        ),
+    ]
+
+
+def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
+    status_widgets = []
+
+    if primary:
+        status_widgets.extend(
+            [
+                widget.StatusNotifier(icon_size=20, padding=4),
+                widget.Systray(icon_size=20, padding=4),
+                _separator(colors),
+            ]
+        )
+
+    status_widgets.extend(
+        [
+            widget.Net(
+                interface="wlo1",
+                format="󰖩   {down:.0f}{down_suffix}↓ {up:.0f}{up_suffix}↑",
+                foreground=colors["accent"],
+                padding=6,
+            ),
+            _separator(colors),
+            *_temperature_widgets(colors),
+            _separator(colors),
+            widget.Battery(
+                format="󰁹  {char} {percent:2.0%}",
+                foreground=colors["green"],
+                padding=6,
+            ),
+            widget.Backlight(
+                fmt="󰃠   {}",
+                backlight_name="intel_backlight",
+                brightness_file="brightness",
+                foreground=colors["yellow"],
+                padding=6,
+            ),
+        ]
+    )
+
+    status_widgets.extend(
+        [
+            _separator(colors),
+            widget.Clock(format="%a %d %b · %H:%M", padding=6),
+            _separator(colors),
+            widget.CurrentLayoutIcon(padding=8, scale=0.6),
+        ]
+    )
+
+    return [
+        widget.Image(
+            filename=os.path.expanduser("~/.config/qtile/icons/debianlogo.svg"),
+            scale=True,
+            margin_y=4,
+            margin_x=10,
+            mouse_callbacks={"Button1": lazy.spawn(my_config_dict["menu"])},
+        ),
+        _group_box(visible_groups, colors),
+        widget.Spacer(length=bar.STRETCH),
+        widget.WindowName(
+            foreground=colors["muted"],
+            fontsize=13,
+            max_chars=60,
+            padding=10,
+        ),
+        widget.Spacer(length=bar.STRETCH),
+        *status_widgets,
+    ]
+
+
+def _build_screen(my_config_dict, colors, visible_groups, primary=False):
+    return Screen(
+        top=bar.Bar(
+            _build_bar_widgets(my_config_dict, colors, visible_groups, primary),
+            32,
+            **my_config_dict["bar_theme"],
+        )
+    )
+
+
 def build_screens(my_config_dict, colors):
     return [
-        Screen(
-            top=bar.Bar(
-                [
-                    widget.Spacer(length=12),
-                    widget.Image(
-                        filename=os.path.expanduser("~/.config/qtile/icons/debianlogo.svg"),
-                        scale=True,
-                        margin_y=4,
-                        mouse_callbacks={"Button1": lazy.spawn(my_config_dict["menu"])},
-                    ),
-                    widget.Spacer(length=12),
-                    widget.GroupBox(
-                        border_width=3,
-                        rounded=True,
-                        highlight_method="line",
-                        highlight_color=colors["background"],
-                        active=colors["accent"],
-                        inactive=colors["inactive"],
-                        disable_drag=True,
-                        visible_groups=["1", "2", "3", "4", "5"],
-                    ),
-                    widget.Spacer(length=bar.STRETCH),
-                    widget.WindowName(),
-                    widget.Spacer(length=bar.STRETCH),
-                    widget.StatusNotifier(icon_size=20, padding=3),
-                    widget.Systray(icon_size=20),
-                    widget.Spacer(length=12),
-                    widget.ThermalSensor(
-                        format=":  {temp: .0f}{unit}",
-                    ),
-                    widget.NvidiaSensors(
-                        format="󰢮   {temp}°C",
-                    ),
-                    widget.Spacer(length=12),
-                    widget.Battery(fmt="🗲 {}", format="{char} {percent:2.0%}"),
-                    widget.Spacer(length=12),
-                    widget.Backlight(
-                        fmt="💡 {}",
-                        backlight_name="intel_backlight",
-                        brightness_file="brightness",
-                    ),
-                    widget.Spacer(length=12),
-                    widget.Clock(format="%Y-%m-%d %a", fmt="{}"),
-                    widget.Spacer(length=4),
-                    widget.Clock(format="%H:%M:%S", fmt="{}"),
-                    widget.Spacer(length=12),
-                    widget.CurrentLayoutIcon(padding=0, scale=0.6),
-                    widget.Spacer(length=12),
-                ],
-                32,
-                **(my_config_dict["bar_theme"]),
-            )
-        ),
-        Screen(
-            top=bar.Bar(
-                [
-                    widget.Spacer(length=12),
-                    widget.Image(
-                        filename=os.path.expanduser("~/.config/qtile/icons/debianlogo.svg"),
-                        scale=True,
-                        margin_y=4,
-                        mouse_callbacks={"Button1": lazy.spawn(my_config_dict["menu"])},
-                    ),
-                    widget.Spacer(length=12),
-                    widget.GroupBox(
-                        highlight_method="line",
-                        highlight_color=colors["background"],
-                        active=colors["accent"],
-                        inactive=colors["inactive"],
-                        disable_drag=True,
-                        visible_groups=["a", "s", "d", "f", "g"],
-                    ),
-                    widget.Spacer(length=bar.STRETCH),
-                    widget.WindowName(),
-                    widget.Spacer(length=bar.STRETCH),
-                    widget.ThermalSensor(
-                        format=":  {temp: .0f}{unit}",
-                    ),
-                    widget.NvidiaSensors(
-                        format="󰢮   {temp}°C",
-                    ),
-                    widget.Spacer(length=12),
-                    widget.Clock(format="%Y-%m-%d %a", fmt="{}"),
-                    widget.Spacer(length=4),
-                    widget.Clock(format="%H:%M:%S", fmt="{}"),
-                    widget.Spacer(length=12),
-                    widget.CurrentLayoutIcon(padding=0, scale=0.6),
-                    widget.Spacer(length=12),
-                ],
-                32,
-                **(my_config_dict["bar_theme"]),
-            )
-        ),
+        _build_screen(my_config_dict, colors, ["1", "2", "3", "4", "5"], True),
+        _build_screen(my_config_dict, colors, ["a", "s", "d", "f", "g"]),
     ]

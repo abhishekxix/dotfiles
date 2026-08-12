@@ -2,9 +2,14 @@
 
 colors = {
     "background": "#1e1e2e",
+    "surface": "#313244",
     "foreground": "#cdd6f4",
     "accent": "#89b4fa",
     "inactive": "#585b70",
+    "muted": "#7f849c",
+    "green": "#a6e3a1",
+    "yellow": "#f9e2af",
+    "red": "#f38ba8",
 }
 
 my_config_dict = {
