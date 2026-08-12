@@ -45,15 +45,6 @@ def _temperature_widgets(colors):
 def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
     status_widgets = []
 
-    if primary:
-        status_widgets.extend(
-            [
-                widget.StatusNotifier(icon_size=20, padding=4),
-                widget.Systray(icon_size=20, padding=4),
-                _separator(colors),
-            ]
-        )
-
     status_widgets.extend(
         [
             widget.Net(
@@ -83,7 +74,21 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
     status_widgets.extend(
         [
             _separator(colors),
-            widget.Clock(format="%a %d %b · %H:%M", padding=6),
+            widget.Clock(format="%a %d %b %Y · %H:%M:%S", padding=6),
+        ]
+    )
+
+    if primary:
+        status_widgets.extend(
+            [
+                _separator(colors),
+                widget.StatusNotifier(icon_size=20, padding=4),
+                widget.Systray(icon_size=20, padding=4),
+            ]
+        )
+
+    status_widgets.extend(
+        [
             _separator(colors),
             widget.CurrentLayoutIcon(padding=8, scale=0.6),
         ]
