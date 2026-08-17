@@ -34,6 +34,9 @@ literal entry with that name.
 Optional scripts live in `.bin/` and are not installed automatically.
 
 The installer requires Bash with nameref and NUL-delimited `mapfile` support.
+Its implementation is split under `.bin/install/`: path validation, filesystem
+actions, and source selection are maintained independently of the CLI entry
+point.
 
 The Xorg configuration is machine-specific and is skipped by default. Install
 it explicitly when needed:
