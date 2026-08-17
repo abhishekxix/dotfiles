@@ -3,8 +3,6 @@
 !/.config/
 !/.bin/
 !/home/
-!/tests/
-!/cron-format.txt
 !/README.md
 !/xorg.conf
 
