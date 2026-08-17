@@ -1,9 +1,10 @@
 /*
 !/.gitignore
 !/.config/
+!/.bin/
 !/home/
+!/tests/
 !/cron-format.txt
-!/install.sh
 !/README.md
 !/xorg.conf
 
