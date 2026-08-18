@@ -4,10 +4,7 @@
 !/.config/
 !/.bin/
 !/home/
-!/install.py
 !/README.md
-!/src/
-!/tests/
 !/xorg.conf
 
 __pycache__/
