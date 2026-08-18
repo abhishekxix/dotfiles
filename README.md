@@ -7,8 +7,8 @@ Clone the repository, preview the changes, and install the configuration:
 ```bash
 git clone https://github.com/abhishekxix/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-./.bin/install.sh --dry-run
-./.bin/install.sh
+./install.py --dry-run
+./install.py
 ```
 
 The installer creates symlinks for home files and applications under `.config`.
@@ -24,25 +24,24 @@ For a non-interactive installation, pass names with `--home` and `--config`.
 An omitted home or `.config` group defaults to all entries:
 
 ```bash
-./.bin/install.sh --home .bashrc,.zshrc --config nvim,tmux,starship.toml
+./install.py --home .bashrc,.zshrc --config nvim,tmux,starship.toml
 ```
 
 Use `none` to skip a group, such as `--home none --config nvim`. The names
 `all` and `none` are selection keywords; prefix either with `./` to select a
 literal entry with that name.
 
-Optional scripts live in `.bin/` and are not installed automatically.
+Optional one-off scripts live in `.bin/` and are not installed automatically.
 
-The installer requires Bash with nameref and NUL-delimited `mapfile` support.
-Its implementation is split under `.bin/install/`: path validation, filesystem
-actions, and source selection are maintained independently of the CLI entry
-point.
+The installer requires Python 3.10 or newer and uses only the standard library.
+Its implementation lives under `src/dotfiles_installer/`; `install.py` is the
+executable entry point.
 
 The Xorg configuration is machine-specific and is skipped by default. Install
 it explicitly when needed:
 
 ```bash
-./.bin/install.sh --include-xorg
+./install.py --include-xorg
 ```
 
 If `/etc/X11/xorg.conf.d/20-nvidia.conf` already differs from the repository
