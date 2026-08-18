@@ -3,7 +3,10 @@
 !/.shellcheckrc
 !/.config/
 !/.bin/
+!/ansible/
+!/ansible.cfg
 !/home/
+!/install
 !/README.md
 !/xorg.conf
 

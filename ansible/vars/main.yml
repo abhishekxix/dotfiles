@@ -1,0 +1,23 @@
+---
+dotfiles_install_packages: true
+dotfiles_backup_conflicts: true
+
+dotfiles_config_excludes:
+    - README.md
+
+dotfiles_common_packages:
+    - curl
+    - git
+    - tmux
+    - zsh
+
+dotfiles_packages_by_os_family:
+    Debian:
+        - alacritty
+        - dunst
+        - flameshot
+        - neovim
+        - picom
+        - rofi
+        - xbindkeys
+        - xscreensaver

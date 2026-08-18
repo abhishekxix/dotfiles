@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+install_ansible() {
+  if [[ ! -r /etc/os-release ]]; then
+    printf 'Cannot detect this Linux distribution. Install Ansible and rerun this command.\n' >&2
+    exit 1
+  fi
+
+  # shellcheck source=/dev/null
+  source /etc/os-release
+  distribution="${ID_LIKE:-} ${ID:-}"
+
+  case "${distribution}" in
+    *debian* | *ubuntu*)
+      sudo apt-get update
+      sudo apt-get install --yes ansible
+      ;;
+    *fedora* | *rhel*)
+      sudo dnf install --assumeyes ansible
+      ;;
+    *arch*)
+      sudo pacman --sync --needed ansible
+      ;;
+    *)
+      printf 'Unsupported distribution. Install Ansible and rerun this command.\n' >&2
+      exit 1
+      ;;
+  esac
+}
+
+if ! command -v ansible-playbook >/dev/null 2>&1; then
+  install_ansible
+fi
+
+cd "${repo_root}"
+exec ansible-playbook --ask-become-pass ansible/playbook.yml "$@"

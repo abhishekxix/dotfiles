@@ -1,0 +1,100 @@
+---
+- name: Configure local workstation
+  hosts: localhost
+  gather_facts: true
+
+  vars_files:
+      - vars/main.yml
+
+  vars:
+      dotfiles_repo_root: '{{ playbook_dir | dirname }}'
+      dotfiles_home: '{{ ansible_facts.user_dir }}'
+      dotfiles_backup_root: >-
+          {{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_short }}
+      dotfiles_packages: >-
+          {{ dotfiles_common_packages + (dotfiles_packages_by_os_family[ansible_facts.os_family] | default([])) }}
+
+  tasks:
+      - name: Update APT package metadata
+        become: true
+        ansible.builtin.apt:
+            update_cache: true
+            cache_valid_time: 3600
+        when:
+            - dotfiles_install_packages | bool
+            - ansible_facts.os_family == "Debian"
+        tags:
+            - packages
+
+      - name: Install workstation packages
+        become: true
+        ansible.builtin.package:
+            name: '{{ dotfiles_packages }}'
+            state: present
+        when: dotfiles_install_packages | bool
+        tags:
+            - packages
+
+      - name: Ensure user config directory exists
+        ansible.builtin.file:
+            path: '{{ dotfiles_home }}/.config'
+            state: directory
+            mode: '0755'
+        tags:
+            - dotfiles
+
+      - name: Discover direct home entries
+        ansible.builtin.find:
+            paths: '{{ dotfiles_repo_root }}/home'
+            recurse: false
+            hidden: true
+            file_type: any
+        register: home_entries
+        tags:
+            - dotfiles
+
+      - name: Link direct home entries
+        ansible.builtin.include_tasks:
+            file: tasks/link.yml
+            apply:
+                tags:
+                    - dotfiles
+        loop: '{{ home_entries.files }}'
+        loop_control:
+            loop_var: dotfile
+            label: '{{ dotfile.path | basename }}'
+        vars:
+            link_source: '{{ dotfile.path }}'
+            link_destination: '{{ dotfiles_home }}/{{ dotfile.path | basename }}'
+            link_backup_group: home
+        tags:
+            - dotfiles
+
+      - name: Discover config entries
+        ansible.builtin.find:
+            paths: '{{ dotfiles_repo_root }}/.config'
+            recurse: false
+            hidden: true
+            file_type: any
+        register: config_entries
+        tags:
+            - dotfiles
+
+      - name: Link config entries
+        ansible.builtin.include_tasks:
+            file: tasks/link.yml
+            apply:
+                tags:
+                    - dotfiles
+        loop: >-
+            {{ config_entries.files | rejectattr('path', 'in',
+            dotfiles_config_excludes | map('regex_replace', '^', dotfiles_repo_root + '/.config/') | list) | list }}
+        loop_control:
+            loop_var: dotfile
+            label: '{{ dotfile.path | basename }}'
+        vars:
+            link_source: '{{ dotfile.path }}'
+            link_destination: '{{ dotfiles_home }}/.config/{{ dotfile.path | basename }}'
+            link_backup_group: config
+        tags:
+            - dotfiles

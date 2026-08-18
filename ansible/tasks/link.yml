@@ -1,0 +1,43 @@
+---
+- name: Inspect {{ link_destination }}
+  ansible.builtin.stat:
+      path: '{{ link_destination }}'
+      follow: false
+  register: link_destination_stat
+
+- name: Stop before replacing {{ link_destination }}
+  ansible.builtin.fail:
+      msg: >-
+          {{ link_destination }} already exists and is not the managed symlink.
+          Move it manually or set dotfiles_backup_conflicts to true.
+  when:
+      - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
+      - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
+      - not dotfiles_backup_conflicts | bool
+
+- name: Create backup directory for {{ link_destination }}
+  ansible.builtin.file:
+      path: '{{ dotfiles_backup_root }}/{{ link_backup_group }}'
+      state: directory
+      mode: '0700'
+  when:
+      - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
+      - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
+
+- name: Back up {{ link_destination }}
+  ansible.builtin.command:
+      argv:
+          - mv
+          - --
+          - '{{ link_destination }}'
+          - '{{ dotfiles_backup_root }}/{{ link_backup_group }}/'
+  when:
+      - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
+      - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
+
+- name: Link {{ link_destination }}
+  ansible.builtin.file:
+      src: '{{ link_source }}'
+      dest: '{{ link_destination }}'
+      state: link
+      force: false
