@@ -51,3 +51,6 @@ destination for testing.
 For testing or installation into another home directory, set `DOTFILES_HOME`.
 Set `DOTFILES_BACKUP_DIR` to override the parent directory where unique backup
 run directories are allocated.
+
+
+TODO: Move configuration to ansible or similar tools.
