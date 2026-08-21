@@ -103,14 +103,16 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
             mouse_callbacks={"Button1": lazy.spawn(my_config_dict["menu"])},
         ),
         _group_box(visible_groups, colors),
-        widget.Spacer(length=bar.STRETCH),
-        widget.WindowName(
+        widget.TaskList(
+            border=colors["surface"],
+            borderwidth=1,
+            highlight_method="block",
+            icon_size=20,
             foreground=colors["muted"],
-            fontsize=13,
-            max_chars=60,
-            padding=10,
+            max_title_width=150,
+            padding=6,
+            urgent_border=colors["red"],
         ),
-        widget.Spacer(length=bar.STRETCH),
         *status_widgets,
     ]
 
