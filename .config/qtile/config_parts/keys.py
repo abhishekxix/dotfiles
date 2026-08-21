@@ -10,7 +10,12 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
         Key([modkey], "l", lazy.layout.right(), desc="Move focus to right"),
         Key([modkey], "j", lazy.layout.down(), desc="Move focus down"),
         Key([modkey], "k", lazy.layout.up(), desc="Move focus up"),
-        Key([modkey], "space", lazy.layout.next(), desc="Move window focus to other window"),
+        Key(
+            [modkey],
+            "space",
+            lazy.layout.next(),
+            desc="Move window focus to other window",
+        ),
         Key(
             [modkey, shiftkey],
             "h",
@@ -23,7 +28,9 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
             lazy.layout.shuffle_right(),
             desc="Move window to the right",
         ),
-        Key([modkey, shiftkey], "j", lazy.layout.shuffle_down(), desc="Move window down"),
+        Key(
+            [modkey, shiftkey], "j", lazy.layout.shuffle_down(), desc="Move window down"
+        ),
         Key([modkey, shiftkey], "k", lazy.layout.shuffle_up(), desc="Move window up"),
         Key(
             [modkey, controlkey],
@@ -37,7 +44,9 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
             lazy.layout.grow_right(),
             desc="Grow window to the right",
         ),
-        Key([modkey, controlkey], "j", lazy.layout.grow_down(), desc="Grow window down"),
+        Key(
+            [modkey, controlkey], "j", lazy.layout.grow_down(), desc="Grow window down"
+        ),
         Key([modkey, controlkey], "k", lazy.layout.grow_up(), desc="Grow window up"),
         Key([modkey], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
         Key(
@@ -53,7 +62,12 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
             desc="Launch terminal",
         ),
         Key([modkey], tabkey, lazy.next_layout(), desc="Toggle between layouts"),
-        Key([modkey, shiftkey], tabkey, lazy.prev_layout(), desc="Toggle between layouts"),
+        Key(
+            [modkey, shiftkey],
+            tabkey,
+            lazy.prev_layout(),
+            desc="Toggle between layouts",
+        ),
         Key([modkey], "q", lazy.window.kill(), desc="Kill focused window"),
         Key(
             [modkey, shiftkey],
@@ -91,7 +105,7 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
         Key(
             [modkey],
             "m",
-            lazy.group.unminimize_all(),
+            lazy.window.toggle_minimize(),
             desc="Toggle minimize state of a window",
         ),
     ]

@@ -15,7 +15,6 @@ from config_parts.settings import (
 # Import hooks so subscribers are registered.
 import config_parts.hooks  # noqa: F401
 
-
 screens = build_screens(my_config_dict, colors)
 layouts = build_layouts(my_config_dict["layout_theme"])
 groups = build_groups()

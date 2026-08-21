@@ -3,7 +3,6 @@
 from libqtile.config import Group, Key
 from libqtile.lazy import lazy
 
-
 PRIMARY_GROUPS = "12345"
 SECONDARY_GROUPS = "asdfg"
 
@@ -11,7 +10,10 @@ SECONDARY_GROUPS = "asdfg"
 def build_groups():
     groups = [Group(name, screen_affinity=0) for name in PRIMARY_GROUPS]
     groups.extend(
-        [Group(name, screen_affinity=1, label=name.lower()) for name in SECONDARY_GROUPS]
+        [
+            Group(name, screen_affinity=1, label=name.lower())
+            for name in SECONDARY_GROUPS
+        ]
     )
     return groups
 

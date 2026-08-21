@@ -54,6 +54,12 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
                 padding=6,
             ),
             _separator(colors),
+            widget.Memory(
+                format="󰍛  {MemUsed: .2f}/{MemTotal: .2f} {mm}",
+                measure_mem="G",
+                padding=6,
+            ),
+            _separator(colors),
             *_temperature_widgets(colors),
             _separator(colors),
             widget.Battery(
@@ -103,6 +109,7 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
             mouse_callbacks={"Button1": lazy.spawn(my_config_dict["menu"])},
         ),
         _group_box(visible_groups, colors),
+        _separator(colors),
         widget.TaskList(
             border=colors["surface"],
             borderwidth=1,
@@ -110,7 +117,7 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
             icon_size=20,
             foreground=colors["muted"],
             max_title_width=150,
-            padding=6,
+            padding=4,
             urgent_border=colors["red"],
         ),
         *status_widgets,
