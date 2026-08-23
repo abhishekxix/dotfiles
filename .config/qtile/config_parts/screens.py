@@ -108,6 +108,7 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
             margin_x=10,
             mouse_callbacks={"Button1": lazy.spawn(my_config_dict["menu"])},
         ),
+        _separator(colors),
         _group_box(visible_groups, colors),
         _separator(colors),
         widget.TaskList(
