@@ -26,7 +26,6 @@ vim.opt.signcolumn = 'yes'
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
 vim.opt.completeopt = 'menu,menuone,noinsert'
-vim.opt.pumblend = 10
 
 vim.opt.splitright = true
 vim.opt.splitbelow = true
