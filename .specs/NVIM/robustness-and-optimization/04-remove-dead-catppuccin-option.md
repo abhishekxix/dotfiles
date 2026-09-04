@@ -27,13 +27,19 @@ require('catppuccin').setup {
 }
 ```
 
-No behavior change (the option was already ignored). Float transparency is
-governed by `transparent_background = true` plus Neovim's `winblend` /
-per-window highlight groups.
+## Outcome: REVERTED
+
+**Post-implementation finding:** The user tested the removal and confirmed the
+`float = { transparent = true }` option **does work** — it affects
+float/panel transparency in catppuccin (visible on `:Lazy`, telescope dropdowns,
+etc.). The original assessment that it was "silently ignored" was wrong.
+
+The option was restored in a follow-up commit
+(`NVIM: restore catppuccin float transparency option`). Step 04 is effectively
+a no-op in the final state; the `float` block remains in `colorscheme.lua`.
 
 ## Acceptance
 
-- [ ] `:colorscheme catppuccin` still applies without error.
-- [ ] Floating windows (e.g. `:Lazy`, telescope dropdown) still render with the
-  transparent background as before — visually identical to pre-change.
-- [ ] No new warnings from catppuccin on startup (`:messages` clean).
+- [x] `:colorscheme catppuccin` applies without error (with `float` restored).
+- [x] Floating windows render with the transparent background — confirmed by user.
+- [x] No new warnings from catppuccin on startup.

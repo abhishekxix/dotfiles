@@ -21,7 +21,7 @@ load time.
 | 01 | Keep both (additive): explicit `vim.lsp.enable()` + `mason-lspconfig` `automatic_enable` stays default. |
 | 02 | Notify at `ERROR` level (not WARN) when `vim.treesitter.start()` fails. |
 | 03 | yaml + `yaml.docker-compose` filetypes, parser `yaml`, server `yamlls`, formatter `prettier`. |
-| 04 | Remove the invalid `float` option from `colorscheme.lua`. |
+| 04 | Originally removed the `float` option as "invalid"; **reverted after user testing** — the option does work (affects float/panel transparency in catppuccin). Restored in a follow-up commit. |
 | 05 | Lazy-load `nvim-ts-autotag` + `vim-sleuth` only. **`copilot.vim` stays eager** (no change). |
 | 06 | Dropped — no `opts.lua` polish. |
 
