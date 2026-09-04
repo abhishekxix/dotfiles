@@ -8,6 +8,46 @@ return {
     'hrsh7th/cmp-nvim-lsp',
   },
   config = function()
+    -- Global capabilities for all servers (used by cmp-nvim-lsp for snippets,
+    -- completion item kinds, etc.). This is the '*' fallback that every
+    -- resolved server config inherits.
+    vim.lsp.config('*', {
+      capabilities = require('cmp_nvim_lsp').default_capabilities(),
+    })
+
+    -- Per-server customizations. These deep-merge over nvim-lspconfig's
+    -- built-in configs (loaded from its lsp/*.lua files on the runtimepath).
+    vim.lsp.config('lua_ls', {
+      settings = {
+        Lua = {
+          completion = {
+            callSnippet = 'Replace',
+          },
+        },
+      },
+    })
+
+    vim.lsp.config('emmet_ls', {
+      filetypes = { 'html', 'php', 'javascriptreact', 'typescriptreact' },
+      init_options = {
+        includeLanguages = { php = 'php' },
+        showAbbreviationSuggestions = true,
+        showExpandedAbbreviation = 'always',
+        showSuggestionsAsSnippets = false,
+      },
+    })
+
+    vim.lsp.config('clangd', {
+      capabilities = {
+        offsetEncoding = 'utf-8',
+      },
+    })
+
+    vim.lsp.config('bashls', {
+      filetypes = { 'bash', 'sh', 'zsh' },
+    })
+
+    -- LSP keymaps + document highlight + inlay hints, attached per buffer.
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('as-lsp-attach', { clear = true }),
       callback = function(event)
@@ -17,30 +57,21 @@ return {
         end
 
         map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-
         map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-
         map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-
         map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-
         map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-
         map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-
         map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-
         map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
         map('<leader>cd', vim.diagnostic.open_float, '[C]ode [d]iagnostic')
-
-        -- Hide the virtual text
-        vim.diagnostic.config {
-          virtual_text = false,
-        }
-
         map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
+        -- Hide the inline virtual text
+        vim.diagnostic.config { virtual_text = false }
+
         local client = vim.lsp.get_client_by_id(event.data.client_id)
+
         if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
           local highlight_augroup = vim.api.nvim_create_augroup('as-lsp-highlight', { clear = false })
           vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -48,13 +79,11 @@ return {
             group = highlight_augroup,
             callback = vim.lsp.buf.document_highlight,
           })
-
           vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
             buffer = event.buf,
             group = highlight_augroup,
             callback = vim.lsp.buf.clear_references,
           })
-
           vim.api.nvim_create_autocmd('LspDetach', {
             group = vim.api.nvim_create_augroup('as-lsp-detach', { clear = true }),
             callback = function(event2)
@@ -72,73 +101,36 @@ return {
       end,
     })
 
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-
-    local servers = {
-      lua_ls = {
-        settings = {
-          Lua = {
-            completion = {
-              callSnippet = 'Replace',
-            },
-          },
-        },
-      },
-      phpactor = {},
-      ts_ls = {},
-      emmet_ls = {
-        filetypes = { 'html', 'php', 'javascriptreact', 'typescriptreact' },
-        init_options = {
-          includeLanguages = {
-            php = 'php',
-          },
-          showAbbreviationSuggestions = true,
-          showExpandedAbbreviation = 'always',
-          showSuggestionsAsSnippets = false,
-        },
-      },
-      somesass_ls = {},
-      cssls = {},
-      tailwindcss = {},
-      clangd = {
-        capabilities = {
-          offsetEncoding = 'utf-8',
-        },
-      },
-      bashls = {
-        filetypes = { 'bash', 'sh', 'zsh' },
-      },
-      pyright = {},
-      jsonls = {},
-      taplo = {},
-    }
-
     require('mason').setup()
 
-    local ensure_installed = vim.tbl_keys(servers or {})
-    vim.list_extend(ensure_installed, {
-      -- Formatters
+    local ensure_installed = {
+      -- servers
+      'lua_ls',
+      'phpactor',
+      'ts_ls',
+      'emmet_ls',
+      'somesass_ls',
+      'cssls',
+      'tailwindcss',
+      'clangd',
+      'bashls',
+      'pyright',
+      'jsonls',
+      'taplo',
+      -- formatters
       'stylua',
       'shfmt',
       'black',
       'prettier',
       'clang-format',
-      -- Linters
+      -- linters
       'eslint_d',
       'stylelint',
       'shellcheck',
-    })
+    }
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-    require('mason-lspconfig').setup {
-      handlers = {
-        function(server_name)
-          local server = servers[server_name] or {}
-          server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-          require('lspconfig')[server_name].setup(server)
-        end,
-      },
-    }
+    -- Auto-enables installed servers via vim.lsp.enable().
+    require('mason-lspconfig').setup()
   end,
 }

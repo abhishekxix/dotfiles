@@ -10,7 +10,6 @@ vim.opt.rtp:prepend(lazypath)
 
 local lazy_plugins = {
   require 'plugins.vim-sleuth',
-  require 'plugins.git-signs',
   require 'plugins.which-key',
   require 'plugins.telescope',
   require 'plugins.lazydev',
