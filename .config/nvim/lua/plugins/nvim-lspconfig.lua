@@ -113,5 +113,12 @@ return {
 
     -- Auto-enables installed servers via vim.lsp.enable().
     require('mason-lspconfig').setup()
+
+    -- Explicitly enable every declared server. mason-lspconfig's
+    -- automatic_enable (default true) only covers servers installed via Mason;
+    -- this also covers system-installed servers and makes the config
+    -- reproducible without Mason. Additive and idempotent — automatic_enable
+    -- still picks up servers installed later via :Mason.
+    vim.lsp.enable(langs.get_servers())
   end,
 }
