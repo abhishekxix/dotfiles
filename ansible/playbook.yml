@@ -1,40 +1,291 @@
 ---
-- name: Configure local workstation
+- name: Configure local machine (Debian stable)
   hosts: localhost
   gather_facts: true
 
-  vars_files:
-      - vars/main.yml
-
   vars:
+      dotfiles_profile: workstation
+      dotfiles_backup_conflicts: true
+      dotfiles_config_excludes:
+          - README.md
       dotfiles_repo_root: '{{ playbook_dir | dirname }}'
       dotfiles_home: '{{ ansible_facts.user_dir }}'
-      dotfiles_backup_root: >-
-          {{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_short }}
-      dotfiles_packages: >-
-          {{ dotfiles_common_packages + (dotfiles_packages_by_os_family[ansible_facts.os_family] | default([])) }}
+      dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_short }}"
+      dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json }}"
+      dotfiles_repos_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/repos.json') | from_json }}"
+      dotfiles_packages_selected: "{{ dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | list }}"
+      dotfiles_repos_selected: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | selectattr('value.repo', 'defined') | map(attribute='value.repo') | unique | list }}"
+      dotfiles_pkgs_apt: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | list }}"
+      dotfiles_pkgs_cargo: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'cargo') | list }}"
+      dotfiles_pkgs_npm: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'npm') | list }}"
+      dotfiles_pkgs_pipx: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'pipx') | list }}"
+      dotfiles_pkgs_script: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'script') | list }}"
+      dotfiles_pkgs_deb: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'deb') | list }}"
+      dotfiles_pkgs_archive: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'archive') | list }}"
+      dotfiles_pkgs_git: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'git') | list }}"
 
   tasks:
+      # -- Third-party apt repos (referenced only, step 02) -------------------
+      - name: Download third-party apt signing keys
+        become: true
+        ansible.builtin.get_url:
+            url: '{{ dotfiles_repos_manifest[item].key_url }}'
+            dest: '{{ dotfiles_repos_manifest[item].keyring }}.asc'
+            mode: '0644'
+        loop: '{{ dotfiles_repos_selected }}'
+        when: dotfiles_repos_manifest[item].key_url is defined
+        tags:
+            - packages
+
+      - name: Dearmor third-party apt signing keys
+        become: true
+        ansible.builtin.command:
+            argv:
+                - gpg
+                - --batch
+                - --yes
+                - --dearmor
+                - -o
+                - '{{ dotfiles_repos_manifest[item].keyring }}'
+                - '{{ dotfiles_repos_manifest[item].keyring }}.asc'
+            args:
+                creates: '{{ dotfiles_repos_manifest[item].keyring }}'
+        loop: '{{ dotfiles_repos_selected }}'
+        when: dotfiles_repos_manifest[item].key_url is defined
+        tags:
+            - packages
+
+      - name: Ensure third-party keyring permissions
+        become: true
+        ansible.builtin.file:
+            path: '{{ dotfiles_repos_manifest[item].keyring }}'
+            state: file
+            mode: '0644'
+        loop: '{{ dotfiles_repos_selected }}'
+        when: dotfiles_repos_manifest[item].key_url is defined
+        tags:
+            - packages
+
+      - name: Add third-party apt repositories
+        become: true
+        ansible.builtin.apt_repository:
+            repo: "{{ dotfiles_repos_manifest[item].repo | replace('{{ ansible_architecture }}', ansible_facts.architecture) | replace('{{ ansible_distribution_release }}', ansible_facts.distribution_release) }}"
+            filename: '{{ item }}'
+            state: present
+        loop: '{{ dotfiles_repos_selected }}'
+        tags:
+            - packages
+
+      - name: Update APT metadata after adding third-party repos
+        become: true
+        ansible.builtin.apt:
+            update_cache: true
+        when: (dotfiles_repos_selected | length) > 0
+        tags:
+            - packages
+
+      # -- Toolchain bootstrap (auto, gated on selected sources) --------------
+      - name: Check for cargo
+        ansible.builtin.command:
+            argv: [cargo, --version]
+        register: dotfiles_cargo_check
+        changed_when: false
+        failed_when: false
+        when: (dotfiles_pkgs_cargo | length) > 0
+        tags:
+            - packages
+
+      - name: Install rustup (cargo provider)
+        ansible.builtin.shell:
+            cmd: "set -o pipefail && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
+            executable: /bin/bash
+            creates: "{{ dotfiles_home }}/.cargo/bin/cargo"
+        when:
+            - (dotfiles_pkgs_cargo | length) > 0
+            - dotfiles_cargo_check.rc | default(0) != 0
+        tags:
+            - packages
+
+      - name: Check for fnm
+        ansible.builtin.stat:
+            path: "{{ dotfiles_home }}/.local/share/fnm/fnm"
+        register: dotfiles_fnm_check
+        when: (dotfiles_pkgs_npm | length) > 0
+        tags:
+            - packages
+
+      - name: Check for node on PATH
+        ansible.builtin.command:
+            argv: [node, --version]
+        register: dotfiles_node_check
+        changed_when: false
+        failed_when: false
+        when: (dotfiles_pkgs_npm | length) > 0
+        tags:
+            - packages
+
+      - name: Install pipx via apt when a pipx package is selected
+        become: true
+        ansible.builtin.apt:
+            name: pipx
+            state: present
+        when:
+            - (dotfiles_pkgs_pipx | length) > 0
+            - "'pipx' not in dotfiles_pkgs_apt | map(attribute='value.package')"
+        tags:
+            - packages
+
+      - name: Ensure pipx path is configured
+        ansible.builtin.command:
+            argv: [pipx, ensurepath]
+        register: dotfiles_pipx_ensurepath
+        changed_when: "'already' not in (dotfiles_pipx_ensurepath.stdout | default('') | lower)"
+        failed_when: false
+        when: (dotfiles_pkgs_pipx | length) > 0
+        tags:
+            - packages
+
+      # -- Per-source installs ------------------------------------------------
       - name: Update APT package metadata
         become: true
         ansible.builtin.apt:
             update_cache: true
             cache_valid_time: 3600
-        when:
-            - dotfiles_install_packages | bool
-            - ansible_facts.os_family == "Debian"
         tags:
             - packages
 
-      - name: Install workstation packages
+      - name: Install apt packages
         become: true
-        ansible.builtin.package:
-            name: '{{ dotfiles_packages }}'
+        ansible.builtin.apt:
+            name: '{{ item.value.package }}'
             state: present
-        when: dotfiles_install_packages | bool
+        loop: '{{ dotfiles_pkgs_apt }}'
+        loop_control:
+            label: '{{ item.value.package }}'
         tags:
             - packages
 
+      - name: Install cargo crates
+        community.general.cargo:
+            name: '{{ item.value.crate }}'
+            version: '{{ item.value.version | default(omit) }}'
+            features: '{{ item.value.features | default(omit) }}'
+            executable: "{{ dotfiles_home }}/.cargo/bin/cargo"
+            state: present
+        loop: '{{ dotfiles_pkgs_cargo }}'
+        loop_control:
+            label: '{{ item.value.crate }}'
+        environment:
+            PATH: "{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+        tags:
+            - packages
+
+      - name: Install global npm packages
+        community.general.npm:
+            name: '{{ item.value.package }}'
+            version: '{{ item.value.version | default(omit) }}'
+            global: true
+            state: present
+        loop: '{{ dotfiles_pkgs_npm }}'
+        loop_control:
+            label: '{{ item.value.package }}'
+        environment:
+            PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ ansible_facts.env.PATH }}"
+        tags:
+            - packages
+
+      - name: Install pipx packages
+        community.general.pipx:
+            name: "{{ item.value.package }}{{ '==' + item.value.version if item.value.version is defined else '' }}"
+            state: install
+        loop: '{{ dotfiles_pkgs_pipx }}'
+        loop_control:
+            label: '{{ item.value.package }}'
+        tags:
+            - packages
+
+      - name: Run script installers
+        ansible.builtin.shell:
+            cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | sh -s -- {{ item.value.args | default([]) | map('quote') | join(' ') }}"
+            executable: /bin/bash
+            creates: "{{ item.value.creates | replace('~', dotfiles_home) }}"
+        loop: '{{ dotfiles_pkgs_script }}'
+        loop_control:
+            label: '{{ item.key }}'
+        tags:
+            - packages
+
+      - name: Download deb packages
+        ansible.builtin.get_url:
+            url: '{{ item.value.url }}'
+            dest: "/tmp/dotfiles-{{ item.key }}.deb"
+            mode: '0644'
+        loop: '{{ dotfiles_pkgs_deb }}'
+        loop_control:
+            label: '{{ item.key }}'
+        tags:
+            - packages
+
+      - name: Install deb packages
+        become: true
+        ansible.builtin.apt:
+            deb: "/tmp/dotfiles-{{ item.key }}.deb"
+        loop: '{{ dotfiles_pkgs_deb }}'
+        loop_control:
+            label: '{{ item.key }}'
+        tags:
+            - packages
+
+      - name: Ensure archive parents exist
+        ansible.builtin.file:
+            path: "{{ item.value.dest | replace('~', dotfiles_home) }}"
+            state: directory
+            mode: '0755'
+        loop: '{{ dotfiles_pkgs_archive }}'
+        loop_control:
+            label: '{{ item.key }}'
+        tags:
+            - packages
+
+      - name: Extract archives
+        ansible.builtin.unarchive:
+            src: '{{ item.value.url }}'
+            dest: "{{ item.value.dest | replace('~', dotfiles_home) }}"
+            remote_src: true
+            creates: "{{ item.value.creates | replace('~', dotfiles_home) }}"
+            extra_opts: "{{ ['--strip-components=' + (item.value.strip | string)] if item.value.strip is defined else [] }}"
+        loop: '{{ dotfiles_pkgs_archive }}'
+        loop_control:
+            label: '{{ item.key }}'
+        tags:
+            - packages
+
+      - name: Clone git sources
+        ansible.builtin.git:
+            repo: '{{ item.value.repo }}'
+            dest: "{{ (item.value.dest | default('~/.local/src/' + item.key)) | replace('~', dotfiles_home) }}"
+            version: "{{ item.value.version | default('HEAD') }}"
+            update: true
+        loop: '{{ dotfiles_pkgs_git }}'
+        loop_control:
+            label: '{{ item.key }}'
+        tags:
+            - packages
+
+      - name: Run git build steps
+        ansible.builtin.command: '{{ build_step }}'
+        args:
+            chdir: "{{ (item.0.value.dest | default('~/.local/src/' + item.0.key)) | replace('~', dotfiles_home) }}"
+            creates: "{{ item.0.value.creates | replace('~', dotfiles_home) }}"
+        loop: "{{ dotfiles_pkgs_git | subelements('value.build', skip_missing=True) }}"
+        loop_control:
+            label: '{{ item.0.key }}: {{ item.1 }}'
+        vars:
+            build_step: '{{ item.1 }}'
+        tags:
+            - packages
+
+      # -- Dotfile linking (identical for all profiles) -----------------------
       - name: Ensure user config directory exists
         ansible.builtin.file:
             path: '{{ dotfiles_home }}/.config'
@@ -86,9 +337,7 @@
             apply:
                 tags:
                     - dotfiles
-        loop: >-
-            {{ config_entries.files | rejectattr('path', 'in',
-            dotfiles_config_excludes | map('regex_replace', '^', dotfiles_repo_root + '/.config/') | list) | list }}
+        loop: "{{ config_entries.files | rejectattr('path', 'in', dotfiles_config_excludes | map('regex_replace', '^', dotfiles_repo_root + '/.config/') | list) | list }}"
         loop_control:
             loop_var: dotfile
             label: '{{ dotfile.path | basename }}'

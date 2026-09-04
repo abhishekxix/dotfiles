@@ -1,0 +1,12 @@
+{
+  "docker": {
+    "key_url": "https://download.docker.com/linux/debian/gpg",
+    "keyring": "/usr/share/keyrings/docker-archive-keyring.gpg",
+    "repo": "deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+  },
+  "vscode": {
+    "key_url": "https://packages.microsoft.com/keys/microsoft.asc",
+    "keyring": "/usr/share/keyrings/packages.microsoft.gpg",
+    "repo": "deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+  }
+}
