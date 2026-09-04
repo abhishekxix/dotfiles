@@ -9,11 +9,15 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
-vim.keymap.set('n', '<leader>ad', '"+d', { desc = 'Delete to system clipboard' })
-vim.keymap.set('n', '<leader>ay', '"+y', { desc = 'Yank to system clipboard' })
-vim.keymap.set('n', '<leader>ap', '"+p', { desc = 'Put from system clipboard' })
-vim.keymap.set('n', '<leader>aP', '"+P', { desc = 'Put from system clipboard' })
-vim.keymap.set('v', '<leader>ad', '"+d', { desc = 'Delete to system clipboard' })
-vim.keymap.set('v', '<leader>ay', '"+y', { desc = 'Yank to system clipboard' })
-vim.keymap.set('v', '<leader>ap', '"+p', { desc = 'Put from system clipboard' })
-vim.keymap.set('v', '<leader>aP', '"+P', { desc = 'Put from system clipboard' })
+-- Personal: system clipboard (+", which is X11 PRIMARY/CLIPBOARD depending on tool)
+for _, mode in ipairs { 'n', 'v' } do
+  for lhs, map in pairs {
+    d = { '"+d', 'Delete to system clipboard' },
+    y = { '"+y', 'Yank to system clipboard' },
+    p = { '"+p', 'Put from system clipboard' },
+    P = { '"+P', 'Put from system clipboard' },
+  } do
+    local rhs, desc = map[1], map[2]
+    vim.keymap.set(mode, '<leader>p' .. lhs, rhs, { desc = desc })
+  end
+end
