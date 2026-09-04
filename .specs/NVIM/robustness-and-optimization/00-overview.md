@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | NVIM |
 | Created | 2026-09-04 |
 
