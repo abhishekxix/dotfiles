@@ -1,5 +1,6 @@
 return {
   'nvim-telescope/telescope.nvim',
+  version = '*',
   event = 'VimEnter',
   dependencies = {
     'nvim-lua/plenary.nvim',
@@ -38,7 +39,7 @@ return {
           initial_mode = 'normal',
         },
         find_files = {
-          hidden = 'true',
+          hidden = true,
         },
         diagnostics = {
           initial_mode = 'normal',

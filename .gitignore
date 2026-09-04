@@ -1,8 +1,10 @@
 /*
 !/.gitignore
 !/.shellcheckrc
+!/AGENTS.md
 !/.config/
 !/.bin/
+!/.specs/
 !/ansible/
 !/ansible.cfg
 !/home/

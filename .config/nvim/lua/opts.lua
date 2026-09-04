@@ -24,8 +24,8 @@ vim.opt.wrap = false
 vim.opt.signcolumn = 'yes'
 
 vim.opt.updatetime = 250
-
 vim.opt.timeoutlen = 300
+vim.opt.completeopt = 'menu,menuone,noinsert'
 
 vim.opt.splitright = true
 vim.opt.splitbelow = true
@@ -39,9 +39,6 @@ vim.opt.cursorline = true
 
 vim.opt.scrolloff = 10
 
-vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-vim.opt.foldtext = ''
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 4
 vim.opt.foldnestmax = 8

@@ -1,9 +1,14 @@
 return {
   'nvim-treesitter/nvim-treesitter',
+  lazy = false, -- plugin does NOT support lazy-loading
   build = ':TSUpdate',
-  main = 'nvim-treesitter',
-  opts = {
-    ensure_installed = {
+  config = function()
+    require('nvim-treesitter').setup {
+      install_dir = vim.fn.stdpath 'data' .. '/site',
+    }
+
+    -- Install parsers (async). These replace the old `ensure_installed`.
+    require('nvim-treesitter').install {
       'bash',
       'c',
       'cpp',
@@ -26,12 +31,6 @@ return {
       'typescript',
       'vim',
       'vimdoc',
-    },
-    auto_install = true,
-    highlight = {
-      enable = true,
-      additional_vim_regex_highlighting = { 'ruby' },
-    },
-    indent = { enable = true, disable = { 'ruby' } },
-  },
+    }
+  end,
 }
