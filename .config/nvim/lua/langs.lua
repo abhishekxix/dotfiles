@@ -93,6 +93,12 @@ M.language_config = {
     formatters = { 'prettier' },
     linters = { 'eslint_d' },
   },
+  {
+    ft = { 'yaml', 'yaml.docker-compose' },
+    parser = 'yaml',
+    servers = { 'yamlls' },
+    formatters = { 'prettier' },
+  },
   -- JSX filetype. No `parser` because the `javascriptreact` filetype
   -- is handled by the `javascript` parser (installed by the entry above).
   {
