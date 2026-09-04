@@ -14,10 +14,16 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Enable treesitter highlighting and folding',
   group = vim.api.nvim_create_augroup('as-treesitter', { clear = true }),
   pattern = langs.get_filetypes(),
-  callback = function()
-    -- syntax highlighting, provided by [ADDRESS] core
-    vim.treesitter.start()
-    -- folds, provided by [ADDRESS] core
+  callback = function(args)
+    local ok, err = pcall(vim.treesitter.start)
+    if not ok then
+      vim.schedule(function()
+        vim.notify(
+          ('treesitter: no parser for %s: %s'):format(args.match, err),
+          vim.log.levels.ERROR
+        )
+      end)
+    end
     vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
     vim.wo.foldmethod = 'expr'
   end,
