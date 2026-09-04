@@ -166,9 +166,12 @@
             - packages
 
       - name: Install cargo crates
-        ansible.builtin.command:
-            argv: "{{ ['cargo', 'install', item.value.crate] + (['--version', item.value.version] if item.value.version is defined else []) + (['--features', item.value.features] if item.value.features is defined else []) }}"
-            creates: "{{ dotfiles_home }}/.cargo/bin/{{ item.value.crate }}"
+        community.general.cargo:
+            name: '{{ item.value.crate }}'
+            version: '{{ item.value.version | default(omit) }}'
+            features: '{{ item.value.features | default(omit) }}'
+            executable: "{{ dotfiles_home }}/.cargo/bin/cargo"
+            state: present
         loop: '{{ dotfiles_pkgs_cargo }}'
         loop_control:
             label: '{{ item.value.crate }}'
@@ -178,19 +181,23 @@
             - packages
 
       - name: Install global npm packages
-        ansible.builtin.command:
-            argv: "{{ ['npm', 'install', '-g', item.value.package if item.value.version is not defined else item.value.package + '@' + item.value.version] }}"
-            creates: "{{ dotfiles_home }}/.local/share/fnm/node-versions/.lts-latest/installation/bin/{{ item.value.package }}"
+        community.general.npm:
+            name: '{{ item.value.package }}'
+            version: '{{ item.value.version | default(omit) }}'
+            global: true
+            state: present
         loop: '{{ dotfiles_pkgs_npm }}'
         loop_control:
             label: '{{ item.value.package }}'
+        environment:
+            PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ ansible_facts.env.PATH }}"
         tags:
             - packages
 
       - name: Install pipx packages
-        ansible.builtin.command:
-            argv: "{{ ['pipx', 'install', item.value.package if item.value.version is not defined else item.value.package + '==' + item.value.version] }}"
-            creates: "{{ dotfiles_home }}/.local/bin/{{ item.value.package }}"
+        community.general.pipx:
+            name: "{{ item.value.package }}{{ '==' + item.value.version if item.value.version is defined else '' }}"
+            state: install
         loop: '{{ dotfiles_pkgs_pipx }}'
         loop_control:
             label: '{{ item.value.package }}'
