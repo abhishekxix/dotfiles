@@ -12,17 +12,6 @@ return {
   },
   opts = {
     notify_on_error = false,
-    formatters_by_ft = {
-      lua = { 'stylua' },
-      bash = { 'shfmt' },
-      python = { 'black' },
-      javascript = { 'prettier' },
-      typescript = { 'prettier' },
-      javascriptreact = { 'prettier' },
-      typescriptreact = { 'prettier' },
-      json = { 'prettier' },
-      css = { 'prettier' },
-      scss = { 'prettier' },
-    },
+    formatters_by_ft = require('langs').get_formatters_by_ft(),
   },
 }
