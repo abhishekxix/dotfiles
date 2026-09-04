@@ -1,13 +1,18 @@
 # Migration Plan: Neovim 0.11.3 → 0.12.5
 
-## Purpose
+| Field | Value |
+|---|---|
+| Status | Done |
+| Component | NVIM |
+| Created | 2026-09-04 |
 
-This directory contains the step-by-step migration plan for modernizing the
-Neovim config after upgrading from **0.11.3** to **0.12.5**. Each file is a
-self-contained plan for one area of the config. Work through them in numbered
-order.
+## Goal
 
-## Read this first
+Modernize the [ADDRESS] config from **0.11.3** to **0.12.5** with no loss of
+functionality: every plugin and keybinding still works, and deprecated APIs are
+replaced with their 0.12-native equivalents.
+
+## Execution notes
 
 - **Do not modify files while they are being migrated in a live session.**
   Each step should be done as its own commit so you can bisect if something
@@ -31,7 +36,26 @@ order.
 | 07 | `07-mini.md` | `mini.nvim` (`mini.ai`, `mini.surround`, `mini.statusline`, etc.) |
 | 08 | `08-themes-misc-copilot.md` | themes, `which-key`, `todo-comments`, `vim-sleuth`, `copilot` |
 
-## Key facts established during research
+## Status checklist
+
+- [x] 01 — Core options, keymaps, autocommands, init, lazy-config
+- [x] 02 — gitsigns (merge duplicates, modernize API)
+- [x] 03 — nvim-treesitter rewrite + nvim-ts-autotag
+- [x] 04 — LSP + mason + conform + lint
+- [x] 05 — nvim-cmp + LuaSnip + nvim-autopairs
+- [x] 06 — telescope + neo-tree
+- [x] 07 — mini.nvim
+- [x] 08 — themes + which-key + todo-comments + misc + copilot
+
+## Non-goals
+
+- Do **not** drop plugins in favor of native 0.12 replacements (built-in
+  completion, `vim.snippet`, `LspProgress`, etc.). Keeping all current plugins is
+  intentional — this is a like-for-like migration, not a plugin-pruning pass.
+- Do **not** adopt new plugins (e.g. `blink.cmp`, `mini.files`) as part of this
+  spec. Scope is strictly 0.11.3 → 0.12.5 compatibility.
+
+## Context & Research
 
 1. **Neovim 0.12 removes/changes several APIs the config relies on.**
    Full details in each step file, but highlights:
