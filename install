@@ -4,37 +4,71 @@ set -Eeuo pipefail
 
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
+usage() {
+    printf 'Usage: ./install [--profile workstation|server] [ansible-playbook args...]\n' >&2
+}
+
+dotfiles_profile="workstation"
+passthrough=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --profile)
+        if [[ $# -lt 2 ]]; then
+            usage
+            exit 1
+        fi
+        dotfiles_profile="$2"
+        shift 2
+        ;;
+    --profile=*)
+        dotfiles_profile="${1#--profile=}"
+        shift
+        ;;
+    -h | --help)
+        usage
+        exit 0
+        ;;
+    *)
+        passthrough+=("$1")
+        shift
+        ;;
+    esac
+done
+
+case "${dotfiles_profile}" in
+workstation | server) ;;
+*)
+    printf 'Invalid profile: %s (expected workstation or server).\n' "${dotfiles_profile}" >&2
+    usage
+    exit 1
+    ;;
+esac
+
 install_ansible() {
-  if [[ ! -r /etc/os-release ]]; then
-    printf 'Cannot detect this Linux distribution. Install Ansible and rerun this command.\n' >&2
-    exit 1
-  fi
+    if [[ ! -r /etc/os-release ]]; then
+        printf 'Cannot detect this Linux distribution. Install Ansible and rerun this command.\n' >&2
+        exit 1
+    fi
 
-  # shellcheck source=/dev/null
-  source /etc/os-release
-  distribution="${ID_LIKE:-} ${ID:-}"
+    # shellcheck source=/dev/null
+    source /etc/os-release
+    distribution="${ID_LIKE:-} ${ID:-}"
 
-  case "${distribution}" in
-  *debian* | *ubuntu*)
-    sudo apt-get update
-    sudo apt-get install --yes ansible
-    ;;
-  *fedora* | *rhel*)
-    sudo dnf install --assumeyes ansible
-    ;;
-  *arch*)
-    sudo pacman --sync --needed ansible
-    ;;
-  *)
-    printf 'Unsupported distribution. Install Ansible and rerun this command.\n' >&2
-    exit 1
-    ;;
-  esac
+    case "${distribution}" in
+    *debian*)
+        sudo apt-get update
+        sudo apt-get install --yes ansible
+        ;;
+    *)
+        printf 'Unsupported distribution (v1 supports Debian stable only). Install Ansible and rerun this command.\n' >&2
+        exit 1
+        ;;
+    esac
 }
 
 if ! command -v ansible-playbook >/dev/null 2>&1; then
-  install_ansible
+    install_ansible
 fi
 
 cd "${repo_root}"
-exec ansible-playbook --ask-become-pass ansible/playbook.yml "$@"
+exec ansible-playbook --ask-become-pass ansible/playbook.yml -e "dotfiles_profile=${dotfiles_profile}" "${passthrough[@]}"

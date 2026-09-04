@@ -1,6 +1,6 @@
 # Dotfiles
 
-Ansible-managed workstation configuration for Linux.
+Ansible-managed workstation configuration for Debian stable.
 
 ## Install
 
@@ -10,11 +10,18 @@ Clone the repository, then run:
 ./install
 ```
 
-The installer bootstraps Ansible when necessary, asks for the privilege-escalation
-password, installs the configured applications, and creates these links:
+This installs the full workstation set (default profile), asks for the
+privilege-escalation password, installs the declared applications, and links
+dotfiles into `$HOME`:
 
 - Every immediate child of `home/` is linked directly into `$HOME`.
 - Every immediate child of `.config/` is linked into `$HOME/.config`.
+
+For a headless machine, use the server profile (CLI tools only):
+
+```bash
+./install --profile server
+```
 
 Existing destinations that are not already the correct symlink are moved to a
 timestamped directory under `~/.local/state/dotfiles/backups/` before linking.
@@ -22,9 +29,9 @@ The operation is idempotent, so subsequent runs only apply new or changed items.
 
 ## Customize
 
-Edit `ansible/vars/main.yml` to change package lists, config exclusions, or
-conflict backup behavior. Package names are grouped by Ansible OS family because
-names differ between distributions.
+Edit `ansible/vars/packages.json` to change the package manifest (one object
+per package with `source` + `profiles`) and `ansible/vars/repos.json` for
+third-party apt signing keys and repository lines.
 
 Useful targeted runs:
 
