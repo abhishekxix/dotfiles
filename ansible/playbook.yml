@@ -5,8 +5,12 @@
 
   vars:
       dotfiles_profile: workstation
+      dotfiles_backup_conflicts: true
+      dotfiles_config_excludes:
+          - README.md
       dotfiles_repo_root: '{{ playbook_dir | dirname }}'
       dotfiles_home: '{{ ansible_facts.user_dir }}'
+      dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_short }}"
       dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json }}"
       dotfiles_repos_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/repos.json') | from_json }}"
       dotfiles_packages_selected: "{{ dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | list }}"
@@ -273,3 +277,66 @@
             build_step: '{{ item.1 }}'
         tags:
             - packages
+
+      # -- Dotfile linking (identical for all profiles) -----------------------
+      - name: Ensure user config directory exists
+        ansible.builtin.file:
+            path: '{{ dotfiles_home }}/.config'
+            state: directory
+            mode: '0755'
+        tags:
+            - dotfiles
+
+      - name: Discover direct home entries
+        ansible.builtin.find:
+            paths: '{{ dotfiles_repo_root }}/home'
+            recurse: false
+            hidden: true
+            file_type: any
+        register: home_entries
+        tags:
+            - dotfiles
+
+      - name: Link direct home entries
+        ansible.builtin.include_tasks:
+            file: tasks/link.yml
+            apply:
+                tags:
+                    - dotfiles
+        loop: '{{ home_entries.files }}'
+        loop_control:
+            loop_var: dotfile
+            label: '{{ dotfile.path | basename }}'
+        vars:
+            link_source: '{{ dotfile.path }}'
+            link_destination: '{{ dotfiles_home }}/{{ dotfile.path | basename }}'
+            link_backup_group: home
+        tags:
+            - dotfiles
+
+      - name: Discover config entries
+        ansible.builtin.find:
+            paths: '{{ dotfiles_repo_root }}/.config'
+            recurse: false
+            hidden: true
+            file_type: any
+        register: config_entries
+        tags:
+            - dotfiles
+
+      - name: Link config entries
+        ansible.builtin.include_tasks:
+            file: tasks/link.yml
+            apply:
+                tags:
+                    - dotfiles
+        loop: "{{ config_entries.files | rejectattr('path', 'in', dotfiles_config_excludes | map('regex_replace', '^', dotfiles_repo_root + '/.config/') | list) | list }}"
+        loop_control:
+            loop_var: dotfile
+            label: '{{ dotfile.path | basename }}'
+        vars:
+            link_source: '{{ dotfile.path }}'
+            link_destination: '{{ dotfiles_home }}/.config/{{ dotfile.path | basename }}'
+            link_backup_group: config
+        tags:
+            - dotfiles
