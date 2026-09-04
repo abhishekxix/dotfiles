@@ -5,3 +5,21 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
+
+-- Enable treesitter highlighting + folds for filetypes that have a parser.
+-- (Server install list lives in plugins/nvim-treesitter.lua.)
+vim.api.nvim_create_autocmd('FileType', {
+  desc = 'Enable treesitter highlighting and folding',
+  group = vim.api.nvim_create_augroup('as-treesitter', { clear = true }),
+  pattern = {
+    'bash', 'c', 'cpp', 'css', 'diff', 'html', 'javascript', 'json', 'lua',
+    'markdown', 'php', 'python', 'scss', 'toml', 'tsx', 'typescript', 'vim',
+  },
+  callback = function()
+    -- syntax highlighting, provided by Neovim core
+    vim.treesitter.start()
+    -- folds, provided by Neovim core
+    vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    vim.wo.foldmethod = 'expr'
+  end,
+})
