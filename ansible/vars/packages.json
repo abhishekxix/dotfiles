@@ -1,0 +1,155 @@
+{
+  "curl": {
+    "source": "apt",
+    "package": "curl",
+    "profiles": ["workstation", "server"]
+  },
+  "git": {
+    "source": "apt",
+    "package": "git",
+    "profiles": ["workstation", "server"]
+  },
+  "tmux": {
+    "source": "apt",
+    "package": "tmux",
+    "profiles": ["workstation", "server"]
+  },
+  "zsh": {
+    "source": "apt",
+    "package": "zsh",
+    "profiles": ["workstation", "server"]
+  },
+  "neovim": {
+    "source": "apt",
+    "package": "neovim",
+    "profiles": ["workstation", "server"]
+  },
+  "fzf": {
+    "source": "apt",
+    "package": "fzf",
+    "profiles": ["workstation", "server"]
+  },
+  "bat": {
+    "source": "apt",
+    "package": "bat",
+    "profiles": ["workstation", "server"]
+  },
+  "unzip": {
+    "source": "apt",
+    "package": "unzip",
+    "profiles": ["workstation", "server"]
+  },
+  "gnupg": {
+    "source": "apt",
+    "package": "gnupg",
+    "profiles": ["workstation", "server"]
+  },
+  "ca-certificates": {
+    "source": "apt",
+    "package": "ca-certificates",
+    "profiles": ["workstation", "server"]
+  },
+  "pipx": {
+    "source": "apt",
+    "package": "pipx",
+    "profiles": ["workstation", "server"]
+  },
+  "alacritty": {
+    "source": "apt",
+    "package": "alacritty",
+    "profiles": ["workstation"]
+  },
+  "dunst": {
+    "source": "apt",
+    "package": "dunst",
+    "profiles": ["workstation"]
+  },
+  "flameshot": {
+    "source": "apt",
+    "package": "flameshot",
+    "profiles": ["workstation"]
+  },
+  "picom": {
+    "source": "apt",
+    "package": "picom",
+    "profiles": ["workstation"]
+  },
+  "rofi": {
+    "source": "apt",
+    "package": "rofi",
+    "profiles": ["workstation"]
+  },
+  "xbindkeys": {
+    "source": "apt",
+    "package": "xbindkeys",
+    "profiles": ["workstation"]
+  },
+  "xscreensaver": {
+    "source": "apt",
+    "package": "xscreensaver",
+    "profiles": ["workstation"]
+  },
+  "qtile": {
+    "source": "apt",
+    "package": "qtile",
+    "profiles": ["workstation"]
+  },
+  "lxsession": {
+    "source": "apt",
+    "package": "lxsession",
+    "profiles": ["workstation"]
+  },
+  "docker-ce": {
+    "source": "apt",
+    "package": "docker-ce",
+    "repo": "docker",
+    "profiles": ["workstation", "server"]
+  },
+  "vscode": {
+    "source": "apt",
+    "package": "code",
+    "repo": "vscode",
+    "profiles": ["workstation"]
+  },
+  "starship": {
+    "source": "cargo",
+    "crate": "starship",
+    "profiles": ["workstation", "server"]
+  },
+  "fnm": {
+    "source": "script",
+    "url": "https://fnm.vercel.app/install",
+    "args": ["--skip-shell"],
+    "creates": "~/.local/share/fnm/fnm",
+    "profiles": ["workstation", "server"]
+  },
+  "wezterm": {
+    "source": "deb",
+    "url": "https://github.com/wezterm/wezterm/releases/download/20240203-110809-5046fc22/wezterm-20240203-110809-5046fc22.Debian12.deb",
+    "profiles": ["workstation"]
+  },
+  "zsh-syntax-highlighting": {
+    "source": "git",
+    "repo": "https://github.com/zsh-users/zsh-syntax-highlighting.git",
+    "dest": "~/.zsh/zsh-syntax-highlighting",
+    "build": [],
+    "creates": "~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
+    "profiles": ["workstation", "server"]
+  },
+  "zsh-autosuggestions": {
+    "source": "git",
+    "repo": "https://github.com/zsh-users/zsh-autosuggestions.git",
+    "dest": "~/.zsh/zsh-autosuggestions",
+    "build": [],
+    "creates": "~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh",
+    "profiles": ["workstation", "server"]
+  },
+  "zsh-completions": {
+    "source": "git",
+    "repo": "https://github.com/zsh-users/zsh-completions.git",
+    "dest": "~/.zsh/zsh-completions",
+    "build": [],
+    "creates": "~/.zsh/zsh-completions/src/_git",
+    "profiles": ["workstation", "server"]
+  }
+}
