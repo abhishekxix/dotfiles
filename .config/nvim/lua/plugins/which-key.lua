@@ -14,7 +14,8 @@ return {
       { '<leader>w', group = '[W]orkspace' },
       { '<leader>t', group = '[T]oggle' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
-      { '<leader>a', group = "Abhishek's Keymaps", mode = { 'n', 'v' }, icon = { icon = '' } },
+      { '<leader>m', group = 'mini.surround' },
+      { '<leader>p', group = 'Personal', mode = { 'n', 'v' } },
     },
   },
 }

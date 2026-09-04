@@ -18,7 +18,8 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
-vim.bo.expandtab = true
+vim.opt.expandtab = true
+vim.opt.smartindent = true
 vim.opt.wrap = false
 
 vim.opt.signcolumn = 'yes'
@@ -45,3 +46,7 @@ vim.opt.foldnestmax = 8
 
 vim.opt.termguicolors = true
 vim.o.winborder = 'rounded'
+
+vim.opt.smoothscroll = true
+
+vim.opt.pumheight = 15

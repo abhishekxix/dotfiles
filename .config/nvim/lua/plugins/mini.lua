@@ -13,12 +13,12 @@ return {
     -- Add/delete/replace surroundings (brackets, quotes, etc.)
     require('mini.surround').setup {
       mappings = {
-        add = '<leader>asa',
-        delete = '<leader>asd',
-        find = '<leader>asf',
-        find_left = '<leader>asF',
-        highlight = '<leader>ash',
-        replace = '<leader>asr',
+        add = '<leader>msa',
+        delete = '<leader>msd',
+        find = '<leader>msf',
+        find_left = '<leader>msF',
+        highlight = '<leader>msh',
+        replace = '<leader>msr',
       },
     }
 

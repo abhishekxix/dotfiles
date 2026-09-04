@@ -103,31 +103,12 @@ return {
 
     require('mason').setup()
 
-    local ensure_installed = {
-      -- servers
-      'lua_ls',
-      'phpactor',
-      'ts_ls',
-      'emmet_ls',
-      'somesass_ls',
-      'cssls',
-      'tailwindcss',
-      'clangd',
-      'bashls',
-      'pyright',
-      'jsonls',
-      'taplo',
-      -- formatters
-      'stylua',
-      'shfmt',
-      'black',
-      'prettier',
-      'clang-format',
-      -- linters
-      'eslint_d',
-      'stylelint',
-      'shellcheck',
-    }
+    -- Servers + formatters + linters, all defined in lua/langs.lua.
+    local langs = require 'langs'
+    local ensure_installed = vim.list_extend(
+      vim.list_extend(vim.deepcopy(langs.get_servers()), langs.get_formatters()),
+      langs.get_linters()
+    )
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
     -- Auto-enables installed servers via vim.lsp.enable().

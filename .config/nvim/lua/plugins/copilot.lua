@@ -18,12 +18,18 @@ return {
     vim.keymap.set('i', '<C-S-Right>', '<Plug>(copilot-accept-line)')
 
     -- set a keymap in normal mode to enable/disable copilot
-    vim.keymap.set('n', '<leader>ace', function()
-      vim.cmd 'Copilot enable'
-    end, { desc = 'Enable Copilot' })
+    local function copilot_enabled()
+      return vim.g.copilot_enabled == nil or vim.g.copilot_enabled == 1
+    end
 
-    vim.keymap.set('n', '<leader>acd', function()
-      vim.cmd 'Copilot disable'
-    end, { desc = 'Disable Copilot' })
+    vim.keymap.set('n', '<leader>tc', function()
+      if copilot_enabled() then
+        vim.cmd 'Copilot disable'
+        vim.notify('Copilot disabled', vim.log.levels.INFO)
+      else
+        vim.cmd 'Copilot enable'
+        vim.notify('Copilot enabled', vim.log.levels.INFO)
+      end
+    end, { desc = 'Toggle Copilot' })
   end,
 }
