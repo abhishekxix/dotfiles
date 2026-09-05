@@ -170,6 +170,35 @@
   "starship": {
     "source": "cargo",
     "crate": "starship",
+    "version": "1.22.1",
+    "profiles": [
+      "workstation",
+      "server"
+    ]
+  },
+  "prettier": {
+    "source": "npm",
+    "package": "prettier",
+    "version": "3.4.2",
+    "profiles": [
+      "workstation",
+      "server"
+    ]
+  },
+  "ruff": {
+    "source": "pipx",
+    "package": "ruff",
+    "version": "0.8.4",
+    "profiles": [
+      "workstation",
+      "server"
+    ]
+  },
+  "lazygit": {
+    "source": "archive",
+    "url": "https://github.com/jesseduffield/lazygit/releases/download/v0.55.1/lazygit_0.55.1_Linux_x86_64.tar.gz",
+    "dest": "~/.local/opt/lazygit",
+    "creates": "~/.local/opt/lazygit/lazygit",
     "profiles": [
       "workstation",
       "server"
@@ -181,7 +210,7 @@
     "args": [
       "--skip-shell"
     ],
-    "creates": "~/.cargo/bin/fnm",
+    "creates": "~/.local/share/fnm/fnm",
     "profiles": [
       "workstation",
       "server"
@@ -198,6 +227,7 @@
     "source": "git",
     "repo": "https://github.com/zsh-users/zsh-syntax-highlighting.git",
     "dest": "~/.zsh/zsh-syntax-highlighting",
+    "version": "0.8.0",
     "build": [],
     "creates": "~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
     "profiles": [
@@ -209,6 +239,7 @@
     "source": "git",
     "repo": "https://github.com/zsh-users/zsh-autosuggestions.git",
     "dest": "~/.zsh/zsh-autosuggestions",
+    "version": "v0.7.1",
     "build": [],
     "creates": "~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh",
     "profiles": [
@@ -220,6 +251,7 @@
     "source": "git",
     "repo": "https://github.com/zsh-users/zsh-completions.git",
     "dest": "~/.zsh/zsh-completions",
+    "version": "0.35.0",
     "build": [],
     "creates": "~/.zsh/zsh-completions/src/_git",
     "profiles": [

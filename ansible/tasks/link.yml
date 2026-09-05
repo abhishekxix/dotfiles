@@ -23,6 +23,17 @@
   when:
       - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
       - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
+      # AI-09: in check mode the mv below never runs, so predict the backup dir.
+      - not ansible_check_mode
+
+- name: Predict backup directory for {{ link_destination }}
+  ansible.builtin.debug:
+      msg: "Would create backup directory {{ dotfiles_backup_root }}/{{ link_backup_group }}"
+  changed_when: true
+  when:
+      - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
+      - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
+      - ansible_check_mode
 
 - name: Back up {{ link_destination }}
   ansible.builtin.command:
@@ -34,6 +45,26 @@
   when:
       - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
       - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
+      - not ansible_check_mode
+  # AI-09: the mv module reports changed; check_mode skips execution.
+
+- name: Predict back up of {{ link_destination }}
+  ansible.builtin.debug:
+      msg: "Would move {{ link_destination }} to {{ dotfiles_backup_root }}/{{ link_backup_group }}/"
+  changed_when: true
+  when:
+      - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
+      - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
+      - ansible_check_mode
+
+- name: Predict link {{ link_destination }}
+  ansible.builtin.debug:
+      msg: "Would link {{ link_destination }} -> {{ link_source }} (after backing up conflict)"
+  changed_when: true
+  when:
+      - ansible_check_mode
+      - link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))
+      - not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source)
 
 - name: Link {{ link_destination }}
   ansible.builtin.file:
@@ -41,3 +72,7 @@
       dest: '{{ link_destination }}'
       state: link
       force: false
+  # AI-09: in check mode the mv above never runs, so the conflicting file is
+  # still in place and force=false would fail instead of predicting. Skip the
+  # real link in that case; the predict task above reports the change.
+  when: not (ansible_check_mode and (link_destination_stat.stat.exists or (link_destination_stat.stat.islnk | default(false))) and not (link_destination_stat.stat.islnk | default(false) and link_destination_stat.stat.lnk_source == link_source))

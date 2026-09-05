@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Step | 02 |
 | Commit | `INSTALLER(02): add repos.json and apt key-repo tasks` |
 
@@ -32,13 +32,20 @@ reference it via `"repo": "<id>"` in `packages.json` (schema from step 01).
 }
 ```
 
+(`{{ ansible_architecture }}` above is the Debian apt arch name (`amd64` /
+`arm64`). The playbook maps `ansible_facts.architecture` (`x86_64` /
+`aarch64`) to it via `dotfiles_deb_arch` before expanding the repo line —
+templating the raw kernel name into the line breaks `apt update`.)
+
 Field rules:
 
 - `key_url`: https URL of the ASCII-armored signing key.
 - `keyring`: absolute path under `/usr/share/keyrings/` where the dearmored
   key lives. `signed-by=` in `repo` must point at the same path.
-- `repo`: full `deb [...] ...` line; may use Ansible facts
-  (`ansible_architecture`, `ansible_distribution_release`).
+- `repo`: full `deb [...] ...` line; may use Ansible facts. The arch
+  placeholder must expand to the Debian arch name (`amd64`/`arm64`), i.e. the
+  playbook maps `ansible_facts.architecture` (`x86_64`/`aarch64`) first —
+  never template the raw kernel name into the line.
 - An entry with no `key_url` (plain PPA-style line or local repo) is allowed:
   omit the field and the key task skips it.
 
@@ -52,7 +59,8 @@ Playbook behavior (Debian stable only, `become: true`):
    (idempotent). Skip unreferenced repos entirely — selecting profile `server`
    must not add workstation-only repos.
 3. `apt-get update` after any repo change, before any install (installs
-   themselves are step 03).
+   themselves are step 03). The update is gated on key/repo change with
+   `cache_valid_time` so clean re-runs stay `ok`.
 
 ## Acceptance
 

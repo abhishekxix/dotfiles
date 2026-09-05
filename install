@@ -2,14 +2,24 @@
 
 set -Eeuo pipefail
 
-repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 usage() {
-    printf 'Usage: ./install [--profile workstation|server] [ansible-playbook args...]\n' >&2
+    printf 'Usage: ./install [--profile workstation|server] [ansible-playbook args...]\n'
 }
 
 dotfiles_profile="workstation"
 passthrough=()
+saw_become_pass=false
+saw_profile_e=false
+for arg in "$@"; do
+    case "${arg}" in
+    --ask-become-pass | --ask-become-pass=*) saw_become_pass=true ;;
+    -e | --extra-vars) saw_profile_e=true ;;
+    -e*) saw_profile_e=true ;;
+    --extra-vars=*) saw_profile_e=true ;;
+    esac
+done
 while [[ $# -gt 0 ]]; do
     case "$1" in
     --profile)
@@ -52,12 +62,17 @@ install_ansible() {
 
     # shellcheck source=/dev/null
     source /etc/os-release
-    distribution="${ID_LIKE:-} ${ID:-}"
+    distribution_id="${ID:-}"
 
-    case "${distribution}" in
-    *debian*)
-        sudo apt-get update
-        sudo apt-get install --yes ansible
+    case "${distribution_id}" in
+    debian)
+        if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes ansible
+        else
+            apt-get update
+            apt-get install --yes ansible
+        fi
         ;;
     *)
         printf 'Unsupported distribution (v1 supports Debian stable only). Install Ansible and rerun this command.\n' >&2
@@ -70,5 +85,21 @@ if ! command -v ansible-playbook >/dev/null 2>&1; then
     install_ansible
 fi
 
+# AI-02: the playbook needs community.general (cargo/npm/pipx modules).
+if ! ansible-galaxy collection list 2>/dev/null | grep -q '^community\.general '; then
+    ansible-galaxy collection install -r "${repo_root}/ansible/requirements.yml"
+fi
+
 cd "${repo_root}"
-exec ansible-playbook --ask-become-pass ansible/playbook.yml -e "dotfiles_profile=${dotfiles_profile}" "${passthrough[@]}"
+if [[ "${saw_become_pass}" == "true" ]]; then
+    become_args=()
+else
+    become_args=(--ask-become-pass)
+fi
+if [[ "${saw_profile_e}" == "true" ]]; then
+    profile_args=()
+else
+    # shellcheck disable=SC2206
+    profile_args=(-e "dotfiles_profile=${dotfiles_profile}")
+fi
+exec ansible-playbook "${become_args[@]}" ansible/playbook.yml "${profile_args[@]}" "${passthrough[@]}"

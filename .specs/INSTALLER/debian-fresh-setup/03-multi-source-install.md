@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Step | 03 |
 | Commit | `INSTALLER(03): install packages from all manifest sources` |
 
@@ -23,11 +23,14 @@ tagged `packages`. Ordering matters: toolchains first, then everything else.
    - If any selected entry has `source == "cargo"` and `cargo` is missing:
      install `rustup` via its documented script entry pattern and ensure
      `~/.cargo/bin` on PATH for later tasks (no sudo for user-level cargo).
-   - If any selected entry has `source == "npm"` and `npm`/`fnm` is missing:
-     install `fnm` (script) then the LTS node via `fnm`, exposing node/npm to
-     later tasks.
+   - If any selected entry has `source == "npm"` and node is missing:
+     install `fnm` (script) then the LTS node via `fnm install --lts`,
+     exposing node/npm from the fnm default alias to later tasks.
    - If any selected entry has `source == "pipx"` and `pipx` is missing:
-     `apt install pipx` then `pipx ensurepath`.
+     `apt install pipx` then `pipx ensurepath` (fail on non-zero rc).
+   - The playbook needs the `community.general` collection (cargo/npm/pipx
+     modules, minimum version 10.7.0 for `pipx: name: pkg==ver`); it is
+     declared in `ansible/requirements.yml` and installed by `install`.
    - Each bootstrap task is skipped when its toolchain already exists
      (`creates`-style guard) and when no selected package needs it.
 3. **Per-source install:**
@@ -40,11 +43,17 @@ tagged `packages`. Ordering matters: toolchains first, then everything else.
    - `pipx`: `community.general.pipx`; no `become`.
    - `script`: `get_url` to temp + execute with `args`, guarded by `creates`.
      `sha256` is accepted by the schema but **not enforced** in v1.
-   - `deb`: `get_url` + `apt: deb=<file>` (handles deps), `become: true`.
+   - `deb`: download to a per-user cache dir (`~/.cache/dotfiles-debs/`) +
+     `apt: deb=<file>` (handles deps), `become: true` for the install only.
    - `archive`: `unarchive` (`remote_src: true`, `extra_opts: [--strip-components=N]`
-     from `strip`) into `dest` under `~/.local`, guarded by `creates`.
-   - `git`: `git` clone (pinned `version` → `ref` when given) + ordered
-     `build` commands run in `dest`, guarded by `creates`.
+     from `strip`, tar-only — never passed for `.zip` URLs) into `dest` under
+     `~/.local`, guarded by `creates`.
+   - `git`: `git` clone (pinned `version` when given, otherwise no update on
+     re-runs) + ordered `build` commands run via `shell` in `dest`, guarded by
+     `creates` (per-step `{cmd, creates}` overrides the entry default).
+   - The playbook validates the manifest first: unknown `source`, bad
+     `profile`, missing per-source fields, and unknown `repo` ids fail fast
+     instead of silently skipping.
 4. **Privilege rule:** `become: true` only for `apt`, key/repo (step 02), and
    `deb` installs. Everything user-level (cargo/npm/pipx/script/archive/git)
    runs without sudo and writes under `$HOME`/`~/.local`, expanding `~`

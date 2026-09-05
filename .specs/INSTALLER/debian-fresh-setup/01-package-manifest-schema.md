@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Step | 01 |
 | Commit | `INSTALLER(01): add packages.json manifest schema` |
 
@@ -60,10 +60,14 @@ Field rules:
   - `deb`: `url`, optional `sha256` (documented, not enforced in v1).
   - `archive`: `url`, `dest` (under `~/.local`, e.g. `~/.local/opt/<name>`),
     optional `strip` (strip-components), required `creates`.
-  - `git`: `repo` (clone URL), optional `dest`, required `build` (ordered
-    command list), required `creates`.
-- `creates`/`dest` paths may use `~`; the playbook expands them against the
-  target user's home, not root's (beware `become`).
+  - `git`: `repo` (clone URL), optional `dest`, optional `version` (pinned
+    tag/branch/commit; default is the remote default branch without tracking
+    updates on re-runs), required `build` (ordered command list; each step is
+    a string, or a `{cmd, creates}` mapping when only that step needs its own
+    guard), required `creates` (default guard for build steps without one).
+- `creates`/`dest` paths may use `~` as a leading home shorthand; the
+  playbook expands only that prefix against the target user's home, not
+  root's (beware `become`).
 - Seed content: start from the old `vars/main.yml` list (common: `curl git tmux
   zsh`; Debian extras: `alacritty dunst flameshot neovim picom rofi xbindkeys
   xscreensaver`) as plain `apt` entries with correct `profiles` tags, plus

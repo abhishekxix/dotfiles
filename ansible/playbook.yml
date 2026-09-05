@@ -8,7 +8,7 @@
       dotfiles_backup_conflicts: true
       dotfiles_config_excludes:
           - README.md
-      dotfiles_repo_root: '{{ playbook_dir | dirname }}'
+      dotfiles_repo_root: "{{ playbook_dir | ansible.builtin.dirname }}"
       dotfiles_home: '{{ ansible_facts.user_dir }}'
       dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_short }}"
       dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json }}"
@@ -23,8 +23,53 @@
       dotfiles_pkgs_deb: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'deb') | list }}"
       dotfiles_pkgs_archive: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'archive') | list }}"
       dotfiles_pkgs_git: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'git') | list }}"
+      # AI-01: map kernel arch names to Debian apt arch names.
+      dotfiles_deb_arch: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64'}[ansible_facts.architecture] | default(ansible_facts.architecture) }}"
 
   tasks:
+      # -- Manifest validation (fail fast on schema violations; AI-07) -------
+      - name: Validate package manifest schema
+        ansible.builtin.assert:
+            that:
+                - dotfiles_manifest is mapping
+                - dotfiles_manifest.values() | selectattr('source', 'undefined') | length == 0
+                - dotfiles_manifest.values() | map(attribute='source') | reject('in', ['apt', 'cargo', 'npm', 'pipx', 'script', 'deb', 'archive', 'git']) | length == 0
+                - dotfiles_manifest.values() | selectattr('profiles', 'undefined') | length == 0
+                - dotfiles_manifest.values() | map(attribute='profiles') | flatten | difference(['workstation', 'server']) | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'apt') | rejectattr('package', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'cargo') | rejectattr('crate', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'npm') | rejectattr('package', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'pipx') | rejectattr('package', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'script') | rejectattr('url', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'script') | rejectattr('creates', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'deb') | rejectattr('url', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('url', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('dest', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('creates', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('repo', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('build', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('creates', 'defined') | length == 0
+                - dotfiles_manifest.values() | selectattr('source', 'equalto', 'apt') | selectattr('repo', 'defined') | rejectattr('repo', 'in', dotfiles_repos_manifest.keys() | list) | length == 0
+            fail_msg: "Invalid package manifest: unknown source, bad profile, missing per-source field, or unknown repo id."
+            quiet: true
+        tags:
+            - packages
+            - dotfiles
+
+      # -- Toolchain prerequisites (AI-11: before any gpg/dearmor use) --------
+      - name: Ensure keyring prerequisites are installed
+        become: true
+        ansible.builtin.apt:
+            name:
+                - gnupg
+                - ca-certificates
+            state: present
+            update_cache: true
+            cache_valid_time: 3600
+        when: (dotfiles_repos_selected | length) > 0
+        tags:
+            - packages
+
       # -- Third-party apt repos (referenced only, step 02) -------------------
       - name: Download third-party apt signing keys
         become: true
@@ -34,6 +79,7 @@
             mode: '0644'
         loop: '{{ dotfiles_repos_selected }}'
         when: dotfiles_repos_manifest[item].key_url is defined
+        register: dotfiles_key_download
         tags:
             - packages
 
@@ -50,6 +96,17 @@
                 - '{{ dotfiles_repos_manifest[item].keyring }}.asc'
             args:
                 creates: '{{ dotfiles_repos_manifest[item].keyring }}'
+        loop: '{{ dotfiles_repos_selected }}'
+        when: dotfiles_repos_manifest[item].key_url is defined
+        register: dotfiles_key_dearmor
+        tags:
+            - packages
+
+      - name: Remove stale downloaded key copies
+        become: true
+        ansible.builtin.file:
+            path: '{{ dotfiles_repos_manifest[item].keyring }}.asc'
+            state: absent
         loop: '{{ dotfiles_repos_selected }}'
         when: dotfiles_repos_manifest[item].key_url is defined
         tags:
@@ -69,10 +126,12 @@
       - name: Add third-party apt repositories
         become: true
         ansible.builtin.apt_repository:
-            repo: "{{ dotfiles_repos_manifest[item].repo | replace('{{ ansible_architecture }}', ansible_facts.architecture) | replace('{{ ansible_distribution_release }}', ansible_facts.distribution_release) }}"
+            # AI-01: expand the Debian arch (amd64/arm64), not the kernel arch (x86_64/aarch64).
+            repo: "{{ dotfiles_repos_manifest[item].repo | replace('{{ ansible_architecture }}', dotfiles_deb_arch) | replace('{{ ansible_distribution_release }}', ansible_facts.distribution_release) }}"
             filename: '{{ item }}'
             state: present
         loop: '{{ dotfiles_repos_selected }}'
+        register: dotfiles_repo_add
         tags:
             - packages
 
@@ -80,7 +139,9 @@
         become: true
         ansible.builtin.apt:
             update_cache: true
-        when: (dotfiles_repos_selected | length) > 0
+            cache_valid_time: 3600
+        # AI-03: only refresh when a key or repo actually changed.
+        when: dotfiles_key_download is changed or dotfiles_key_dearmor is changed or dotfiles_repo_add is changed
         tags:
             - packages
 
@@ -114,12 +175,26 @@
         tags:
             - packages
 
-      - name: Check for node on PATH
-        ansible.builtin.command:
-            argv: [node, --version]
-        register: dotfiles_node_check
-        changed_when: false
-        failed_when: false
+      - name: Install fnm (node provider)
+        ansible.builtin.shell:
+            cmd: "set -o pipefail && curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell"
+            executable: /bin/bash
+            creates: "{{ dotfiles_home }}/.local/share/fnm/fnm"
+        environment:
+            PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+        when:
+            - (dotfiles_pkgs_npm | length) > 0
+            - not (dotfiles_fnm_check.stat.exists | default(false))
+        tags:
+            - packages
+
+      - name: Install Node LTS via fnm
+        ansible.builtin.shell:
+            cmd: 'set -o pipefail && eval "$({{ dotfiles_home }}/.local/share/fnm/fnm env --shell bash)" && fnm install --lts && fnm alias "$(fnm current)" default'
+            executable: /bin/bash
+            creates: "{{ dotfiles_home }}/.local/share/fnm/aliases/default"
+        environment:
+            PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:/usr/local/bin:/usr/bin:/bin"
         when: (dotfiles_pkgs_npm | length) > 0
         tags:
             - packages
@@ -139,8 +214,11 @@
         ansible.builtin.command:
             argv: [pipx, ensurepath]
         register: dotfiles_pipx_ensurepath
-        changed_when: "'already' not in (dotfiles_pipx_ensurepath.stdout | default('') | lower)"
-        failed_when: false
+        # AI-04: pipx prints 'is already in PATH' when nothing changed and
+        # 'Success! Added' when it edited a shell file; any non-zero rc is a
+        # real failure (no failed_when: false masking).
+        changed_when: "'already in path' not in (dotfiles_pipx_ensurepath.stdout | default('') | lower)"
+        failed_when: dotfiles_pipx_ensurepath.rc != 0
         when: (dotfiles_pkgs_pipx | length) > 0
         tags:
             - packages
@@ -154,14 +232,13 @@
         tags:
             - packages
 
+      # AI-17: one task, one apt transaction for all selected apt packages.
       - name: Install apt packages
         become: true
         ansible.builtin.apt:
-            name: '{{ item.value.package }}'
+            name: "{{ dotfiles_pkgs_apt | map(attribute='value.package') | list }}"
             state: present
-        loop: '{{ dotfiles_pkgs_apt }}'
-        loop_control:
-            label: '{{ item.value.package }}'
+        when: (dotfiles_pkgs_apt | length) > 0
         tags:
             - packages
 
@@ -186,11 +263,13 @@
             version: '{{ item.value.version | default(omit) }}'
             global: true
             state: present
+            # AI-10: resolve node/npm through the fnm-managed default alias.
+            executable: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin/npm"
         loop: '{{ dotfiles_pkgs_npm }}'
         loop_control:
             label: '{{ item.value.package }}'
         environment:
-            PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ ansible_facts.env.PATH }}"
+            PATH: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin:{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ ansible_facts.env.PATH }}"
         tags:
             - packages
 
@@ -201,6 +280,8 @@
         loop: '{{ dotfiles_pkgs_pipx }}'
         loop_control:
             label: '{{ item.value.package }}'
+        environment:
+            PATH: "{{ dotfiles_home }}/.local/bin:{{ ansible_facts.env.PATH }}"
         tags:
             - packages
 
@@ -208,17 +289,19 @@
         ansible.builtin.shell:
             cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | sh -s -- {{ item.value.args | default([]) | map('quote') | join(' ') }}"
             executable: /bin/bash
-            creates: "{{ item.value.creates | replace('~', dotfiles_home) }}"
+            creates: "{{ item.value.creates | regex_replace('^~', dotfiles_home) }}"
         loop: '{{ dotfiles_pkgs_script }}'
         loop_control:
             label: '{{ item.key }}'
+        environment:
+            PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
         tags:
             - packages
 
       - name: Download deb packages
         ansible.builtin.get_url:
             url: '{{ item.value.url }}'
-            dest: "/tmp/dotfiles-{{ item.key }}.deb"
+            dest: "{{ dotfiles_home }}/.cache/dotfiles-debs/{{ item.key }}.deb"
             mode: '0644'
         loop: '{{ dotfiles_pkgs_deb }}'
         loop_control:
@@ -229,7 +312,7 @@
       - name: Install deb packages
         become: true
         ansible.builtin.apt:
-            deb: "/tmp/dotfiles-{{ item.key }}.deb"
+            deb: "{{ dotfiles_home }}/.cache/dotfiles-debs/{{ item.key }}.deb"
         loop: '{{ dotfiles_pkgs_deb }}'
         loop_control:
             label: '{{ item.key }}'
@@ -238,22 +321,24 @@
 
       - name: Ensure archive parents exist
         ansible.builtin.file:
-            path: "{{ item.value.dest | replace('~', dotfiles_home) }}"
+            path: "{{ item.value.dest | regex_replace('^~', dotfiles_home) }}"
             state: directory
             mode: '0755'
         loop: '{{ dotfiles_pkgs_archive }}'
         loop_control:
             label: '{{ item.key }}'
+        when: (item.value.creates | regex_replace('^~', dotfiles_home)) != (item.value.dest | regex_replace('^~', dotfiles_home))
         tags:
             - packages
 
       - name: Extract archives
         ansible.builtin.unarchive:
             src: '{{ item.value.url }}'
-            dest: "{{ item.value.dest | replace('~', dotfiles_home) }}"
+            dest: "{{ item.value.dest | regex_replace('^~', dotfiles_home) }}"
             remote_src: true
-            creates: "{{ item.value.creates | replace('~', dotfiles_home) }}"
-            extra_opts: "{{ ['--strip-components=' + (item.value.strip | string)] if item.value.strip is defined else [] }}"
+            creates: "{{ item.value.creates | regex_replace('^~', dotfiles_home) }}"
+            # AI-20: strip-components is tar-only; zip files must not get it.
+            extra_opts: "{{ ['--strip-components=' + (item.value.strip | string)] if (item.value.strip is defined and item.value.url is not search('\\.zip$')) else [] }}"
         loop: '{{ dotfiles_pkgs_archive }}'
         loop_control:
             label: '{{ item.key }}'
@@ -263,9 +348,9 @@
       - name: Clone git sources
         ansible.builtin.git:
             repo: '{{ item.value.repo }}'
-            dest: "{{ (item.value.dest | default('~/.local/src/' + item.key)) | replace('~', dotfiles_home) }}"
-            version: "{{ item.value.version | default('HEAD') }}"
-            update: true
+            dest: "{{ (item.value.dest | default('~/.local/src/' + item.key)) | regex_replace('^~', dotfiles_home) }}"
+            version: "{{ item.value.version | default(omit) }}"
+            update: "{{ item.value.version is defined }}"
         loop: '{{ dotfiles_pkgs_git }}'
         loop_control:
             label: '{{ item.key }}'
@@ -273,15 +358,15 @@
             - packages
 
       - name: Run git build steps
-        ansible.builtin.command: '{{ build_step }}'
+        ansible.builtin.shell: '{{ build_step }}'
         args:
-            chdir: "{{ (item.0.value.dest | default('~/.local/src/' + item.0.key)) | replace('~', dotfiles_home) }}"
-            creates: "{{ item.0.value.creates | replace('~', dotfiles_home) }}"
+            chdir: "{{ (item.0.value.dest | default('~/.local/src/' + item.0.key)) | regex_replace('^~', dotfiles_home) }}"
+            creates: "{{ (item.1.creates | default(item.0.value.creates)) | regex_replace('^~', dotfiles_home) }}"
         loop: "{{ dotfiles_pkgs_git | subelements('value.build', skip_missing=True) }}"
         loop_control:
-            label: '{{ item.0.key }}: {{ item.1 }}'
+            label: '{{ item.0.key }}: {{ item.1.cmd if item.1 is mapping else item.1 }}'
         vars:
-            build_step: '{{ item.1 }}'
+            build_step: "{{ item.1.cmd if item.1 is mapping else item.1 }}"
         tags:
             - packages
 

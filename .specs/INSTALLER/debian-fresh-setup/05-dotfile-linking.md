@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Step | 05 |
 | Commit | `INSTALLER(05): link home and config entries with backup` |
 
@@ -26,7 +26,9 @@ timestamped `~/.local/state/dotfiles/backups/<iso8601_basic_short>/` dir.
   `stat` (no follow) → `fail` when `dotfiles_backup_conflicts` is false and
   the destination is not already the managed symlink → `mkdir -p` backup group
   dir (`0700`) → `mv` conflict into it → `file: state=link` (no force; correct
-  links are left untouched so re-runs are no-ops).
+  links are left untouched so re-runs are no-ops). In `--check` mode the
+  `mkdir`/`mv`/real link steps are skipped and `debug` predict-tasks report the
+  planned backup + link instead, so preview no longer errors on conflicts.
 - `dotfiles_backup_conflicts: true` default (overridable via `-e`); backup
   root derived from `ansible_facts.user_dir` + `ansible_date_time`, not
   hardcoded `/home/`.
