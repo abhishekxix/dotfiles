@@ -54,17 +54,26 @@ Field rules:
   - `cargo`: `crate`, optional `version`, optional `features`.
   - `npm`: `package`, optional `version`.
   - `pipx`: `package`, optional `version`.
-  - `script`: `url`, optional `args` (list), required `creates` (path whose
-    existence means "already installed", used for idempotency), optional
-    `sha256` (documented, **not enforced** in v1 — see follow-up 3).
+  - `script`: `url`, optional `args` (must be a list when present), required
+    `creates` (path whose existence means "already installed", used for
+    idempotency), optional `sha256` (documented, **not enforced** in v1 — see
+    follow-up 3).
   - `deb`: `url`, optional `sha256` (documented, not enforced in v1).
-  - `archive`: `url`, `dest` (under `~/.local`, e.g. `~/.local/opt/<name>`),
-    optional `strip` (strip-components), required `creates`.
+  - `archive`: `url`, optional per-arch override `url_<deb arch>` (e.g.
+    `url_arm64`; falls back to `url`), `dest` (under `~/.local`, e.g.
+    `~/.local/opt/<name>`), optional `strip` (strip-components, must be a
+    number when present), required `creates`.
   - `git`: `repo` (clone URL), optional `dest`, optional `version` (pinned
     tag/branch/commit; default is the remote default branch without tracking
-    updates on re-runs), required `build` (ordered command list; each step is
+    updates on re-runs), required `build` (must be a list; each step is
     a string, or a `{cmd, creates}` mapping when only that step needs its own
-    guard), required `creates` (default guard for build steps without one).
+    guard), required `creates` (default guard for build steps without one;
+    the clone itself is skipped when this marker already exists).
+- `profiles` must be non-empty (an empty list selects into no profile and is
+  rejected by validation).
+- Kernel-to-Debian arch map: `x86_64→amd64`, `aarch64→arm64`, `armv7l→armhf`,
+  `i386/i686→i386`; any other arch fails validation instead of writing a
+  broken `arch=` repo line.
 - `creates`/`dest` paths may use `~` as a leading home shorthand; the
   playbook expands only that prefix against the target user's home, not
   root's (beware `become`).

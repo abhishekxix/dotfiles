@@ -29,14 +29,17 @@ Bash wrapper, `set -Eeuo pipefail`, shellcheck-clean per `.shellcheckrc`:
   apt-get update` then `sudo apt-get install --yes ansible` (without sudo
   when running as root). Non-Debian → error telling the user v1 supports
   Debian stable only. Fail if `/etc/os-release` is unreadable.
-- If the `community.general` collection is missing: install it from
-  `ansible/requirements.yml` (minimum version 10.7.0). Resolve `repo_root`
+- If the `community.general` collection is missing — or older than the
+  `10.7.0` floor: install (or `--upgrade`) it from
+  `ansible/requirements.yml` (floor compared via `sort -V`). Resolve `repo_root`
   from `${BASH_SOURCE[0]:-$0}` so a symlinked `install` still finds it.
 - Keep always prompting for the become password by default, but do not
   duplicate flags the caller already passed: forward an explicit
-  `--ask-become-pass` / `-K` and a caller `-e dotfiles_profile=...` as-is
-  instead of appending a conflicting default (`-h/--help` usage goes to
-  stdout with exit 0).
+  `--ask-become-pass` / `-K` / `--become-password-file` and a caller
+  `-e dotfiles_profile=...` as-is instead of appending a conflicting default
+  (`-h/--help` usage goes to stdout with exit 0; error-path usage to stderr).
+  Only an `-e`/`--extra-vars` *value* mentioning `dotfiles_profile` suppresses
+  the default profile injection (split and joined forms).
 - `exec ansible-playbook --ask-become-pass ansible/playbook.yml "$@"` so all
   other flags (`--tags packages|dotfiles`, `--check --diff`, `-e ...`) pass
   through. Documented entry points:

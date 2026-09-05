@@ -24,10 +24,14 @@ tagged `packages`. Ordering matters: toolchains first, then everything else.
      install `rustup` via its documented script entry pattern and ensure
      `~/.cargo/bin` on PATH for later tasks (no sudo for user-level cargo).
    - If any selected entry has `source == "npm"` and node is missing:
-     install `fnm` (script) then the LTS node via `fnm install --lts`,
-     exposing node/npm from the fnm default alias to later tasks.
+     install `fnm` (probed via the stock path *and* `command -v fnm`, so a
+     cargo-installed fnm is not reinstalled) then the LTS node via
+     `fnm install --lts`, exposing node/npm from the fnm default alias to
+     later tasks. The LTS alias is a converge-once marker: an existing
+     `aliases/default` is never auto-upgraded to a newer LTS.
    - If any selected entry has `source == "pipx"` and `pipx` is missing:
-     `apt install pipx` then `pipx ensurepath` (fail on non-zero rc).
+     `apt install pipx` then `pipx ensurepath` (fail on non-zero rc; changed
+     when stdout+stderr lack "already in PATH").
    - The playbook needs the `community.general` collection (cargo/npm/pipx
      modules, minimum version 10.7.0 for `pipx: name: pkg==ver`); it is
      declared in `ansible/requirements.yml` and installed by `install`.
@@ -41,19 +45,28 @@ tagged `packages`. Ordering matters: toolchains first, then everything else.
      `creates: ~/.cargo/bin/<bin>`; no `become` (user-level).
    - `npm`: `community.general.npm -g`; needs node on PATH from bootstrap.
    - `pipx`: `community.general.pipx`; no `become`.
-   - `script`: `get_url` to temp + execute with `args`, guarded by `creates`.
+   - `script`: pipe `curl` into `bash` with `args`, guarded by `creates`.
      `sha256` is accepted by the schema but **not enforced** in v1.
-   - `deb`: download to a per-user cache dir (`~/.cache/dotfiles-debs/`) +
+   - `deb`: download to a per-user cache dir (`~/.cache/dotfiles-debs/`,
+     created by a `file: state=directory` task first) +
      `apt: deb=<file>` (handles deps), `become: true` for the install only.
    - `archive`: `unarchive` (`remote_src: true`, `extra_opts: [--strip-components=N]`
-     from `strip`, tar-only — never passed for `.zip` URLs) into `dest` under
-     `~/.local`, guarded by `creates`.
-   - `git`: `git` clone (pinned `version` when given, otherwise no update on
-     re-runs) + ordered `build` commands run via `shell` in `dest`, guarded by
+     from numeric `strip`, tar-only — never passed for `.zip` URLs,
+     case-insensitive and query-string tolerant) into `dest` under
+     `~/.local`, guarded by `creates`. `url_<deb arch>` (e.g. `url_arm64`)
+     overrides `url` on non-amd64 hosts.
+   - `git`: `git` clone (pinned `version` when given — Ansible coerces the
+     templated `update` flag to bool, so unpinned entries do not track on
+     re-runs; skipped entirely when the entry `creates` marker already exists
+     — `ansible.builtin.git` takes no `creates` param, hence the stat guard) +
+     ordered `build` commands run via `shell` in `dest`, guarded by
      `creates` (per-step `{cmd, creates}` overrides the entry default).
    - The playbook validates the manifest first: unknown `source`, bad
-     `profile`, missing per-source fields, and unknown `repo` ids fail fast
-     instead of silently skipping.
+     `profile`, empty `profiles`, missing per-source fields, bad `args`/`build`
+     (`sequence`) / `strip` (`number`) types, unknown `repo` ids, and unknown
+     host arches fail fast instead of silently skipping. (`version`/`features`
+     stay quoted `default(omit, true)` — a bare `{{ }}` mapping value is a YAML
+     parse error, so unquoting is not an option.)
 4. **Privilege rule:** `become: true` only for `apt`, key/repo (step 02), and
    `deb` installs. Everything user-level (cargo/npm/pipx/script/archive/git)
    runs without sudo and writes under `$HOME`/`~/.local`, expanding `~`

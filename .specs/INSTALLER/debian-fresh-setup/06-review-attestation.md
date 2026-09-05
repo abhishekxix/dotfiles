@@ -143,13 +143,16 @@ Suggested work order (risk/effort): AI-02 + AI-16 (requirements floor) → AI-01
 Playbook (`ansible/playbook.yml`): AI-01 (`dotfiles_deb_arch` map, templated
 into repo lines); AI-03 (repo-triggered update registered + gated,
 `cache_valid_time: 3600`); AI-04 (`failed_when: rc != 0`, changed on missing
-`already`); AI-05 (pinned git `version`s, `update` only when pinned, clone
-honors entry `creates`); AI-06 (`shell` builds, per-step `{cmd, creates}`
+`already`); AI-05 (pinned git `version`s, `update` only when pinned — the clone
+itself honors entry `creates` via a stat guard because `ansible.builtin.git`
+accepts no `creates` param, see 08-step-12 correction); AI-06 (`shell` builds, per-step `{cmd, creates}`
 override); AI-07 (fail-fast assert block for source/profiles/required fields +
-repo-id check, `regex_replace('^~', …)` everywhere); AI-11 (`gnupg` +
+repo-id check, `regex_replace('^~/', …)` everywhere); AI-11 (`gnupg` +
 `ca-certificates` pre-install with `cache_valid_time` before dearmor);
 AI-12 (per-user `~/.cache/dotfiles-debs/`, stale `.asc` pruned after dearmor);
-AI-17 (single `apt: name=<list>` transaction); AN-02 (unquoted `features`).
+AI-17 (single `apt: name=<list>` transaction); AN-02 (`default(omit, true)` with
+quotes kept — a bare `{{ }}` mapping value is a YAML parse error, so true
+unquoting is impossible).
 New behavior: fnm install + `fnm install --lts` bootstrap (AI-10), npm via the
 fnm default-alias npm with node on PATH, manifest fixtures `prettier` (npm),
 `ruff==0.8.4` (pipx), `lazygit` (archive) (AI-08/AI-16), pinned
