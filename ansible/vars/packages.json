@@ -197,6 +197,7 @@
   "lazygit": {
     "source": "archive",
     "url": "https://github.com/jesseduffield/lazygit/releases/download/v0.55.1/lazygit_0.55.1_Linux_x86_64.tar.gz",
+    "url_arm64": "https://github.com/jesseduffield/lazygit/releases/download/v0.55.1/lazygit_0.55.1_Linux_arm64.tar.gz",
     "dest": "~/.local/opt/lazygit",
     "creates": "~/.local/opt/lazygit/lazygit",
     "profiles": [

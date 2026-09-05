@@ -8,23 +8,52 @@ usage() {
     printf 'Usage: ./install [--profile workstation|server] [ansible-playbook args...]\n'
 }
 
+usage_error() {
+    usage >&2
+}
+
 dotfiles_profile="workstation"
 passthrough=()
 saw_become_pass=false
 saw_profile_e=false
+# AI-24: collect -e/--extra-vars VALUES; only a value mentioning
+# dotfiles_profile suppresses the default profile injection. Handles both
+# split (-e VALUE) and joined (-eVALUE, --extra-vars=VALUE) forms.
+extra_vals=()
+prev_was_extra=false
+prev_was_extra_val=""
 for arg in "$@"; do
+    if [[ "${prev_was_extra}" == "true" ]]; then
+        # AI-24: a split `-e a=1 b=2` second value belongs to ansible, not to
+        # -e — only the immediately following value is the extra-vars payload.
+        if [[ -z "${prev_was_extra_val}" ]]; then
+            prev_was_extra_val="${arg}"
+            extra_vals+=("${arg}")
+        fi
+        prev_was_extra=false
+        continue
+    fi
     case "${arg}" in
-    --ask-become-pass | --ask-become-pass=*) saw_become_pass=true ;;
-    -e | --extra-vars) saw_profile_e=true ;;
-    -e*) saw_profile_e=true ;;
-    --extra-vars=*) saw_profile_e=true ;;
+    --ask-become-pass | --ask-become-pass=* | -K | --become-password-file | --become-password-file=*)
+        saw_become_pass=true
+        ;;
+    -K*) saw_become_pass=true ;;
+    -e | --extra-vars) prev_was_extra=true ;;
+    -e*) extra_vals+=("${arg#-e}") ;;
+    --extra-vars=*) extra_vals+=("${arg#--extra-vars=}") ;;
     esac
 done
+for val in ${extra_vals[@]+"${extra_vals[@]}"}; do
+    case "${val}" in
+    *dotfiles_profile*) saw_profile_e=true ;;
+    esac
+done
+unset extra_vals prev_was_extra prev_was_extra_val val arg
 while [[ $# -gt 0 ]]; do
     case "$1" in
     --profile)
         if [[ $# -lt 2 ]]; then
-            usage
+            usage_error
             exit 1
         fi
         dotfiles_profile="$2"
@@ -49,7 +78,7 @@ case "${dotfiles_profile}" in
 workstation | server) ;;
 *)
     printf 'Invalid profile: %s (expected workstation or server).\n' "${dotfiles_profile}" >&2
-    usage
+    usage_error
     exit 1
     ;;
 esac
@@ -85,10 +114,17 @@ if ! command -v ansible-playbook >/dev/null 2>&1; then
     install_ansible
 fi
 
-# AI-02: the playbook needs community.general (cargo/npm/pipx modules).
-if ! ansible-galaxy collection list 2>/dev/null | grep -q '^community\.general '; then
+# AI-02/AI-22: the playbook needs community.general>=10.7.0 (cargo/npm/pipx
+# modules; pipx `name: pkg==ver` needs the floor). Install when missing,
+# --upgrade when the installed version is below the floor.
+dotfiles_collection_floor="10.7.0"
+dotfiles_collection_have="$(ansible-galaxy collection list 2>/dev/null | awk '$1 == "community.general" { print $2; exit }')"
+if [[ -z "${dotfiles_collection_have}" ]]; then
     ansible-galaxy collection install -r "${repo_root}/ansible/requirements.yml"
+elif [[ "${dotfiles_collection_have}" != "${dotfiles_collection_floor}" ]] && [[ "$(printf '%s\n%s\n' "${dotfiles_collection_floor}" "${dotfiles_collection_have}" | sort -V | head -n 1)" != "${dotfiles_collection_floor}" ]]; then
+    ansible-galaxy collection install --upgrade -r "${repo_root}/ansible/requirements.yml"
 fi
+unset dotfiles_collection_have dotfiles_collection_floor
 
 cd "${repo_root}"
 if [[ "${saw_become_pass}" == "true" ]]; then
