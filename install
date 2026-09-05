@@ -5,7 +5,51 @@ set -Eeuo pipefail
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 usage() {
-    printf 'Usage: ./install [--profile workstation|server] [ansible-playbook args...]\n'
+    cat <<'EOF'
+Usage: ./install [--profile NAME] [ansible-playbook options]
+
+Configure this machine via Ansible (Debian stable only).
+
+Profiles:
+  --profile NAME, --profile=NAME
+      workstation   Full set: GUI apps + CLI tools (default).
+      server        Headless set: CLI tools only.
+
+Help:
+  -h, --help        Show this help and exit.
+
+Passthrough (anything else is forwarded to ansible-playbook):
+  --tags packages|dotfiles
+                    Run only app installs or only dotfile linking.
+  --check --diff    Preview changes without applying them.
+  --skip-tags packages
+                    Limit a run to dotfile linking (no package installs).
+  -e KEY=VALUE, --extra-vars KEY=VALUE
+                    Extra Ansible variables. A value containing
+                    dotfiles_profile overrides --profile.
+  -K, --ask-become-pass, --become-password-file FILE
+                    Become-password options. The wrapper adds
+                    --ask-become-pass unless you pass one of these.
+
+Wrapper behavior:
+  - Installs ansible via apt when ansible-playbook is missing
+    (Debian ID=debian only; uses sudo when available).
+  - Installs (or upgrades to >=10.7.0) the community.general
+    collection from ansible/requirements.yml when needed.
+  - Runs ansible-playbook from the repo root with the selected
+    profile forwarded as -e dotfiles_profile=NAME.
+  - Conflicting dotfiles are backed up under
+    ~/.local/state/dotfiles/backups/<timestamp>/ before linking.
+    Re-runs are idempotent.
+
+Examples:
+  ./install
+  ./install --profile server
+  ./install --tags dotfiles
+  ./install --tags packages
+  ./install --check --diff --skip-tags packages
+  ./install --profile server --tags packages
+EOF
 }
 
 usage_error() {
