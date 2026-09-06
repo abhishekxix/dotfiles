@@ -217,13 +217,6 @@
       "server"
     ]
   },
-  "wezterm": {
-    "source": "deb",
-    "url": "https://github.com/wezterm/wezterm/releases/download/20240203-110809-5046fc22/wezterm-20240203-110809-5046fc22.Debian12.deb",
-    "profiles": [
-      "workstation"
-    ]
-  },
   "zsh-syntax-highlighting": {
     "source": "git",
     "repo": "https://github.com/zsh-users/zsh-syntax-highlighting.git",
