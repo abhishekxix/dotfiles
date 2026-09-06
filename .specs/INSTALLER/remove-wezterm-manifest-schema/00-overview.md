@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE (step 01 commits as WEZTERM per scope table) |
 | Created | 2026-09-06 |
 
