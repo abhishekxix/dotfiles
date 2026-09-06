@@ -11,7 +11,9 @@
       dotfiles_repo_root: "{{ playbook_dir | ansible.builtin.dirname }}"
       dotfiles_home: '{{ ansible_facts.user_dir }}'
       dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_short }}"
-      dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json }}"
+      # The manifest may carry a "$schema" pointer for editor support; strip it
+      # before treating values as package entries (it has no profiles/source).
+      dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json | dict2items | rejectattr('key', 'equalto', '$schema') | items2dict }}"
       dotfiles_repos_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/repos.json') | from_json }}"
       dotfiles_packages_selected: "{{ dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | list }}"
       dotfiles_repos_selected: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | selectattr('value.repo', 'defined') | map(attribute='value.repo') | unique | list }}"
