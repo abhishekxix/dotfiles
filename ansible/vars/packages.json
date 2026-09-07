@@ -58,6 +58,13 @@
     ],
     "source": "apt"
   },
+  "copyq": {
+    "package": "copyq",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "curl": {
     "package": "curl",
     "profiles": [
@@ -195,8 +202,29 @@
     ],
     "source": "apt"
   },
+  "libnss3-tools": {
+    "package": "libnss3-tools",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "lxappearance": {
     "package": "lxappearance",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "lxlock": {
+    "package": "lxlock",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "lxpolkit": {
+    "package": "lxpolkit",
     "profiles": [
       "workstation"
     ],
@@ -409,8 +437,29 @@
     ],
     "source": "apt"
   },
+  "xclip": {
+    "package": "xclip",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "xdg-desktop-portal-gtk": {
+    "package": "xdg-desktop-portal-gtk",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "xscreensaver": {
     "package": "xscreensaver",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "xwallpaper": {
+    "package": "xwallpaper",
     "profiles": [
       "workstation"
     ],

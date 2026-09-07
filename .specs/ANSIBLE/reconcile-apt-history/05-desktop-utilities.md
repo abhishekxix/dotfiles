@@ -7,6 +7,6 @@
   screenshots/file choosers; `lxlock`/`lxpolkit` complete the lxsession
   family already tracked.)
 - **Acceptance:**
-  - [ ] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
-  - [ ] All seven keys present with `profiles: ["workstation"]`.
-  - [ ] Playbook check-mode parse clean (manifest validation green).
+  - [x] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
+  - [x] All seven keys present with `profiles: ["workstation"]`.
+  - [x] Playbook check-mode parse clean (manifest validation green).
