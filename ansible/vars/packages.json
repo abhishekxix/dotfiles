@@ -390,13 +390,6 @@
     ],
     "source": "apt"
   },
-  "playerctl": {
-    "package": "playerctl",
-    "profiles": [
-      "workstation"
-    ],
-    "source": "apt"
-  },
   "picom": {
     "build": [
       "rm -rf build && meson setup --buildtype=release -Dprefix=\"$HOME/.local\" build && ninja -C build install"
@@ -408,6 +401,13 @@
     "repo": "https://github.com/yshui/picom.git",
     "source": "git",
     "version": "v12"
+  },
+  "playerctl": {
+    "package": "playerctl",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "pulseaudio-equalizer": {
     "package": "pulseaudio-equalizer",

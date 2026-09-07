@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-08 |
 
@@ -84,16 +84,16 @@ request, committed standalone before this spec).
 
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
-- [ ] 01 — CLI/dev tools, workstation+server (01-cli-dev-tools.md)
-- [ ] 02 — audio stack, workstation (02-audio-stack.md)
-- [ ] 03 — fonts & themes, workstation (03-fonts-themes.md)
-- [ ] 04 — tray/network/indicator, workstation (04-tray-network.md)
-- [ ] 05 — desktop utilities & session bits, workstation (05-desktop-utilities.md)
-- [ ] 06 — media apps, workstation (06-media-apps.md)
-- [ ] 07 — hardware/driver stack, workstation (07-hardware-stack.md)
-- [ ] 08 — ttf-mscorefonts-installer + EULA preseed (08-mscorefonts-preseed.md)
-- [ ] 09 — lm-sensors as qtile dep (09-lm-sensors-qtile-deps.md)
-- [ ] 10 — docker buildx/compose plugins + Corretto JDK 21 (10-docker-plugins-corretto.md)
+- [x] 01 — CLI/dev tools, workstation+server (01-cli-dev-tools.md)
+- [x] 02 — audio stack, workstation (02-audio-stack.md)
+- [x] 03 — fonts & themes, workstation (03-fonts-themes.md)
+- [x] 04 — tray/network/indicator, workstation (04-tray-network.md)
+- [x] 05 — desktop utilities & session bits, workstation (05-desktop-utilities.md)
+- [x] 06 — media apps, workstation (06-media-apps.md)
+- [x] 07 — hardware/driver stack, workstation (07-hardware-stack.md)
+- [x] 08 — ttf-mscorefonts-installer + EULA preseed (08-mscorefonts-preseed.md)
+- [x] 09 — lm-sensors as qtile dep (09-lm-sensors-qtile-deps.md)
+- [x] 10 — docker buildx/compose plugins + Corretto JDK 21 (10-docker-plugins-corretto.md)
 
 ## Risks & Rollback
 
