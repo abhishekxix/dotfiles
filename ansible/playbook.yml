@@ -157,8 +157,8 @@
           - -o
           - "{{ dotfiles_repos_manifest[item].keyring }}"
           - "{{ dotfiles_repos_manifest[item].keyring }}.asc"
-        args:
-          creates: "{{ dotfiles_repos_manifest[item].keyring }}"
+      args:
+        creates: "{{ dotfiles_repos_manifest[item].keyring }}"
       loop: "{{ dotfiles_repos_selected }}"
       when: dotfiles_repos_manifest[item].key_url is defined
       register: dotfiles_key_dearmor
