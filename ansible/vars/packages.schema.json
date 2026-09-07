@@ -159,7 +159,7 @@
     },
     "git": {
       "type": "object",
-      "required": ["source", "repo", "build", "creates", "profiles"],
+      "required": ["source", "repo", "creates", "profiles"],
       "additionalProperties": false,
       "properties": {
         "source": { "const": "git" },

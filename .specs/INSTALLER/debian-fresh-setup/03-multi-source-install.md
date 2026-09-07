@@ -23,12 +23,15 @@ tagged `packages`. Ordering matters: toolchains first, then everything else.
    - If any selected entry has `source == "cargo"` and `cargo` is missing:
      install `rustup` via its documented script entry pattern and ensure
      `~/.cargo/bin` on PATH for later tasks (no sudo for user-level cargo).
-   - If any selected entry has `source == "npm"` and node is missing:
-     install `fnm` (probed via the stock path *and* `command -v fnm`, so a
-     cargo-installed fnm is not reinstalled) then the LTS node via
-     `fnm install --lts`, exposing node/npm from the fnm default alias to
-     later tasks. The LTS alias is a converge-once marker: an existing
-     `aliases/default` is never auto-upgraded to a newer LTS.
+    - If any selected entry has `source == "npm"` and node is missing:
+      install `fnm` (probed via the stock path *and* `command -v fnm`, so a
+      cargo-installed fnm is not reinstalled) then the LTS node via
+      `fnm install --lts`, exposing node/npm from the fnm default alias to
+      later tasks. The LTS alias is a converge-once marker: an existing
+      `aliases/default` is never auto-upgraded to a newer LTS. The bootstrap
+      task is the single source of truth for fnm — there is intentionally no
+      `fnm` entry in `packages.json` (one installer source, no URL/flag
+      drift).
    - If any selected entry has `source == "pipx"` and `pipx` is missing:
      `apt install pipx` then `pipx ensurepath` (fail on non-zero rc; changed
      when stdout+stderr lack "already in PATH").
@@ -55,12 +58,13 @@ tagged `packages`. Ordering matters: toolchains first, then everything else.
      case-insensitive and query-string tolerant) into `dest` under
      `~/.local`, guarded by `creates`. `url_<deb arch>` (e.g. `url_arm64`)
      overrides `url` on non-amd64 hosts.
-   - `git`: `git` clone (pinned `version` when given — Ansible coerces the
-     templated `update` flag to bool, so unpinned entries do not track on
-     re-runs; skipped entirely when the entry `creates` marker already exists
-     — `ansible.builtin.git` takes no `creates` param, hence the stat guard) +
-     ordered `build` commands run via `shell` in `dest`, guarded by
-     `creates` (per-step `{cmd, creates}` overrides the entry default).
+    - `git`: `git` clone (pinned `version` when given, with `update: false`
+      so pinned clones never fetch on re-runs; unpinned entries track the
+      remote with `update: true`. Ansible coerces the templated `update` flag
+      to bool. Skipped entirely when the entry `creates` marker already exists
+      — `ansible.builtin.git` takes no `creates` param, hence the stat guard) +
+      ordered `build` commands run via `shell` in `dest`, guarded by
+      `creates` (per-step `{cmd, creates}` overrides the entry default).
    - The playbook validates the manifest first: unknown `source`, bad
      `profile`, empty `profiles`, missing per-source fields, bad `args`/`build`
      (`sequence`) / `strip` (`number`) types, unknown `repo` ids, and unknown

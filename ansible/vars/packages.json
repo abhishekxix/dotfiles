@@ -113,9 +113,11 @@
     "profiles": ["workstation"]
   },
   "starship": {
-    "source": "cargo",
-    "crate": "starship",
-    "version": "1.22.1",
+    "source": "archive",
+    "url": "https://github.com/starship/starship/releases/download/v1.22.1/starship-x86_64-unknown-linux-musl.tar.gz",
+    "url_arm64": "https://github.com/starship/starship/releases/download/v1.22.1/starship-aarch64-unknown-linux-musl.tar.gz",
+    "dest": "~/.local/bin",
+    "creates": "~/.local/bin/starship",
     "profiles": ["workstation", "server"]
   },
   "prettier": {
@@ -138,19 +140,11 @@
     "creates": "~/.local/opt/lazygit/lazygit",
     "profiles": ["workstation", "server"]
   },
-  "fnm": {
-    "source": "script",
-    "url": "https://fnm.vercel.app/install",
-    "args": ["--skip-shell"],
-    "creates": "~/.local/share/fnm/fnm",
-    "profiles": ["workstation", "server"]
-  },
   "zsh-syntax-highlighting": {
     "source": "git",
     "repo": "https://github.com/zsh-users/zsh-syntax-highlighting.git",
     "dest": "~/.zsh/zsh-syntax-highlighting",
     "version": "0.8.0",
-    "build": [],
     "creates": "~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
     "profiles": ["workstation", "server"]
   },
@@ -159,7 +153,6 @@
     "repo": "https://github.com/zsh-users/zsh-autosuggestions.git",
     "dest": "~/.zsh/zsh-autosuggestions",
     "version": "v0.7.1",
-    "build": [],
     "creates": "~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh",
     "profiles": ["workstation", "server"]
   },
@@ -168,7 +161,6 @@
     "repo": "https://github.com/zsh-users/zsh-completions.git",
     "dest": "~/.zsh/zsh-completions",
     "version": "0.35.0",
-    "build": [],
     "creates": "~/.zsh/zsh-completions/src/_git",
     "profiles": ["workstation", "server"]
   }
