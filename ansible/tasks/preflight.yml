@@ -24,10 +24,10 @@
     - packages
     - dotfiles
 
-# 09-04/09-28: community.general>=10.7.0 is required (pipx `name:
-# pkg==ver`); ansible-core>=2.15 is that collection's own floor (upstream
-# galaxy.yml runtime `requires_ansible`). Fail with an actionable message
-# instead of a confusing module error later.
+# 09-04/09-28: community.general>=10.7.0 is a known-good floor for the
+# cargo/npm modules on the ansible-core Debian stable ships (ansible-core>=2.15
+# is that collection's own floor, per upstream galaxy.yml `requires_ansible`).
+# Fail with an actionable message instead of a confusing module error later.
 - name: Check community.general collection version
   ansible.builtin.assert:
     that:

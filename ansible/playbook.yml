@@ -25,7 +25,6 @@
     dotfiles_pkgs_apt: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | list }}"
     dotfiles_pkgs_cargo: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'cargo') | list }}"
     dotfiles_pkgs_npm: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'npm') | list }}"
-    dotfiles_pkgs_pipx: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'pipx') | list }}"
     dotfiles_pkgs_script: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'script') | list }}"
     dotfiles_pkgs_deb: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'deb') | list }}"
     dotfiles_pkgs_archive: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'archive') | list }}"
@@ -51,7 +50,7 @@
       ansible.builtin.import_tasks: tasks/repos.yml
 
     # -- Toolchain bootstrap (auto, gated on selected sources) --------------
-    - name: Bootstrap language toolchains (cargo, fnm, pipx)
+    - name: Bootstrap language toolchains (cargo, fnm)
       ansible.builtin.import_tasks: tasks/toolchain.yml
 
     # -- Per-source installs ------------------------------------------------

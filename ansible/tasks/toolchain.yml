@@ -64,18 +64,8 @@
     creates: "{{ dotfiles_home }}/.local/share/fnm/aliases/default"
   environment:
     PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
-  when: (dotfiles_pkgs_npm | length) > 0
+    when: (dotfiles_pkgs_npm | length) > 0
   tags:
     - packages
 
-- name: Install pipx via apt when a pipx package is selected
-  become: true
-  ansible.builtin.apt:
-    name: pipx
-    state: present
-  when:
-    - (dotfiles_pkgs_pipx | length) > 0
-    - "'pipx' not in dotfiles_pkgs_apt | map(attribute='value.package')"
-  tags:
-    - packages
 

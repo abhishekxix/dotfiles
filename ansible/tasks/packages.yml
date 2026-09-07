@@ -41,22 +41,6 @@
   tags:
     - packages
 
-# 09-17: pipx ensurepath runs after the apt installs so the pipx binary
-# exists on a fresh host (failed_when: rc != 0 must not fire on rc=127).
-- name: Ensure pipx path is configured
-  ansible.builtin.command:
-    argv: [pipx, ensurepath]
-  register: dotfiles_pipx_ensurepath
-  # AI-04: pipx prints 'is already in PATH' when nothing changed and
-  # 'Success! Added' when it edited a shell file; any non-zero rc is a
-  # real failure (no failed_when: false masking). Match stdout+stderr
-  # (AI-31) so a future message move does not flip idempotency.
-  changed_when: "'already in path' not in ((dotfiles_pipx_ensurepath.stdout | default('')) + (dotfiles_pipx_ensurepath.stderr | default('')) | lower)"
-  failed_when: dotfiles_pipx_ensurepath.rc != 0
-  when: (dotfiles_pkgs_pipx | length) > 0
-  tags:
-    - packages
-
 - name: Install cargo crates
   community.general.cargo:
     name: "{{ item.value.crate }}"
@@ -91,18 +75,6 @@
   environment:
     # 09-22: ~/.cargo/bin added so a cargo-installed fnm is also found.
     PATH: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin:{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
-  tags:
-    - packages
-
-- name: Install pipx packages
-  community.general.pipx:
-    name: "{{ item.value.package }}{{ '==' + item.value.version if item.value.version is defined else '' }}"
-    state: install
-  loop: "{{ dotfiles_pkgs_pipx }}"
-  loop_control:
-    label: "{{ item.value.package }}"
-  environment:
-    PATH: "{{ dotfiles_home }}/.local/bin:{{ ansible_facts.env.PATH }}"
   tags:
     - packages
 
