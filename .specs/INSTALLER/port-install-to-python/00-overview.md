@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Component | INSTALLER |
 | Created | 2026-09-07 |
 
@@ -113,11 +113,11 @@ the tree without a working bootstrap between commits (bad for bisect).
 - **Changes:** Update any README sentence that implies bash (e.g. "wrapper is
   bash"), confirm nothing else references shellcheck-on-install.
 - **Acceptance:**
-  - [ ] `./install --check --diff --skip-tags packages` runs clean end to end
+  - [x] `./install --check --diff --skip-tags packages` runs clean end to end
         and output matches pre-port behavior (no unintended diffs).
-  - [ ] `grep -rn 'install' .gitignore` still whitelists `/install` (no change
+  - [x] `grep -rn 'install' .gitignore` still whitelists `/install` (no change
         needed, just confirm).
-  - [ ] README has no stale "bash wrapper" wording.
+  - [x] README has no stale "bash wrapper" wording.
 
 ## Risks & Rollback
 
