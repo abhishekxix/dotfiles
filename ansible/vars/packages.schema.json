@@ -47,6 +47,11 @@
       "pattern": "^[0-9a-fA-F]{64}$",
       "description": "Accepted but NOT enforced in v1 (checksum follow-up); must be 64 hex chars when present."
     },
+    "relPath": {
+      "type": "string",
+      "pattern": "^[^~/]",
+      "description": "Path relative to the entry's dest (no leading ~ or /); used by archive `link`."
+    },
     "apt": {
       "type": "object",
       "required": ["source", "package", "profiles"],
@@ -138,6 +143,10 @@
         "strip": {
           "type": "integer",
           "minimum": 0
+        },
+        "link": {
+          "$ref": "#/definitions/relPath",
+          "description": "Binary (relative to dest) to expose as ~/.local/bin/<basename>."
         },
         "sha256": { "$ref": "#/definitions/optSha256" },
         "profiles": { "$ref": "#/definitions/profiles" }

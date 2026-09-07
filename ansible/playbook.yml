@@ -110,6 +110,7 @@
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('url', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('dest', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('creates', 'defined') | length == 0
+          - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | selectattr('link', 'defined') | rejectattr('link', 'match', '^[^~/]') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('repo', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('creates', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'apt') | selectattr('repo', 'defined') | rejectattr('repo', 'in', dotfiles_repos_manifest.keys() | list) | length == 0
@@ -465,6 +466,31 @@
         # resolved per-arch URL that src: downloads, not the base url.
         extra_opts: "{{ ['--strip-components=' + (item.value.strip | string)] if (item.value.strip is defined and (item.value['url_' + dotfiles_deb_arch] | default(item.value.url, true)) is not search('(?i)\\.zip($|\\?)')) else [] }}"
       loop: "{{ dotfiles_pkgs_archive }}"
+      loop_control:
+        label: "{{ item.key }}"
+      tags:
+        - packages
+
+    # 09-22: archive entries with `link` expose a binary from inside the
+    # extracted tree on PATH via ~/.local/bin (e.g. nvim tarballs ship a
+    # bin/nvim deep in a full directory layout).
+    - name: Ensure ~/.local/bin exists for archive links
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.local/bin"
+        state: directory
+        mode: "0755"
+      when: (dotfiles_pkgs_archive | selectattr('value.link', 'defined') | list | length) > 0
+      tags:
+        - packages
+
+    - name: Link archive binaries into ~/.local/bin
+      ansible.builtin.file:
+        # force so a bumped URL/dest retargets the existing symlink instead of failing.
+        src: "{{ (item.value.dest ~ '/' ~ item.value.link) | regex_replace('^~/', dotfiles_home + '/') }}"
+        path: "{{ dotfiles_home }}/.local/bin/{{ item.value.link | basename }}"
+        state: link
+        force: true
+      loop: "{{ dotfiles_pkgs_archive | selectattr('value.link', 'defined') | list }}"
       loop_control:
         label: "{{ item.key }}"
       tags:
