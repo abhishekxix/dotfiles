@@ -140,6 +140,14 @@
     "creates": "~/.local/opt/lazygit/lazygit",
     "profiles": ["workstation", "server"]
   },
+  "iosevka-nerd-font": {
+    "source": "archive",
+    "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
+    "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
+    "dest": "~/.local/share/fonts",
+    "creates": "~/.local/share/fonts/IosevkaNerdFont-Regular.ttf",
+    "profiles": ["workstation"]
+  },
   "zsh-syntax-highlighting": {
     "source": "git",
     "repo": "https://github.com/zsh-users/zsh-syntax-highlighting.git",
