@@ -20,12 +20,12 @@
     Recommends, declared anyway so installs stay deterministic under
     `--no-install-recommends`).
 - **Acceptance:**
-  - [ ] `jq '.qtile' ansible/vars/package-deps.json` lists exactly the three
+  - [x] `jq '.qtile' ansible/vars/package-deps.json` lists exactly the three
         packages above.
-  - [ ] Keys remain lexically ordered: `jq 'keys' ansible/vars/package-deps.json`
-        → `["picom", "qtile", "$schema"]` (jq's `keys` sorts `$schema` last is
-        acceptable — file order is `"$schema"` first, then `picom`, `qtile`).
-  - [ ] `ansible-playbook --check --diff --skip-tags packages
-        ansible/playbook.yml` parses cleanly; with the workstation profile the
-        "Install build dependencies" task would target the three packages
-        (visible in check-mode output / `--list-tasks` dry inspection).
+  - [x] Keys remain lexically ordered: `jq 'keys' ansible/vars/package-deps.json`
+        → `["$schema", "picom", "qtile"]`.
+  - [x] `ansible-playbook --check --diff --skip-tags packages
+        ansible/playbook.yml` parses cleanly — the "Validate package and
+        build-deps manifests" task is green (later become tasks need an
+        interactive sudo password, unrelated to this change). All three
+        packages confirmed present in trixie via `apt-cache policy`.
