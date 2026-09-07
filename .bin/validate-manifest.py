@@ -9,13 +9,12 @@ PACKAGES_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "packages.json")
 DEPS_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "package-deps.json")
 REPOS_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "repos.json")
 
-SOURCES = {"apt", "cargo", "npm", "pipx", "script", "deb", "archive", "git"}
+SOURCES = {"apt", "cargo", "npm", "script", "deb", "archive", "git"}
 PROFILES = {"workstation", "server"}
 REQUIRED_FIELDS = {
     "apt": ("package",),
     "cargo": ("crate",),
     "npm": ("package",),
-    "pipx": ("package",),
     "script": ("url", "creates"),
     "deb": ("url",),
     "archive": ("url", "dest", "creates"),
