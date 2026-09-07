@@ -1,4 +1,9 @@
 {
+  "corretto": {
+    "key_url": "https://apt.corretto.aws/corretto.key",
+    "keyring": "/usr/share/keyrings/corretto-keyring.gpg",
+    "repo": "deb [arch=@ARCH@ signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main"
+  },
   "docker": {
     "key_url": "https://download.docker.com/linux/debian/gpg",
     "keyring": "/usr/share/keyrings/docker-archive-keyring.gpg",

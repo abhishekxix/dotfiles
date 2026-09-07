@@ -29,9 +29,9 @@
     `dotfiles_repos_selected` (playbook.yml:24) auto-activates the repo
     because the selected package references it.
 - **Acceptance:**
-  - [ ] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json ansible/vars/repos.json`
-        passes for both files.
-  - [ ] `jq '.docker_buildx // .["docker-buildx-plugin"], .["docker-compose-plugin"], .["java-21-amazon-corretto-jdk"]'`
-        shows the three entries with the right repo keys.
-  - [ ] `jq '.corretto' ansible/vars/repos.json` matches the block above.
-  - [ ] Playbook check-mode parse clean (repos + packages manifests validate).
+  - [x] `jq -e 'keys == (keys | sort)'` passes for both vars files.
+  - [x] `jq` shows docker-buildx-plugin/docker-compose-plugin (repo: docker)
+        and java-21-amazon-corretto-jdk (repo: corretto), all
+        workstation+server.
+  - [x] `jq '.corretto' ansible/vars/repos.json` matches the block above.
+  - [x] Playbook check-mode parse clean (repos + packages manifests validate).

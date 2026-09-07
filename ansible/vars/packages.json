@@ -73,8 +73,26 @@
     ],
     "source": "apt"
   },
+  "docker-buildx-plugin": {
+    "package": "docker-buildx-plugin",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "docker",
+    "source": "apt"
+  },
   "docker-ce": {
     "package": "docker-ce",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "docker",
+    "source": "apt"
+  },
+  "docker-compose-plugin": {
+    "package": "docker-compose-plugin",
     "profiles": [
       "workstation",
       "server"
@@ -215,6 +233,15 @@
     "source": "archive",
     "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
     "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz"
+  },
+  "java-21-amazon-corretto-jdk": {
+    "package": "java-21-amazon-corretto-jdk",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "corretto",
+    "source": "apt"
   },
   "libavcodec-extra": {
     "package": "libavcodec-extra",
