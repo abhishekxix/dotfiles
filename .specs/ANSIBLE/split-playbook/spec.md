@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-07 |
 
@@ -57,9 +57,9 @@ ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml
   both manifest schema validates) into `preflight.yml`; replace with
   `import_tasks` at the top of `tasks:`. Keep all tags and comments.
 - **Acceptance:**
-  - [ ] `--check --diff --skip-tags packages` still runs the preflight
+  - [x] `--check --diff --skip-tags packages` still runs the preflight
     asserts and completes unchanged (no failed asserts).
-  - [ ] `ansible-playbook --list-tasks ansible/playbook.yml` shows the same
+  - [x] `ansible-playbook --list-tasks ansible/playbook.yml` shows the same
     task names in the same order.
 
 ### 02 — Extract third-party apt repo setup
@@ -70,9 +70,9 @@ ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml
 - **Changes:** Move the keyring-prereqs, key download/dearmor/permissions,
   `apt_repository`, and conditional cache-update tasks into `repos.yml`.
 - **Acceptance:**
-  - [ ] `--check --diff` run shows repos tasks behave identically (keyring
+  - [x] `--check --diff` run shows repos tasks behave identically (keyring
     files found, no repo churn).
-  - [ ] Cross-section register (`dotfiles_repo_add` used by the conditional
+  - [x] Cross-section register (`dotfiles_repo_add` used by the conditional
     apt update) still resolves — run completes with no undefined-variable
     errors.
 
@@ -84,7 +84,7 @@ ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml
 - **Changes:** Move cargo/rustup, fnm, and pipx-apt bootstrap tasks into
   `toolchain.yml`.
 - **Acceptance:**
-  - [ ] `--check` run: bootstrap checks report as before (skipped when the
+  - [x] `--check` run: bootstrap checks report as before (skipped when the
     matching source has no selected packages).
 
 ### 04 — Extract per-source package installs
@@ -95,9 +95,9 @@ ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml
 - **Changes:** Move apt install, build-deps, docker group, pipx ensurepath,
   cargo/npm/pipx/script/deb/archive/git install tasks into `packages.yml`.
 - **Acceptance:**
-  - [ ] Full `--check --diff` run (no tag skips) reports the same task
+  - [x] Full `--check --diff` run (no tag skips) reports the same task
     outcomes as before the refactor on the same host.
-  - [ ] `ansible-playbook --skip-tags packages ...` skips everything inside
+  - [x] `ansible-playbook --skip-tags packages ...` skips everything inside
     `packages.yml` (tag inheritance verified).
 
 ### 05 — Extract dotfile linking
@@ -108,9 +108,9 @@ ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml
 - **Changes:** Move the `.config` dir creation, home/config discovery, and
   the two `tasks/link.yml` loops into `dotfiles.yml`.
 - **Acceptance:**
-  - [ ] `--check --diff --skip-tags packages`: only preflight + dotfiles
+  - [x] `--check --diff --skip-tags packages`: only preflight + dotfiles
     tasks run; symlinks converge (no change) on an already-linked host.
-  - [ ] `playbook.yml` is now ~vars + 5 import lines; all comment context
+  - [x] `playbook.yml` is now ~vars + 5 import lines; all comment context
     preserved in the moved sections.
 
 ## Risks & Rollback
@@ -123,3 +123,7 @@ ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml
   are copied verbatim; `--list-tasks` compared before/after.
 - **Rollback:** one commit per section, so `git revert <step-commit>`
   restores any section without touching the others.
+
+## Notes
+
+Implemented as planned (commits b7edcb3..68bf030, one per step). A full `--check` run without `--skip-tags` stops at the first `become: true` task in this environment ("sudo: a password is required") — pre-existing, unrelated to the split; tag-scoped `--check --diff --skip-tags packages` passes with identical ok/skipped counts before and after. `--list-tasks` diff vs. the pre-refactor playbook shows identical names/order/tags.
