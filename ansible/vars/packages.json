@@ -76,8 +76,13 @@
     "profiles": ["workstation"]
   },
   "picom": {
-    "source": "apt",
-    "package": "picom",
+    "source": "git",
+    "repo": "https://github.com/yshui/picom.git",
+    "version": "v12",
+    "build": [
+      "rm -rf build && meson setup --buildtype=release -Dprefix=\"$HOME/.local\" build && ninja -C build install"
+    ],
+    "creates": "~/.local/bin/picom",
     "profiles": ["workstation"]
   },
   "rofi": {

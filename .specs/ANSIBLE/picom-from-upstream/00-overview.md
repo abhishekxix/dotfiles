@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-07 |
 
@@ -46,8 +46,8 @@ machine. Per-user install to `~/.local` so no sudo is needed for the build.
 
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
-- [ ] 01 — package-deps.json build-dependency manifest (01-build-deps.md)
-- [ ] 02 — picom git source entry with build step (02-picom-git-entry.md)
+- [x] 01 — package-deps.json build-dependency manifest (01-build-deps.md)
+- [x] 02 — picom git source entry with build step (02-picom-git-entry.md)
 
 ## Risks & Rollback
 
