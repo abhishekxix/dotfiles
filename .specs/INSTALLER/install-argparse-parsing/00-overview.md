@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Component | INSTALLER |
 | Created | 2026-09-07 |
 
