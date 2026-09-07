@@ -46,8 +46,11 @@ Edit `ansible/vars/packages.json` to change the package manifest (one object
 per package with `source` + `profiles`) and `ansible/vars/repos.json` for
 third-party apt signing keys and repository lines.
 
-Manifest edits are validated against `ansible/vars/*.schema.json` by
-[pre-commit](https://pre-commit.com) (locally and in CI). Enable the hook with:
+Manifest edits are validated by `.bin/validate-manifest.py` (stdlib-only),
+run by [pre-commit](https://pre-commit.com) locally and in CI, and re-checked
+by the playbook's preflight before any change. `ansible/vars/*.schema.json`
+files remain as editor hints for `$schema` autocompletion. Enable the hook
+with:
 
 ```bash
 pip install pre-commit && pre-commit install

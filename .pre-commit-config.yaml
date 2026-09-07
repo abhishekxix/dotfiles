@@ -1,15 +1,14 @@
-# Shared manifest-schema gate: local git hook + CI (see
+# Shared manifest gate: local git hook + CI (see
 # .github/workflows/validate.yml) both run `pre-commit run --all-files`.
-# Install the hook once with:  pre-commit install
+# .bin/validate-manifest.py is stdlib-only and the same validator the
+# ansible preflight runs; the *.schema.json files remain as editor $schema
+# hints. Install the hook once with:  pre-commit install
 repos:
-  - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.38.0
+  - repo: local
     hooks:
-      - id: check-jsonschema
-        name: packages.json vs packages.schema.json
-        files: ^ansible/vars/packages\.json$
-        args: ["--schemafile", "ansible/vars/packages.schema.json"]
-      - id: check-jsonschema
-        name: package-deps.json vs package-deps.schema.json
-        files: ^ansible/vars/package-deps\.json$
-        args: ["--schemafile", "ansible/vars/package-deps.schema.json"]
+      - id: validate-manifests
+        name: ansible/vars manifests vs .bin/validate-manifest.py
+        entry: .bin/validate-manifest.py
+        language: system
+        pass_filenames: false
+        files: ^ansible/vars/(packages|package-deps|repos)\.json$
