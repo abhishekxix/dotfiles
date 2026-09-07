@@ -11,6 +11,6 @@
   ```
 
 - **Acceptance:**
-  - [ ] `AGENTS.md` contains the note covering both vars files in the
+  - [x] `AGENTS.md` contains the note covering both vars files in the
         "Working with the installer" section.
-  - [ ] No other AGENTS.md content is modified.
+  - [x] No other AGENTS.md content is modified.

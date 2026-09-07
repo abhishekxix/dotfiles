@@ -83,6 +83,10 @@ per-action approval**. "Yes" to one step is not consent to the next.
 ## Working with the installer
 
 - `install` and `ansible/` manage symlinks, packages, and backed-up conflicts.
+- `ansible/vars/packages.json` and `ansible/vars/package-deps.json` are kept
+  in lexical order — top-level keys, and the fields inside each
+  `packages.json` entry, are alphabetized. Insert new entries in sorted
+  position instead of appending, and preserve field ordering.
 - After modifying `home/` or `.config/`, the change is live only after the
   symlinks are (re)created. Preview with
   `ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml`
