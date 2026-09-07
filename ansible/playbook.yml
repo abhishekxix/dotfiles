@@ -15,6 +15,11 @@
     # before treating values as package entries (it has no profiles/source).
     dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json | dict2items | rejectattr('key', 'equalto', '$schema') | items2dict }}"
     dotfiles_repos_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/repos.json') | from_json }}"
+    # Build dependencies (package-deps.json): keyed by the dependent package
+    # name. A key's deps install only when that package is selected for the
+    # active profile, in one apt transaction before any per-source task.
+    dotfiles_deps_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/package-deps.json') | from_json | dict2items | rejectattr('key', 'equalto', '$schema') | items2dict }}"
+    dotfiles_deps_apt: "{{ dotfiles_deps_manifest | dict2items | selectattr('key', 'in', dotfiles_packages_selected | map(attribute='key') | list) | map(attribute='value') | flatten | unique | list }}"
     dotfiles_packages_selected: "{{ dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | list }}"
     dotfiles_repos_selected: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | selectattr('value.repo', 'defined') | map(attribute='value.repo') | unique | list }}"
     dotfiles_pkgs_apt: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | list }}"
@@ -115,6 +120,27 @@
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('creates', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'apt') | selectattr('repo', 'defined') | rejectattr('repo', 'in', dotfiles_repos_manifest.keys() | list) | length == 0
         fail_msg: "Invalid package manifest: unknown source, bad profile, missing per-source field, or unknown repo id."
+        quiet: true
+      tags:
+        - packages
+        - dotfiles
+
+    # -- Build-deps manifest validation (package-deps.json) -----------------
+    - name: Validate build-deps manifest
+      ansible.builtin.assert:
+        that:
+          - dotfiles_deps_manifest is mapping
+          # Every dep key must be a real package name — catches typos and
+          # stale keys after a package is renamed or removed.
+          - dotfiles_deps_manifest.keys() | list | difference(dotfiles_manifest.keys() | list) | length == 0
+          # NB: strings are sequences in Jinja, so test for string/mapping
+          # values explicitly instead of rejecting 'sequence'.
+          - dotfiles_deps_manifest.values() | select('string') | length == 0
+          - dotfiles_deps_manifest.values() | select('mapping') | length == 0
+          - dotfiles_deps_manifest.values() | map('length') | reject('gt', 0) | length == 0
+          - dotfiles_deps_manifest.values() | flatten | reject('string') | length == 0
+          - dotfiles_deps_manifest.values() | flatten | select('equalto', '') | length == 0
+        fail_msg: "Invalid build-deps manifest: unknown package key or malformed dep list."
         quiet: true
       tags:
         - packages
@@ -300,6 +326,17 @@
         name: "{{ dotfiles_pkgs_apt | map(attribute='value.package') | list }}"
         state: present
       when: (dotfiles_pkgs_apt | length) > 0
+      tags:
+        - packages
+
+    # 09-23: build deps must land before any per-source install/build task
+    # below (git build steps in particular). One apt transaction.
+    - name: Install build dependencies
+      become: true
+      ansible.builtin.apt:
+        name: "{{ dotfiles_deps_apt }}"
+        state: present
+      when: (dotfiles_deps_apt | length) > 0
       tags:
         - packages
 
