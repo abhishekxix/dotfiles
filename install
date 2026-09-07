@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import json
 import os
 import shutil
@@ -10,19 +11,9 @@ PROFILE_DEFAULT = "workstation"
 PROFILES = ("workstation", "server")
 COLLECTION_FLOOR = (10, 7, 0)
 
-USAGE = """Usage: ./install [--profile NAME] [ansible-playbook options]
+DESCRIPTION = "Configure this machine via Ansible (Debian stable only)."
 
-Configure this machine via Ansible (Debian stable only).
-
-Profiles:
-  --profile NAME, --profile=NAME
-      workstation   Full set: GUI apps + CLI tools (default).
-      server        Headless set: CLI tools only.
-
-Help:
-  -h, --help        Show this help and exit.
-
-Passthrough (anything else is forwarded to ansible-playbook):
+USAGE_NOTES = """Passthrough (anything else is forwarded to ansible-playbook):
   --tags packages|dotfiles
                     Run only app installs or only dotfile linking.
   --check --diff    Preview changes without applying them.
@@ -35,9 +26,6 @@ Passthrough (anything else is forwarded to ansible-playbook):
                      -e @file.yml indirection is not detected, but
                      the file still wins because passthrough args
                      follow the injected default (later -e wins).
-  -K, --ask-become-pass, --become-password-file FILE
-                    Become-password options. The wrapper adds
-                    --ask-become-pass unless you pass one of these.
 
 Wrapper behavior:
   - Installs ansible via apt when ansible-playbook is missing
@@ -60,10 +48,6 @@ Examples:
 """
 
 
-def usage_error():
-    sys.stderr.write(USAGE)
-
-
 def run(cmd):
     try:
         proc = subprocess.run(cmd)
@@ -74,55 +58,53 @@ def run(cmd):
         sys.exit(proc.returncode)
 
 
-def prescan(argv):
-    saw_become_pass = False
-    extra_vals = []
-    prev_was_extra = False
-    for arg in argv:
-        if prev_was_extra:
-            extra_vals.append(arg)
-            prev_was_extra = False
-            continue
-        if (
-            arg == "--ask-become-pass"
-            or arg.startswith("--ask-become-pass=")
-            or arg == "--become-password-file"
-            or arg.startswith("--become-password-file=")
-            or arg.startswith("-K")
-        ):
-            saw_become_pass = True
-        elif arg in ("-e", "--extra-vars"):
-            prev_was_extra = True
-        elif arg.startswith("--extra-vars="):
-            extra_vals.append(arg[len("--extra-vars="):])
-        elif arg.startswith("-e"):
-            extra_vals.append(arg[2:])
-    saw_profile_e = any("dotfiles_profile" in val for val in extra_vals)
-    return saw_become_pass, saw_profile_e
-
-
 def parse(argv):
-    profile = PROFILE_DEFAULT
-    passthrough = []
-    i = 0
-    while i < len(argv):
-        arg = argv[i]
-        if arg == "--profile":
-            if i + 1 >= len(argv):
-                usage_error()
-                sys.exit(1)
-            profile = argv[i + 1]
-            i += 2
-        elif arg.startswith("--profile="):
-            profile = arg[len("--profile="):]
-            i += 1
-        elif arg in ("-h", "--help"):
-            sys.stdout.write(USAGE)
-            sys.exit(0)
-        else:
-            passthrough.append(arg)
-            i += 1
-    return profile, passthrough
+    parser = argparse.ArgumentParser(
+        prog="./install",
+        description="Configure this machine via Ansible (Debian stable only).",
+        epilog=USAGE_NOTES,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        allow_abbrev=False,
+    )
+    parser.add_argument(
+        "--profile",
+        default=PROFILE_DEFAULT,
+        choices=PROFILES,
+        help="workstation: full GUI + CLI set (default); server: CLI only",
+    )
+    parser.add_argument(
+        "-e",
+        "--extra-vars",
+        dest="extra_vars",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="extra Ansible variables; a value containing dotfiles_profile overrides --profile",
+    )
+    parser.add_argument(
+        "-K",
+        "--ask-become-pass",
+        dest="ask_become_pass",
+        action="store_true",
+        help="prompt for the privilege-escalation password",
+    )
+    parser.add_argument(
+        "--become-password-file",
+        dest="become_password_file",
+        metavar="FILE",
+        default=None,
+        help="read the privilege-escalation password from FILE",
+    )
+    ns, passthrough = parser.parse_known_args(argv)
+    saw_become = ns.ask_become_pass or ns.become_password_file is not None
+    if ns.ask_become_pass:
+        passthrough.append("--ask-become-pass")
+    if ns.become_password_file is not None:
+        passthrough.extend(["--become-password-file", ns.become_password_file])
+    for val in ns.extra_vars:
+        passthrough.extend(["--extra-vars", val])
+    saw_profile_e = any("dotfiles_profile" in val for val in ns.extra_vars)
+    return ns.profile, passthrough, saw_profile_e, saw_become
 
 
 def version_key(version):
@@ -212,15 +194,7 @@ def install_ansible():
 
 def main():
     argv = sys.argv[1:]
-    saw_become_pass, saw_profile_e = prescan(argv)
-    profile, passthrough = parse(argv)
-    if profile not in PROFILES:
-        print(
-            f"Invalid profile: {profile} (expected workstation or server).",
-            file=sys.stderr,
-        )
-        usage_error()
-        sys.exit(1)
+    profile, passthrough, saw_profile_e, saw_become = parse(argv)
 
     if not shutil.which("ansible-playbook"):
         install_ansible()
@@ -246,7 +220,7 @@ def main():
 
     os.chdir(REPO_ROOT)
     cmd = ["ansible-playbook"]
-    if not saw_become_pass:
+    if not saw_become:
         cmd.append("--ask-become-pass")
     cmd.append("ansible/playbook.yml")
     if not saw_profile_e:
