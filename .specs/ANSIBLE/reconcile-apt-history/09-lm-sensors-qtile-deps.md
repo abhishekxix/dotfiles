@@ -14,7 +14,7 @@
   ]
   ```
 - **Acceptance:**
-  - [ ] `jq '.qtile' ansible/vars/package-deps.json` lists exactly the four
+  - [x] `jq '.qtile' ansible/vars/package-deps.json` lists exactly the four
         packages above.
-  - [ ] Top-level keys remain sorted (`$schema`, `picom`, `qtile`).
-  - [ ] Playbook check-mode parse clean (build-deps manifest validation green).
+  - [x] Top-level keys remain sorted (`$schema`, `picom`, `qtile`).
+  - [x] Playbook check-mode parse clean (build-deps manifest validation green).
