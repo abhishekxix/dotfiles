@@ -2,39 +2,204 @@
 
 set -Eeuo pipefail
 
-repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
+usage() {
+    cat <<'EOF'
+Usage: ./install [--profile NAME] [ansible-playbook options]
+
+Configure this machine via Ansible (Debian stable only).
+
+Profiles:
+  --profile NAME, --profile=NAME
+      workstation   Full set: GUI apps + CLI tools (default).
+      server        Headless set: CLI tools only.
+
+Help:
+  -h, --help        Show this help and exit.
+
+Passthrough (anything else is forwarded to ansible-playbook):
+  --tags packages|dotfiles
+                    Run only app installs or only dotfile linking.
+  --check --diff    Preview changes without applying them.
+  --skip-tags packages
+                    Limit a run to dotfile linking (no package installs).
+  -e KEY=VALUE, --extra-vars KEY=VALUE
+                     Extra Ansible variables. A value containing
+                     dotfiles_profile overrides --profile. Only the
+                     values on the command line are inspected:
+                     -e @file.yml indirection is not detected, but
+                     the file still wins because passthrough args
+                     follow the injected default (later -e wins).
+  -K, --ask-become-pass, --become-password-file FILE
+                    Become-password options. The wrapper adds
+                    --ask-become-pass unless you pass one of these.
+
+Wrapper behavior:
+  - Installs ansible via apt when ansible-playbook is missing
+    (Debian ID=debian only; uses sudo when available).
+  - Installs (or upgrades to >=10.7.0) the community.general
+    collection from ansible/requirements.yml when needed.
+  - Runs ansible-playbook from the repo root with the selected
+    profile forwarded as -e dotfiles_profile=NAME.
+  - Conflicting dotfiles are backed up under
+    ~/.local/state/dotfiles/backups/<timestamp>/ before linking.
+    Re-runs are idempotent.
+
+Examples:
+  ./install
+  ./install --profile server
+  ./install --tags dotfiles
+  ./install --tags packages
+  ./install --check --diff --skip-tags packages
+  ./install --profile server --tags packages
+EOF
+}
+
+usage_error() {
+    usage >&2
+}
+
+dotfiles_profile="workstation"
+passthrough=()
+saw_become_pass=false
+saw_profile_e=false
+# AI-24: collect -e/--extra-vars VALUES; only a value mentioning
+# dotfiles_profile suppresses the default profile injection. Handles both
+# split (-e VALUE) and joined (-eVALUE, --extra-vars=VALUE) forms.
+extra_vals=()
+prev_was_extra=false
+prev_was_extra_val=""
+for arg in "$@"; do
+    if [[ "${prev_was_extra}" == "true" ]]; then
+        # AI-24: a split `-e a=1 b=2` second value belongs to ansible, not to
+        # -e — only the immediately following value is the extra-vars payload.
+        if [[ -z "${prev_was_extra_val}" ]]; then
+            prev_was_extra_val="${arg}"
+            extra_vals+=("${arg}")
+        fi
+        prev_was_extra=false
+        continue
+    fi
+    case "${arg}" in
+    --ask-become-pass | --ask-become-pass=* | -K | --become-password-file | --become-password-file=*)
+        saw_become_pass=true
+        ;;
+    -K*) saw_become_pass=true ;;
+    -e | --extra-vars) prev_was_extra=true ;;
+    -e*) extra_vals+=("${arg#-e}") ;;
+    --extra-vars=*) extra_vals+=("${arg#--extra-vars=}") ;;
+    esac
+done
+for val in ${extra_vals[@]+"${extra_vals[@]}"}; do
+    case "${val}" in
+    *dotfiles_profile*) saw_profile_e=true ;;
+    esac
+done
+unset extra_vals prev_was_extra prev_was_extra_val val arg
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --profile)
+        if [[ $# -lt 2 ]]; then
+            usage_error
+            exit 1
+        fi
+        dotfiles_profile="$2"
+        shift 2
+        ;;
+    --profile=*)
+        dotfiles_profile="${1#--profile=}"
+        shift
+        ;;
+    -h | --help)
+        usage
+        exit 0
+        ;;
+    *)
+        passthrough+=("$1")
+        shift
+        ;;
+    esac
+done
+
+case "${dotfiles_profile}" in
+workstation | server) ;;
+*)
+    printf 'Invalid profile: %s (expected workstation or server).\n' "${dotfiles_profile}" >&2
+    usage_error
+    exit 1
+    ;;
+esac
 
 install_ansible() {
-  if [[ ! -r /etc/os-release ]]; then
-    printf 'Cannot detect this Linux distribution. Install Ansible and rerun this command.\n' >&2
-    exit 1
-  fi
+    if [[ ! -r /etc/os-release ]]; then
+        printf 'Cannot detect this Linux distribution. Install Ansible and rerun this command.\n' >&2
+        exit 1
+    fi
 
-  # shellcheck source=/dev/null
-  source /etc/os-release
-  distribution="${ID_LIKE:-} ${ID:-}"
+    # shellcheck source=/dev/null
+    source /etc/os-release
+    distribution_id="${ID:-}"
 
-  case "${distribution}" in
-  *debian* | *ubuntu*)
-    sudo apt-get update
-    sudo apt-get install --yes ansible
-    ;;
-  *fedora* | *rhel*)
-    sudo dnf install --assumeyes ansible
-    ;;
-  *arch*)
-    sudo pacman --sync --needed ansible
-    ;;
-  *)
-    printf 'Unsupported distribution. Install Ansible and rerun this command.\n' >&2
-    exit 1
-    ;;
-  esac
+    case "${distribution_id}" in
+    debian)
+        if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes ansible
+        else
+            apt-get update
+            apt-get install --yes ansible
+        fi
+        ;;
+    *)
+        printf 'Unsupported distribution (v1 supports Debian stable only). Install Ansible and rerun this command.\n' >&2
+        exit 1
+        ;;
+    esac
 }
 
 if ! command -v ansible-playbook >/dev/null 2>&1; then
-  install_ansible
+    install_ansible
 fi
 
+# AI-22/09-15: the playbook needs community.general>=10.7.0 (cargo/npm/pipx
+# modules; pipx `name: pkg==ver` needs the floor). Install when missing,
+# --upgrade when the installed version is below the floor. Query with
+# --format json (stable machine-readable output) and take the highest
+# version across all collection paths; compare with `sort -V -c`
+# (floor-first input is sorted iff have >= floor).
+dotfiles_collection_floor="10.7.0"
+dotfiles_collection_have="$(
+    ansible-galaxy collection list community.general --format json 2>/dev/null \
+        | python3 -c 'import json, sys
+try:
+    data = json.load(sys.stdin)
+except Exception:
+    data = {}
+for path_collections in data.values():
+    if isinstance(path_collections, dict):
+        entry = path_collections.get("community.general")
+        if isinstance(entry, dict) and entry.get("version"):
+            print(entry["version"])' 2>/dev/null \
+        | sort -V 2>/dev/null | tail -n 1 || true
+)"
+if [[ -z "${dotfiles_collection_have}" ]]; then
+    ansible-galaxy collection install -r "${repo_root}/ansible/requirements.yml"
+elif ! printf '%s\n%s\n' "${dotfiles_collection_floor}" "${dotfiles_collection_have}" | sort -V -c 2>/dev/null; then
+    ansible-galaxy collection install --upgrade -r "${repo_root}/ansible/requirements.yml"
+fi
+unset dotfiles_collection_have dotfiles_collection_floor
+
 cd "${repo_root}"
-exec ansible-playbook --ask-become-pass ansible/playbook.yml "$@"
+if [[ "${saw_become_pass}" == "true" ]]; then
+    become_args=()
+else
+    become_args=(--ask-become-pass)
+fi
+if [[ "${saw_profile_e}" == "true" ]]; then
+    profile_args=()
+else
+    # shellcheck disable=SC2206
+    profile_args=(-e "dotfiles_profile=${dotfiles_profile}")
+fi
+exec ansible-playbook "${become_args[@]}" ansible/playbook.yml "${profile_args[@]}" "${passthrough[@]}"

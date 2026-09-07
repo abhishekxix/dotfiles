@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "./packages.schema.json",
+  "title": "dotfiles package manifest",
+  "description": "One object per package keyed by logical name. Mirrors the ansible/playbook.yml validation block plus AI-29 type rules. apt `repo` must also be a key in ansible/vars/repos.json (enforced by the playbook assert, not expressible here).",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "const": "./packages.schema.json",
+      "description": "Editor pointer only; the playbook strips this key before treating values as package entries."
+    }
+  },
+  "propertyNames": {
+    "pattern": "^(\\$schema|[^$].+)$"
+  },
+  "additionalProperties": {
+    "oneOf": [
+      { "$ref": "#/definitions/apt" },
+      { "$ref": "#/definitions/cargo" },
+      { "$ref": "#/definitions/npm" },
+      { "$ref": "#/definitions/pipx" },
+      { "$ref": "#/definitions/script" },
+      { "$ref": "#/definitions/deb" },
+      { "$ref": "#/definitions/archive" },
+      { "$ref": "#/definitions/git" }
+    ]
+  },
+  "definitions": {
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["workstation", "server"] },
+      "description": "Profiles that install this entry. Non-empty; only workstation and server are valid."
+    },
+    "httpsUrl": {
+      "type": "string",
+      "pattern": "^https://",
+      "description": "Used for script/deb/archive URLs (piped to curl)."
+    },
+    "homePath": {
+      "type": "string",
+      "pattern": "^~/",
+      "description": "Leading-~ home shorthand, expanded against the target user's home."
+    },
+    "optSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$",
+      "description": "Accepted but NOT enforced in v1 (checksum follow-up); must be 64 hex chars when present."
+    },
+    "relPath": {
+      "type": "string",
+      "pattern": "^[^~/]",
+      "description": "Path relative to the entry's dest (no leading ~ or /); used by archive `link`."
+    },
+    "apt": {
+      "type": "object",
+      "required": ["source", "package", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "apt" },
+        "package": { "type": "string", "minLength": 1 },
+        "repo": { "type": "string", "minLength": 1 },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "cargo": {
+      "type": "object",
+      "required": ["source", "crate", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "cargo" },
+        "crate": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "features": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "npm": {
+      "type": "object",
+      "required": ["source", "package", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "npm" },
+        "package": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "pipx": {
+      "type": "object",
+      "required": ["source", "package", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "pipx" },
+        "package": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "script": {
+      "type": "object",
+      "required": ["source", "url", "creates", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "script" },
+        "url": { "$ref": "#/definitions/httpsUrl" },
+        "args": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "creates": { "$ref": "#/definitions/homePath" },
+        "sha256": { "$ref": "#/definitions/optSha256" },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "deb": {
+      "type": "object",
+      "required": ["source", "url", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "deb" },
+        "url": { "$ref": "#/definitions/httpsUrl" },
+        "sha256": { "$ref": "#/definitions/optSha256" },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "archive": {
+      "type": "object",
+      "required": ["source", "url", "dest", "creates", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "archive" },
+        "url": { "$ref": "#/definitions/httpsUrl" },
+        "url_amd64": { "$ref": "#/definitions/httpsUrl" },
+        "url_arm64": { "$ref": "#/definitions/httpsUrl" },
+        "url_armhf": { "$ref": "#/definitions/httpsUrl" },
+        "url_i386": { "$ref": "#/definitions/httpsUrl" },
+        "dest": { "$ref": "#/definitions/homePath" },
+        "creates": { "$ref": "#/definitions/homePath" },
+        "strip": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "link": {
+          "$ref": "#/definitions/relPath",
+          "description": "Binary (relative to dest) to expose as ~/.local/bin/<basename>."
+        },
+        "sha256": { "$ref": "#/definitions/optSha256" },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "buildStep": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "object",
+          "required": ["cmd"],
+          "additionalProperties": false,
+          "properties": {
+            "cmd": { "type": "string", "minLength": 1 },
+            "creates": { "$ref": "#/definitions/homePath" }
+          }
+        }
+      ]
+    },
+    "git": {
+      "type": "object",
+      "required": ["source", "repo", "creates", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "git" },
+        "repo": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Clone URL; https or SSH (git@…) both legal."
+        },
+        "dest": { "$ref": "#/definitions/homePath" },
+        "version": { "type": "string", "minLength": 1 },
+        "build": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/buildStep" }
+        },
+        "creates": { "$ref": "#/definitions/homePath" },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    }
+  }
+}

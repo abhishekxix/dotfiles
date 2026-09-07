@@ -4,6 +4,8 @@
 !/AGENTS.md
 !/.config/
 !/.bin/
+!/.github/
+!/.pre-commit-config.yaml
 !/.specs/
 !/ansible/
 !/ansible.cfg

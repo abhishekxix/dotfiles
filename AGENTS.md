@@ -36,7 +36,6 @@ under `.config/` (or a top-level concern):
 |--------|-------|
 | `NVIM` | `.config/nvim/` |
 | `QTILE` | `.config/qtile/` |
-| `WEZTERM` | `.config/wezterm/` |
 | `TMUX` | `.config/tmux/` |
 | `ALACRITTY` | `.config/alacritty/` |
 | `ROFI` | `.config/rofi/` |
