@@ -10,7 +10,7 @@
       - README.md
     dotfiles_repo_root: "{{ playbook_dir | ansible.builtin.dirname }}"
     dotfiles_home: "{{ ansible_facts.user_dir }}"
-    dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_short }}"
+    dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic }}"
     # The manifest may carry a "$schema" pointer for editor support; strip it
     # before treating values as package entries (it has no profiles/source).
     dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json | dict2items | rejectattr('key', 'equalto', '$schema') | items2dict }}"
@@ -36,6 +36,54 @@
     dotfiles_deb_arch: "{{ dotfiles_deb_arch_map[ansible_facts.architecture] | default('UNKNOWN:' + ansible_facts.architecture, true) }}"
 
   tasks:
+    # -- Preflight guards (fail fast before any system/user change) ---------
+    - name: Validate selected profile
+      ansible.builtin.assert:
+        that:
+          - dotfiles_profile in ['workstation', 'server']
+        fail_msg: "Invalid dotfiles_profile '{{ dotfiles_profile }}': expected 'workstation' or 'server'."
+        quiet: true
+      tags:
+        - packages
+        - dotfiles
+
+    # 09-21: running as root (or under sudo without preserving the user)
+    # would link dotfiles and install toolchains into /root instead of the
+    # invoking user's home. Fail fast; override dotfiles_home is not offered
+    # in v1 (single-user fresh-host scope).
+    - name: Refuse to run as root
+      ansible.builtin.assert:
+        that:
+          - ansible_user_id != 'root'
+        fail_msg: "Refusing to run as root: re-run as your normal user (become handles privilege escalation)."
+        quiet: true
+      tags:
+        - packages
+        - dotfiles
+
+    # 09-04/09-28: community.general>=10.7.0 is required (pipx `name:
+    # pkg==ver`); ansible-core>=2.15 is that collection's own floor (upstream
+    # galaxy.yml runtime `requires_ansible`). Fail with an actionable message
+    # instead of a confusing module error later.
+    - name: Check community.general collection version
+      ansible.builtin.assert:
+        that:
+          - lookup('community.general.collection_version', 'community.general') is version('10.7.0', '>=')
+        fail_msg: "community.general >= 10.7.0 is required: run `ansible-galaxy collection install -r ansible/requirements.yml` (or ./install)."
+        quiet: true
+      tags:
+        - packages
+
+    - name: Check ansible-core version
+      ansible.builtin.assert:
+        that:
+          - ansible_version.full is version('2.15', '>=')
+        fail_msg: "ansible-core >= 2.15 is required (found {{ ansible_version.full }}): upgrade Ansible first."
+        quiet: true
+      tags:
+        - packages
+        - dotfiles
+
     # -- Manifest validation (fail fast on schema violations; AI-07) -------
     - name: Validate package manifest schema
       ansible.builtin.assert:
@@ -63,7 +111,6 @@
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('dest', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('creates', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('repo', 'defined') | length == 0
-          - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('build', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('creates', 'defined') | length == 0
           - dotfiles_manifest.values() | selectattr('source', 'equalto', 'apt') | selectattr('repo', 'defined') | rejectattr('repo', 'in', dotfiles_repos_manifest.keys() | list) | length == 0
         fail_msg: "Invalid package manifest: unknown source, bad profile, missing per-source field, or unknown repo id."
@@ -142,8 +189,9 @@
     - name: Add third-party apt repositories
       become: true
       ansible.builtin.apt_repository:
-        # AI-01: expand the Debian arch (amd64/arm64), not the kernel arch (x86_64/aarch64).
-        repo: "{{ dotfiles_repos_manifest[item].repo | replace('{{ ansible_architecture }}', dotfiles_deb_arch) | replace('{{ ansible_distribution_release }}', ansible_facts.distribution_release) }}"
+        # 09-12: @ARCH@/@RELEASE@ are plain (non-Jinja) placeholders, expanded
+        # here with the Debian arch (amd64/arm64) and the release codename.
+        repo: "{{ dotfiles_repos_manifest[item].repo | replace('@ARCH@', dotfiles_deb_arch) | replace('@RELEASE@', ansible_facts.distribution_release) }}"
         filename: "{{ item }}"
         state: present
       loop: "{{ dotfiles_repos_selected }}"
@@ -219,11 +267,13 @@
 
     - name: Install Node LTS via fnm
       ansible.builtin.shell:
-        cmd: 'set -o pipefail && eval "$({{ dotfiles_home }}/.local/share/fnm/fnm env --shell bash)" && fnm install --lts && fnm alias "$(fnm current)" default'
+        # 09-18: invoke the fnm binary via PATH (stock install dir first, then
+        # ~/.cargo/bin for cargo-installed fnm, then system dirs).
+        cmd: 'set -o pipefail && eval "$(fnm env --shell bash)" && fnm install --lts && fnm alias "$(fnm current)" default'
         executable: /bin/bash
         creates: "{{ dotfiles_home }}/.local/share/fnm/aliases/default"
       environment:
-        PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:/usr/local/bin:/usr/bin:/bin"
+        PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
       when: (dotfiles_pkgs_npm | length) > 0
       tags:
         - packages
@@ -236,20 +286,6 @@
       when:
         - (dotfiles_pkgs_pipx | length) > 0
         - "'pipx' not in dotfiles_pkgs_apt | map(attribute='value.package')"
-      tags:
-        - packages
-
-    - name: Ensure pipx path is configured
-      ansible.builtin.command:
-        argv: [pipx, ensurepath]
-      register: dotfiles_pipx_ensurepath
-      # AI-04: pipx prints 'is already in PATH' when nothing changed and
-      # 'Success! Added' when it edited a shell file; any non-zero rc is a
-      # real failure (no failed_when: false masking). Match stdout+stderr
-      # (AI-31) so a future message move does not flip idempotency.
-      changed_when: "'already in path' not in ((dotfiles_pipx_ensurepath.stdout | default('')) + (dotfiles_pipx_ensurepath.stderr | default('')) | lower)"
-      failed_when: dotfiles_pipx_ensurepath.rc != 0
-      when: (dotfiles_pkgs_pipx | length) > 0
       tags:
         - packages
 
@@ -272,6 +308,34 @@
       tags:
         - packages
 
+    # 09-26: docker is installed but unusable until the invoking user is in
+    # the docker group (service enablement stays out of v1 scope per spec).
+    - name: Add invoking user to docker group
+      become: true
+      ansible.builtin.user:
+        name: "{{ ansible_user_id }}"
+        groups: docker
+        append: true
+      when: "'docker-ce' in dotfiles_pkgs_apt | map(attribute='value.package')"
+      tags:
+        - packages
+
+    # 09-17: pipx ensurepath runs after the apt installs so the pipx binary
+    # exists on a fresh host (failed_when: rc != 0 must not fire on rc=127).
+    - name: Ensure pipx path is configured
+      ansible.builtin.command:
+        argv: [pipx, ensurepath]
+      register: dotfiles_pipx_ensurepath
+      # AI-04: pipx prints 'is already in PATH' when nothing changed and
+      # 'Success! Added' when it edited a shell file; any non-zero rc is a
+      # real failure (no failed_when: false masking). Match stdout+stderr
+      # (AI-31) so a future message move does not flip idempotency.
+      changed_when: "'already in path' not in ((dotfiles_pipx_ensurepath.stdout | default('')) + (dotfiles_pipx_ensurepath.stderr | default('')) | lower)"
+      failed_when: dotfiles_pipx_ensurepath.rc != 0
+      when: (dotfiles_pkgs_pipx | length) > 0
+      tags:
+        - packages
+
     - name: Install cargo crates
       community.general.cargo:
         name: "{{ item.value.crate }}"
@@ -279,12 +343,15 @@
         # default(omit, true) also rescues empty-string/falsy values.
         version: "{{ item.value.version | default(omit, true) }}"
         features: "{{ item.value.features | default(omit, true) }}"
-        executable: "{{ dotfiles_home }}/.cargo/bin/cargo"
         state: present
       loop: "{{ dotfiles_pkgs_cargo }}"
       loop_control:
         label: "{{ item.value.crate }}"
       environment:
+        # 09-18/09-22: resolve cargo via PATH (rustup ~/.cargo/bin first, then
+        # the inherited PATH which covers apt /usr/bin/cargo). Do NOT pin
+        # `executable:` to the rustup path — bootstrap may have been skipped
+        # because cargo already existed elsewhere.
         PATH: "{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
       tags:
         - packages
@@ -301,7 +368,8 @@
       loop_control:
         label: "{{ item.value.package }}"
       environment:
-        PATH: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin:{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ ansible_facts.env.PATH }}"
+        # 09-22: ~/.cargo/bin added so a cargo-installed fnm is also found.
+        PATH: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin:{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
       tags:
         - packages
 
@@ -319,7 +387,8 @@
 
     - name: Run script installers
       ansible.builtin.shell:
-        # AI-31: bash (not sh) — the fnm entry expects bash; executable below agrees.
+        # 09-19: script entries are one-off installers (fnm ships via the
+        # toolchain bootstrap above, which is the single source of truth).
         cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | bash -s -- {{ item.value.args | default([]) | map('quote') | join(' ') }}"
         executable: /bin/bash
         creates: "{{ item.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
@@ -374,6 +443,22 @@
       tags:
         - packages
 
+    # 09-21: base `url` is the amd64 default; any other arch must define
+    # `url_<arch>` — silently fetching the x86_64 binary on armhf/i386 would
+    # fail obscurely at extract/run time, so fail fast instead.
+    - name: Validate archive per-arch URLs
+      ansible.builtin.assert:
+        that:
+          - dotfiles_deb_arch == 'amd64' or item.value['url_' + dotfiles_deb_arch] is defined
+        fail_msg: "No {{ dotfiles_deb_arch }} URL for archive '{{ item.key }}': add url_{{ dotfiles_deb_arch }} (base url is amd64-only)."
+        quiet: true
+      loop: "{{ dotfiles_pkgs_archive }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: dotfiles_deb_arch != 'amd64'
+      tags:
+        - packages
+
     - name: Extract archives
       ansible.builtin.unarchive:
         # AI-23: per-arch URL override (e.g. url_arm64), else the default url.
@@ -382,8 +467,9 @@
         remote_src: true
         creates: "{{ item.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
         # AI-20/AI-32: strip-components is tar-only; never passed for .zip
-        # (case-insensitive, query-string tolerant).
-        extra_opts: "{{ ['--strip-components=' + (item.value.strip | string)] if (item.value.strip is defined and item.value.url is not search('(?i)\\.zip($|\\?)')) else [] }}"
+        # (case-insensitive, query-string tolerant). 09-14: test the same
+        # resolved per-arch URL that src: downloads, not the base url.
+        extra_opts: "{{ ['--strip-components=' + (item.value.strip | string)] if (item.value.strip is defined and (item.value['url_' + dotfiles_deb_arch] | default(item.value.url, true)) is not search('(?i)\\.zip($|\\?)')) else [] }}"
       loop: "{{ dotfiles_pkgs_archive }}"
       loop_control:
         label: "{{ item.key }}"
@@ -409,7 +495,9 @@
         repo: "{{ item.value.repo }}"
         dest: "{{ (item.value.dest | default('~/.local/src/' + item.key)) | regex_replace('^~/', dotfiles_home + '/') }}"
         version: "{{ item.value.version | default(omit, true) }}"
-        update: "{{ item.value.version is defined }}"
+        # 09-15: a pinned version must NOT fetch on every run; only unpinned
+        # (floating) clones track the remote. Ansible coerces to bool.
+        update: "{{ item.value.version is not defined }}"
       loop: "{{ dotfiles_pkgs_git }}"
       loop_control:
         label: "{{ item.key }}"

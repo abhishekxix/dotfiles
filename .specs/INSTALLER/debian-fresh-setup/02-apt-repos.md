@@ -22,20 +22,22 @@ reference it via `"repo": "<id>"` in `packages.json` (schema from step 01).
   "docker": {
     "key_url": "https://download.docker.com/linux/debian/gpg",
     "keyring": "/usr/share/keyrings/docker-archive-keyring.gpg",
-    "repo": "deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+    "repo": "deb [arch=@ARCH@ signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian @RELEASE@ stable"
   },
   "vscode": {
     "key_url": "https://packages.microsoft.com/keys/microsoft.asc",
     "keyring": "/usr/share/keyrings/packages.microsoft.gpg",
-    "repo": "deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+    "repo": "deb [arch=@ARCH@ signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
   }
 }
 ```
 
-(`{{ ansible_architecture }}` above is the Debian apt arch name (`amd64` /
-`arm64`). The playbook maps `ansible_facts.architecture` (`x86_64` /
-`aarch64`) to it via `dotfiles_deb_arch` before expanding the repo line —
-templating the raw kernel name into the line breaks `apt update`.)
+(`@ARCH@` is the Debian apt arch name (`amd64` / `arm64`) and `@RELEASE@`
+the release codename. The playbook maps `ansible_facts.architecture`
+(`x86_64` / `aarch64`) to the Debian arch via `dotfiles_deb_arch` before
+expanding the placeholders — never template the raw kernel name into the
+line. Placeholders are deliberately non-Jinja literals so no whitespace
+variant can break the replacement.)
 
 Field rules:
 
