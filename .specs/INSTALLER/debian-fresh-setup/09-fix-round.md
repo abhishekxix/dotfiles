@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress (safe fixes implementing; policy/deferred items tracked below) |
+| Status | Done (verified 2026-09-07; deviation + follow-up decisions recorded below) |
 | Component | INSTALLER |
 | Created | 2026-09-07 |
 | PR | #4 `installer/debian-fresh-setup` → `main` |
@@ -109,8 +109,8 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   detected and that an undetected explicit `-e` still wins (later `-e` wins on
   the ansible CLI, after the injected default).
 - **Acceptance:**
-  - [ ] `shellcheck install` clean; `bash -n install` passes.
-  - [ ] Floor logic probe: have `13.3.0` ⇒ skip; have `9.4.0` ⇒ upgrade;
+  - [x] `shellcheck install` clean; `bash -n install` passes.
+  - [x] Floor logic probe: have `13.3.0` ⇒ skip; have `9.4.0` ⇒ upgrade;
     missing ⇒ fresh install.
 
 ### 16 — Playbook preflights: profile, root, collection + core floors
@@ -124,8 +124,8 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   version('10.7.0', '>=')`; assert `ansible_version.full is version('2.15',
   '>=')` (CG 10.7 needs `>=2.15.0` per upstream `runtime.yml`).
 - **Acceptance:**
-  - [ ] `ansible-playbook --syntax-check ansible/playbook.yml` passes.
-  - [ ] `-e dotfiles_profile=bogus --check` fails with the profile message.
+  - [x] `ansible-playbook --syntax-check ansible/playbook.yml` passes.
+  - [x] `-e dotfiles_profile=bogus --check` fails with the profile message.
 
 ### 17 — `pipx ensurepath` after apt installs (Blocker)
 
@@ -134,7 +134,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   `Install apt packages`, so the `pipx` binary (manifest apt entry or
   bootstrap task) exists before `ensurepath` runs with `failed_when: rc != 0`.
 - **Acceptance:**
-  - [ ] `--syntax-check` passes; task order in file is apt-installs →
+  - [x] `--syntax-check` passes; task order in file is apt-installs →
     ensurepath → pipx-installs.
 
 ### 18 — Dynamic cargo/fnm resolution
@@ -148,7 +148,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   Keep the fnm *data* path (`~/.local/share/fnm/aliases/default`) — it is
   stable regardless of binary origin.
 - **Acceptance:**
-  - [ ] `--syntax-check` passes; no `~/.cargo/bin/cargo` or
+  - [x] `--syntax-check` passes; no `~/.cargo/bin/cargo` or
     `~/.local/share/fnm/fnm` *binary* references remain in install commands.
 
 ### 19 — Single-source fnm (drop manifest script entry)
@@ -159,7 +159,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   source). Bootstrap installs fnm whenever an npm package is selected
   (`prettier` is selected on both profiles, so coverage is unchanged).
 - **Acceptance:**
-  - [ ] `python3 -m json.tool` passes; profile filter still selects `prettier`.
+  - [x] `python3 -m json.tool` passes; profile filter still selects `prettier`.
 
 ### 20 — `@ARCH@`/`@RELEASE@` repo placeholders
 
@@ -169,7 +169,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   those literals with `dotfiles_deb_arch` / `distribution_release` (no more
   string-replacing Jinja delimiters; whitespace variants impossible).
 - **Acceptance:**
-  - [ ] `json.tool` passes; `--syntax-check` passes; rendered line still
+  - [x] `json.tool` passes; `--syntax-check` passes; rendered line still
     contains `arch=amd64` on this host (debug probe).
 
 ### 21 — Archive arch fail-fast + resolved-URL zip guard
@@ -182,7 +182,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   x86_64 fallback on armhf/i386). `extra_opts` zip test inspects the same
   resolved `url_<arch>|default(url)` expression as `src:`.
 - **Acceptance:**
-  - [ ] `--syntax-check` passes; synthetic armhf selection without
+  - [x] `--syntax-check` passes; synthetic armhf selection without
     `url_armhf` fails with the message.
 
 ### 22 — Git `update:` polarity + optional `build`
@@ -197,7 +197,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   are legitimate and `subelements(..., skip_missing=True)` already handles
   the missing key.
 - **Acceptance:**
-  - [ ] `json.tool` on both JSON files; `--syntax-check` passes.
+  - [x] `json.tool` on both JSON files; `--syntax-check` passes.
 
 ### 23 — Starship via prebuilt archive
 
@@ -207,7 +207,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   ~/.local/bin`, `creates: ~/.local/bin/starship` (single-file tarball, no
   `strip`). Cargo toolchain tasks stay for future crates.
 - **Acceptance:**
-  - [ ] `json.tool` passes; resolved URL downloads + extracts to a working
+  - [x] `json.tool` passes; resolved URL downloads + extracts to a working
     `starship` (probed live for x86_64).
 
 ### 24 — Docker group + link fact + backup uniqueness + README notes
@@ -224,7 +224,7 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   documented). Link logic byte-identical, deduplicated; check-mode predicts
   unchanged (AI-09 behavior kept).
 - **Acceptance:**
-  - [ ] `--syntax-check` passes; dotfiles `--check` on the linked host stays
+  - [x] `--syntax-check` passes; dotfiles `--check` on the linked host stays
     `changed=0`; synthetic-conflict `--check` still predicts backup + link.
 
 ## Risks & Rollback
@@ -236,9 +236,27 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   17 needs the first real deb entry; 25 needs a packaging decision.
 - VG-01/VG-02 still require a fresh Debian host and stay open.
 
-## Follow-ups (explicitly deferred)
+## Deviations
 
-4. **Conditional become prompt:** amend `04-installer-ux.md` (always-ask rule)
-   before touching `install` (review `install:177`).
-5. **Stable-lagging GUI/editor packages:** decide backport/appimage/upstream
-   sourcing or pin expectations (review `packages.json:23`).
+- **Commit granularity:** steps 16–24 landed condensed into commits
+  `9767b86 INSTALLER(16)`, `d267463 INSTALLER(17)`, `a8cdfce INSTALLER(18)`
+  (bundling several steps each) instead of one commit per step as planned.
+  History was left untouched (no rewrite); the per-step mapping above still
+  documents which commit carries which step.
+- **Verification (2026-09-07, this host):** `--syntax-check` clean, all three
+  JSON files valid, `shellcheck install` + `bash -n install` clean; bogus
+  profile `--check` fails with the profile message; `sort -V -c` floor probes
+  (13.3.0 skip / 9.4.0 upgrade) pass; synthetic `dotfiles_deb_arch=armhf`
+  fails fast on `url_armhf`; `--tags dotfiles --check` on the linked host is
+  `changed=0`; synthetic `~/.gitconfig` conflict predicts the microsecond
+  backup root + backup + link (symlink restored afterwards); preflight
+  floor asserts pass live; rendered docker repo line contains `arch=amd64`.
+
+## Follow-up decisions (2026-09-07, maintainer)
+
+4. **Conditional become prompt:** **keep always-ask** — spec 04 and AR-02
+   stand; `install:177` item closed without change.
+5. **Stable-lagging GUI/editor packages:** switch stale stable packages to
+   upstream **archive/appimage** sources in `packages.json` (not backports).
+   Requires a new spec before implementing (multi-file manifest + playbook
+   surface).
