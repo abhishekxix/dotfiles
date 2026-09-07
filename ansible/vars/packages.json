@@ -104,8 +104,22 @@
     ],
     "source": "apt"
   },
+  "ffmpeg": {
+    "package": "ffmpeg",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "flameshot": {
     "package": "flameshot",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "flatpak": {
+    "package": "flatpak",
     "profiles": [
       "workstation"
     ],
@@ -195,6 +209,13 @@
     "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
     "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz"
   },
+  "libavcodec-extra": {
+    "package": "libavcodec-extra",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "libayatana-appindicator3-1": {
     "package": "libayatana-appindicator3-1",
     "profiles": [
@@ -260,6 +281,20 @@
   },
   "network-manager-applet": {
     "package": "network-manager-applet",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "obs-studio": {
+    "package": "obs-studio",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "okular": {
+    "package": "okular",
     "profiles": [
       "workstation"
     ],
