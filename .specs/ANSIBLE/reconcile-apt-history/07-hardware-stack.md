@@ -7,6 +7,6 @@
   User decision: include the full driver stack (non-free components enabled;
   localhost inventory = this machine).
 - **Acceptance:**
-  - [ ] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
-  - [ ] All eight keys present with `profiles: ["workstation"]`.
-  - [ ] Playbook check-mode parse clean (manifest validation green).
+  - [x] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
+  - [x] All eight keys present with `profiles: ["workstation"]`.
+  - [x] Playbook check-mode parse clean (manifest validation green).

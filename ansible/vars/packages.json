@@ -111,6 +111,13 @@
     ],
     "source": "apt"
   },
+  "firmware-misc-nonfree": {
+    "package": "firmware-misc-nonfree",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "flameshot": {
     "package": "flameshot",
     "profiles": [
@@ -230,6 +237,13 @@
     ],
     "source": "apt"
   },
+  "linux-headers-amd64": {
+    "package": "linux-headers-amd64",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "lxappearance": {
     "package": "lxappearance",
     "profiles": [
@@ -281,6 +295,34 @@
   },
   "network-manager-applet": {
     "package": "network-manager-applet",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvidia-driver": {
+    "package": "nvidia-driver",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvidia-kernel-dkms": {
+    "package": "nvidia-kernel-dkms",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvidia-xconfig": {
+    "package": "nvidia-xconfig",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvtop": {
+    "package": "nvtop",
     "profiles": [
       "workstation"
     ],
@@ -439,6 +481,20 @@
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "v4l2loopback-dkms": {
+    "package": "v4l2loopback-dkms",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "v4l2loopback-utils": {
+    "package": "v4l2loopback-utils",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
