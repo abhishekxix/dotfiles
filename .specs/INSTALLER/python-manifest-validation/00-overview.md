@@ -81,10 +81,10 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
     violations).
   - Keep the `dotfiles_deb_arch` UNKNOWN check as an assert (host fact).
 - **Acceptance:**
-  - [ ] `./install --check --diff --skip-tags packages` and full
+  - [x] `./install --check --diff --skip-tags packages` and full
         `--check --diff` both pass with valid manifests (validator runs even
         in check mode).
-  - [ ] Temporarily corrupt a manifest copy → playbook fails fast at
+  - [x] Temporarily corrupt a manifest copy → playbook fails fast at
         preflight with the script's precise error (verified via a scratch
         manifest + `-e` override or a dry edit reverted immediately).
 
