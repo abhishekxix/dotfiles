@@ -120,6 +120,22 @@
     "source": "git",
     "version": "v12"
   },
+  "python3-pip": {
+    "package": "python3-pip",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "python3-venv": {
+    "package": "python3-venv",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "qtile": {
     "package": "qtile",
     "profiles": [

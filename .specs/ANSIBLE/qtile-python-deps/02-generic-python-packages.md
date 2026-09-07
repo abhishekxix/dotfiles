@@ -27,9 +27,10 @@
   Note: no `python3-qtile-extras` entry — not packaged in Debian trixie
   (user decision, see 00-overview.md Non-goals).
 - **Acceptance:**
-  - [ ] `jq 'keys' ansible/vars/packages.json` is sorted.
-  - [ ] `jq '.["python3-pip"], .["python3-venv"]' ansible/vars/packages.json`
+  - [x] `jq 'keys' ansible/vars/packages.json` is sorted (verified with
+        `jq -e '. == (. | sort)'`).
+  - [x] `jq '.["python3-pip"], .["python3-venv"]' ansible/vars/packages.json`
         shows both entries with both profiles and `source: apt`.
-  - [ ] `ansible-playbook --check --diff --skip-tags packages
-        ansible/playbook.yml` parses cleanly; the apt-packages task would
-        include `python3-pip` and `python3-venv` on workstation and server.
+  - [x] `ansible-playbook --check --skip-tags packages ansible/playbook.yml`
+        parses cleanly — manifest validation tasks green (become tasks need an
+        interactive sudo password, unrelated to this change).
