@@ -55,11 +55,6 @@
     "package": "ca-certificates",
     "profiles": ["workstation", "server"]
   },
-  "pipx": {
-    "source": "apt",
-    "package": "pipx",
-    "profiles": ["workstation", "server"]
-  },
   "alacritty": {
     "source": "apt",
     "package": "alacritty",

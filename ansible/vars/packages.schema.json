@@ -18,7 +18,6 @@
       { "$ref": "#/definitions/apt" },
       { "$ref": "#/definitions/cargo" },
       { "$ref": "#/definitions/npm" },
-      { "$ref": "#/definitions/pipx" },
       { "$ref": "#/definitions/script" },
       { "$ref": "#/definitions/deb" },
       { "$ref": "#/definitions/archive" },
@@ -84,17 +83,6 @@
       "additionalProperties": false,
       "properties": {
         "source": { "const": "npm" },
-        "package": { "type": "string", "minLength": 1 },
-        "version": { "type": "string", "minLength": 1 },
-        "profiles": { "$ref": "#/definitions/profiles" }
-      }
-    },
-    "pipx": {
-      "type": "object",
-      "required": ["source", "package", "profiles"],
-      "additionalProperties": false,
-      "properties": {
-        "source": { "const": "pipx" },
         "package": { "type": "string", "minLength": 1 },
         "version": { "type": "string", "minLength": 1 },
         "profiles": { "$ref": "#/definitions/profiles" }
