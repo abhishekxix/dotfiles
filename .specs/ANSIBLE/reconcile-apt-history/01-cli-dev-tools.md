@@ -9,8 +9,8 @@
   "<name>": { "package": "<name>", "profiles": ["workstation", "server"], "source": "apt" }
   ```
 - **Acceptance:**
-  - [ ] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
-  - [ ] `jq 'to_entries | map(select(.key | test("^(fastfetch|gh|maven|ripgrep|shellcheck|tree)$"))) | map(.value.profiles)'`
+  - [x] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
+  - [x] `jq -c '[.fastfetch,.gh,.maven,.ripgrep,.shellcheck,.tree] | map(.profiles)'`
         shows both profiles for all six.
-  - [ ] `ansible-playbook --check --skip-tags packages ansible/playbook.yml`
+  - [x] `ansible-playbook --check --skip-tags packages ansible/playbook.yml`
         parses cleanly (manifest validation green).

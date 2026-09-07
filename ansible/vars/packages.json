@@ -47,6 +47,14 @@
     ],
     "source": "apt"
   },
+  "fastfetch": {
+    "package": "fastfetch",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "flameshot": {
     "package": "flameshot",
     "profiles": [
@@ -56,6 +64,14 @@
   },
   "fzf": {
     "package": "fzf",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "gh": {
+    "package": "gh",
     "profiles": [
       "workstation",
       "server"
@@ -92,6 +108,14 @@
     "package": "lxsession",
     "profiles": [
       "workstation"
+    ],
+    "source": "apt"
+  },
+  "maven": {
+    "package": "maven",
+    "profiles": [
+      "workstation",
+      "server"
     ],
     "source": "apt"
   },
@@ -143,10 +167,26 @@
     ],
     "source": "apt"
   },
+  "ripgrep": {
+    "package": "ripgrep",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "rofi": {
     "package": "rofi",
     "profiles": [
       "workstation"
+    ],
+    "source": "apt"
+  },
+  "shellcheck": {
+    "package": "shellcheck",
+    "profiles": [
+      "workstation",
+      "server"
     ],
     "source": "apt"
   },
@@ -163,6 +203,14 @@
   },
   "tmux": {
     "package": "tmux",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "tree": {
+    "package": "tree",
     "profiles": [
       "workstation",
       "server"
