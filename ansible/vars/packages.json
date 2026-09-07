@@ -143,13 +143,6 @@
     ],
     "source": "apt"
   },
-  "flatpak": {
-    "package": "flatpak",
-    "profiles": [
-      "workstation"
-    ],
-    "source": "apt"
-  },
   "fonts-indic": {
     "package": "fonts-indic",
     "profiles": [
@@ -362,12 +355,21 @@
     ],
     "source": "apt"
   },
-  "okular": {
-    "package": "okular",
+  "obsidian": {
+    "package": "md.obsidian.Obsidian",
     "profiles": [
       "workstation"
     ],
-    "source": "apt"
+    "remote": "flathub",
+    "source": "flatpak"
+  },
+  "okular": {
+    "package": "org.kde.okular",
+    "profiles": [
+      "workstation"
+    ],
+    "remote": "flathub",
+    "source": "flatpak"
   },
   "papirus-icon-theme": {
     "package": "papirus-icon-theme",
