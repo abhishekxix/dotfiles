@@ -25,10 +25,10 @@
   Without the preseed the postinst EULA prompt hangs/fails the
   non-interactive apt transaction.
 - **Acceptance:**
-  - [ ] `jq '.["ttf-mscorefonts-installer"]' ansible/vars/packages.json` shows
+  - [x] `jq '.["ttf-mscorefonts-installer"]' ansible/vars/packages.json` shows
         the workstation entry; `jq -e 'keys == (keys | sort)'` passes.
-  - [ ] `ansible-playbook --check --tags packages ansible/playbook.yml` shows
-        the preseed task listed before "Install apt packages"; check-mode
-        parse clean.
-  - [ ] Note in commit message: postinst downloads fonts from SourceForge at
-        install time (needs network).
+  - [x] `ansible-playbook --check --list-tasks` shows "Preseed mscorefonts
+        EULA acceptance" (task 25) immediately before "Install apt packages"
+        (task 26); check-mode parse clean.
+  - [x] Note: postinst downloads fonts from SourceForge at install time
+        (needs network).

@@ -476,6 +476,13 @@
     ],
     "source": "apt"
   },
+  "ttf-mscorefonts-installer": {
+    "package": "ttf-mscorefonts-installer",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "unzip": {
     "package": "unzip",
     "profiles": [

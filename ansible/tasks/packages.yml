@@ -8,6 +8,20 @@
   tags:
     - packages
 
+# 09-08: mscorefonts' postinst prompts for its EULA via debconf — preseed
+# the acceptance so the non-interactive apt transaction cannot hang or fail.
+# Gate mirrors the docker-group task below.
+- name: Preseed mscorefonts EULA acceptance
+  become: true
+  ansible.builtin.debconf:
+    name: ttf-mscorefonts-installer
+    question: msttcorefonts/accepted-mscorefonts-eula
+    value: "true"
+    vtype: boolean
+  when: "'ttf-mscorefonts-installer' in dotfiles_pkgs_apt | map(attribute='value.package')"
+  tags:
+    - packages
+
 # AI-17: one task, one apt transaction for all selected apt packages.
 - name: Install apt packages
   become: true
