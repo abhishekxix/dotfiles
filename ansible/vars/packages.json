@@ -177,6 +177,14 @@
     ],
     "source": "apt"
   },
+  "vim": {
+    "package": "vim",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "vscode": {
     "package": "code",
     "profiles": [
