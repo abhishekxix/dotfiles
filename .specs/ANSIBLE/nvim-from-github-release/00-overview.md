@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-07 |
 
@@ -43,7 +43,7 @@ releases), which starves the nvim config of new features.
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
 - [x] 01 — Archive `link` support (01-archive-link-support.md)
-- [ ] 02 — Swap neovim to the GitHub tarball (02-neovim-archive-entry.md)
+- [x] 02 — Swap neovim to the GitHub tarball (02-neovim-archive-entry.md)
 
 ## Risks & Rollback
 

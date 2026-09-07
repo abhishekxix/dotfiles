@@ -21,8 +21,13 @@
     "profiles": ["workstation", "server"]
   },
   "neovim": {
-    "source": "apt",
-    "package": "neovim",
+    "source": "archive",
+    "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
+    "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz",
+    "strip": 1,
+    "dest": "~/.local/src/nvim",
+    "creates": "~/.local/src/nvim/bin/nvim",
+    "link": "bin/nvim",
     "profiles": ["workstation", "server"]
   },
   "fzf": {

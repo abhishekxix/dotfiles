@@ -24,8 +24,10 @@
   guard makes a re-run on a machine that already has v0.12.5 extracted a
   no-op.
 - **Acceptance:**
-  - [ ] `ansible-playbook --check --diff --skip-tags packages
+  - [x] `ansible-playbook --check --diff --skip-tags packages
         ansible/playbook.yml` passes (schema + validation tasks green).
-  - [ ] After a real run: `nvim --version` reports `v0.12.5` and resolves to
-        `~/.local/bin/nvim` (`command -v nvim`).
-  - [ ] `~/.local/bin/nvim` is a symlink to `~/.local/src/nvim/bin/nvim`.
+  - [x] After a real run: `nvim --version` reports `v0.12.5` and resolves to
+        `~/.local/bin/nvim` (`command -v nvim`). The install already existed
+        on this machine, so the extract was a no-op by `creates`; the link
+        task ran idempotently (`changed: false`).
+  - [x] `~/.local/bin/nvim` is a symlink to `~/.local/src/nvim/bin/nvim`.
