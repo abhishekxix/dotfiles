@@ -23,6 +23,20 @@
     ],
     "source": "apt"
   },
+  "calf-plugins": {
+    "package": "calf-plugins",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "cava": {
+    "package": "cava",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "curl": {
     "package": "curl",
     "profiles": [
@@ -42,6 +56,13 @@
   },
   "dunst": {
     "package": "dunst",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "easyeffects": {
+    "package": "easyeffects",
     "profiles": [
       "workstation"
     ],
@@ -132,6 +153,27 @@
     "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
     "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
   },
+  "pasystray": {
+    "package": "pasystray",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "pavucontrol": {
+    "package": "pavucontrol",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "playerctl": {
+    "package": "playerctl",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "picom": {
     "build": [
       "rm -rf build && meson setup --buildtype=release -Dprefix=\"$HOME/.local\" build && ninja -C build install"
@@ -143,6 +185,20 @@
     "repo": "https://github.com/yshui/picom.git",
     "source": "git",
     "version": "v12"
+  },
+  "pulseaudio-equalizer": {
+    "package": "pulseaudio-equalizer",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "pulseaudio-utils": {
+    "package": "pulseaudio-utils",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "python3-pip": {
     "package": "python3-pip",
@@ -230,6 +286,13 @@
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "volumeicon-alsa": {
+    "package": "volumeicon-alsa",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
