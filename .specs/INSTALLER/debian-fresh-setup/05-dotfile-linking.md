@@ -16,15 +16,19 @@
 Keep the old linking semantics exactly (user decision): every immediate child
 of `home/` links into `$HOME`; every immediate child of `.config/` links into
 `$HOME/.config`, except `.config/README.md`. Idempotent; conflicts move to a
-timestamped `~/.local/state/dotfiles/backups/<iso8601_basic_short>/` dir.
+timestamped `~/.local/state/dotfiles/backups/<iso8601_basic>/` dir
+(microsecond resolution, so back-to-back runs never collide; old backups are
+kept, never auto-pruned).
 
 - Ensure `~/.config` exists (`0755`), tagged `dotfiles`.
 - `find` (non-recursive, include hidden) over repo `home/` and `.config/`;
   filter `.config` results against an excludes list (`README.md`).
 - Reusable `ansible/tasks/link.yml` included per entry with
   `link_source` / `link_destination` / `link_backup_group` (`home`|`config`):
-  `stat` (no follow) → `fail` when `dotfiles_backup_conflicts` is false and
-  the destination is not already the managed symlink → `mkdir -p` backup group
+  `stat` (no follow) → single `dotfiles_link_conflict` fact ("destination
+  exists and is not already the managed symlink") consumed by every later
+  task → `fail` when `dotfiles_backup_conflicts` is false and the destination
+  is not already the managed symlink → `mkdir -p` backup group
   dir (`0700`) → `mv` conflict into it → `file: state=link` (no force; correct
   links are left untouched so re-runs are no-ops). In `--check` mode the
   `mkdir`/`mv`/real link steps are skipped and `debug` predict-tasks report the

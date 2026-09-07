@@ -26,6 +26,19 @@ For a headless machine, use the server profile (CLI tools only):
 Existing destinations that are not already the correct symlink are moved to a
 timestamped directory under `~/.local/state/dotfiles/backups/` before linking.
 The operation is idempotent, so subsequent runs only apply new or changed items.
+Backup directories use microsecond timestamps, so back-to-back runs never
+collide; old backups are kept (never auto-pruned) — delete them yourself once
+you are sure nothing valuable is inside.
+
+Post-install notes:
+
+- `docker-ce` adds your user to the `docker` group automatically, but group
+  membership takes effect only after you log out and back in (or run
+  `newgrp docker`).
+- Switching profiles (`workstation` → `server`) does not remove third-party
+  apt repos that are no longer referenced. To clean up manually, delete the
+  stale files under `/etc/apt/sources.list.d/` and `/usr/share/keyrings/`
+  (e.g. `vscode.list` + `packages.microsoft.gpg`).
 
 ## Customize
 
