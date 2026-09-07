@@ -56,9 +56,9 @@ with:
 pip install pre-commit && pre-commit install
 ```
 
-The playbook needs the `community.general` collection (cargo/npm/pipx
-modules, minimum version 10.7.0 for `pipx: name: pkg==ver`). The `install`
-wrapper installs it from `ansible/requirements.yml` automatically; for direct
+The playbook needs the `community.general` collection (cargo and npm
+modules; 10.7.0 is kept as a known-good floor). The `install` wrapper
+installs it from `ansible/requirements.yml` automatically; for direct
 `ansible-playbook` runs, install it once with:
 
 ```bash

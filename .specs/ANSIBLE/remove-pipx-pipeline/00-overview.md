@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE (touches INSTALLER, DOCS in later steps) |
 | Created | 2026-09-08 |
 
@@ -66,8 +66,8 @@ spec (not feasible as a drop-in today: no `uv` CLI in Debian stable, no
   task-name comment to "(cargo, fnm)"; reword the preflight floor comment so
   it no longer cites `pipx: name: pkg==ver`.
 - **Acceptance:**
-  - [ ] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
-  - [ ] `grep -rn pipx ansible/` returns nothing.
+  - [x] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
+  - [x] `grep -rn pipx ansible/` returns nothing (except step 02 scope).
 
 ### 02 — Remove pipx from manifest data and schema
 
@@ -76,8 +76,8 @@ spec (not feasible as a drop-in today: no `uv` CLI in Debian stable, no
 - **Changes:** delete the `pipx` apt entry (workstation+server selection
   counts drop by 1 each); delete the `pipx` definition and its `oneOf` ref.
 - **Acceptance:**
-  - [ ] `python3 -m json.tool` exits 0 on both files.
-  - [ ] `.bin/validate-manifest.py` exits 0.
+  - [x] `python3 -m json.tool` exits 0 on both files.
+  - [x] `.bin/validate-manifest.py` exits 0.
 
 ### 03 — Remove pipx from the manifest validator
 
@@ -86,8 +86,8 @@ spec (not feasible as a drop-in today: no `uv` CLI in Debian stable, no
   future `source: "pipx"` entry fails validation instead of silently
   installing nothing.
 - **Acceptance:**
-  - [ ] `.bin/validate-manifest.py` exits 0 on the real manifests.
-  - [ ] A probe manifest entry with `source: "pipx"` reports an unknown-source
+  - [x] `.bin/validate-manifest.py` exits 0 on the real manifests.
+  - [x] A probe manifest entry with `source: "pipx"` reports an unknown-source
         error (then discarded).
 
 ### 04 — Update README
@@ -96,7 +96,7 @@ spec (not feasible as a drop-in today: no `uv` CLI in Debian stable, no
 - **Changes:** reword the community.general paragraph: cargo/npm modules;
   10.7.0 kept as a known-good floor.
 - **Acceptance:**
-  - [ ] `grep -rn pipx ansible/ .bin/ README.md` returns nothing.
+  - [x] `grep -rn pipx ansible/ .bin/ README.md` returns nothing.
 
 ## Risks & Rollback
 
