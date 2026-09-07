@@ -8,12 +8,14 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 PACKAGES_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "packages.json")
 DEPS_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "package-deps.json")
 REPOS_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "repos.json")
+FLATPAK_REMOTES_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "flatpak-remotes.json")
 
-SOURCES = {"apt", "cargo", "npm", "script", "deb", "archive", "git"}
+SOURCES = {"apt", "cargo", "flatpak", "npm", "script", "deb", "archive", "git"}
 PROFILES = {"workstation", "server"}
 REQUIRED_FIELDS = {
     "apt": ("package",),
     "cargo": ("crate",),
+    "flatpak": ("package", "remote"),
     "npm": ("package",),
     "script": ("url", "creates"),
     "deb": ("url",),
@@ -36,11 +38,12 @@ def load(path):
         sys.exit(2)
 
 
-def validate_packages(packages, repos, errors):
+def validate_packages(packages, repos, flatpak_remotes, errors):
     if not isinstance(packages, dict):
         errors.append("packages.json: top level must be an object")
         return
     repo_ids = set(repos) if isinstance(repos, dict) else set()
+    flatpak_remote_ids = set(flatpak_remotes) if isinstance(flatpak_remotes, dict) else set()
     for name, entry in packages.items():
         if name == "$schema":
             continue
@@ -81,6 +84,10 @@ def validate_packages(packages, repos, errors):
             errors.append(
                 f"packages.json: '{name}': repo id '{entry['repo']}' not defined in repos.json"
             )
+        if source == "flatpak" and "remote" in entry and entry["remote"] not in flatpak_remote_ids:
+            errors.append(
+                f"packages.json: '{name}': remote id '{entry['remote']}' not defined in flatpak-remotes.json"
+            )
         profiles = entry.get("profiles")
         if profiles is None:
             errors.append(f"packages.json: '{name}': missing field 'profiles'")
@@ -119,6 +126,21 @@ def validate_deps(deps, packages, errors):
                 )
 
 
+def validate_flatpak_remotes(remotes, errors):
+    if not isinstance(remotes, dict):
+        errors.append("flatpak-remotes.json: top level must be an object")
+        return
+    for name, remote in remotes.items():
+        if not isinstance(remote, dict):
+            errors.append(f"flatpak-remotes.json: '{name}': entry must be an object")
+            continue
+        url = remote.get("url")
+        if not isinstance(url, str) or not url:
+            errors.append(
+                f"flatpak-remotes.json: '{name}': missing field 'url' (non-empty string)"
+            )
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="validate-manifest.py",
@@ -127,6 +149,7 @@ def main():
     parser.add_argument("--packages", default=PACKAGES_PATH)
     parser.add_argument("--deps", default=DEPS_PATH)
     parser.add_argument("--repos", default=REPOS_PATH)
+    parser.add_argument("--flatpak-remotes", default=FLATPAK_REMOTES_PATH)
     args = parser.parse_args()
 
     packages = load(args.packages)
@@ -135,10 +158,12 @@ def main():
     if not isinstance(repos, dict):
         print(f"{args.repos}: top level must be an object", file=sys.stderr)
         sys.exit(2)
+    flatpak_remotes = load(args.flatpak_remotes)
 
     errors = []
-    validate_packages(packages, repos, errors)
+    validate_packages(packages, repos, flatpak_remotes, errors)
     validate_deps(deps, packages, errors)
+    validate_flatpak_remotes(flatpak_remotes, errors)
     for err in errors:
         print(err, file=sys.stderr)
     if errors:

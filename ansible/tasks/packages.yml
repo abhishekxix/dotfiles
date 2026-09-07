@@ -251,3 +251,30 @@
   tags:
     - packages
 
+# -- Flatpak (system-level; remotes must exist before applications) ------
+- name: Ensure flatpak remotes (system)
+  become: true
+  community.general.flatpak_remote:
+    name: "{{ item }}"
+    flatpak_repo_url: "{{ dotfiles_flatpak_remotes_manifest[item].url }}"
+    state: present
+    method: system
+  loop: "{{ dotfiles_flatpak_remotes_selected }}"
+  loop_control:
+    label: "{{ item }}"
+  tags:
+    - packages
+
+- name: Install flatpak applications
+  become: true
+  community.general.flatpak:
+    name: "{{ item.value.package }}"
+    remote: "{{ item.value.remote }}"
+    state: present
+    method: system
+  loop: "{{ dotfiles_pkgs_flatpak }}"
+  loop_control:
+    label: "{{ item.value.package }}"
+  tags:
+    - packages
+

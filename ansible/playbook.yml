@@ -15,6 +15,7 @@
     # before treating values as package entries (it has no profiles/source).
     dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json | dict2items | rejectattr('key', 'equalto', '$schema') | items2dict }}"
     dotfiles_repos_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/repos.json') | from_json }}"
+    dotfiles_flatpak_remotes_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/flatpak-remotes.json') | from_json }}"
     # Build dependencies (package-deps.json): keyed by the dependent package
     # name. A key's deps install only when that package is selected for the
     # active profile, in one apt transaction before any per-source task.
@@ -22,6 +23,7 @@
     dotfiles_deps_apt: "{{ dotfiles_deps_manifest | dict2items | selectattr('key', 'in', dotfiles_packages_selected | map(attribute='key') | list) | map(attribute='value') | flatten | unique | list }}"
     dotfiles_packages_selected: "{{ dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | list }}"
     dotfiles_repos_selected: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | selectattr('value.repo', 'defined') | map(attribute='value.repo') | unique | list }}"
+    dotfiles_flatpak_remotes_selected: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'flatpak') | map(attribute='value.remote') | unique | list }}"
     dotfiles_pkgs_apt: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | list }}"
     dotfiles_pkgs_cargo: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'cargo') | list }}"
     dotfiles_pkgs_npm: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'npm') | list }}"
@@ -29,6 +31,7 @@
     dotfiles_pkgs_deb: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'deb') | list }}"
     dotfiles_pkgs_archive: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'archive') | list }}"
     dotfiles_pkgs_git: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'git') | list }}"
+    dotfiles_pkgs_flatpak: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'flatpak') | list }}"
     # AI-01/AI-27: map kernel arch names to Debian apt arch names; anything
     # unmapped fails fast in validation instead of writing a broken arch= line.
     dotfiles_deb_arch_map:
@@ -50,7 +53,7 @@
       ansible.builtin.import_tasks: tasks/repos.yml
 
     # -- Toolchain bootstrap (auto, gated on selected sources) --------------
-    - name: Bootstrap language toolchains (cargo, fnm)
+    - name: Bootstrap language toolchains (cargo, fnm, flatpak)
       ansible.builtin.import_tasks: tasks/toolchain.yml
 
     # -- Per-source installs ------------------------------------------------

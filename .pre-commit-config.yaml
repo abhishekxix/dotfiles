@@ -11,4 +11,4 @@ repos:
         entry: .bin/validate-manifest.py
         language: system
         pass_filenames: false
-        files: ^ansible/vars/(packages|package-deps|repos)\.json$
+        files: ^ansible/vars/(packages|package-deps|repos|flatpak-remotes)\.json$

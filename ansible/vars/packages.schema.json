@@ -17,6 +17,7 @@
     "oneOf": [
       { "$ref": "#/definitions/apt" },
       { "$ref": "#/definitions/cargo" },
+      { "$ref": "#/definitions/flatpak" },
       { "$ref": "#/definitions/npm" },
       { "$ref": "#/definitions/script" },
       { "$ref": "#/definitions/deb" },
@@ -73,6 +74,25 @@
         "features": {
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
+        },
+        "profiles": { "$ref": "#/definitions/profiles" }
+      }
+    },
+    "flatpak": {
+      "type": "object",
+      "required": ["source", "package", "remote", "profiles"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "flatpak" },
+        "package": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Flatpak application ID (e.g. org.kde.okular)."
+        },
+        "remote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Remote id; must also be a key in ansible/vars/flatpak-remotes.json (enforced by the validator, not expressible here)."
         },
         "profiles": { "$ref": "#/definitions/profiles" }
       }
