@@ -15,6 +15,13 @@
     ],
     "source": "apt"
   },
+  "breeze": {
+    "package": "breeze",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "ca-certificates": {
     "package": "ca-certificates",
     "profiles": [
@@ -83,6 +90,41 @@
     ],
     "source": "apt"
   },
+  "fonts-indic": {
+    "package": "fonts-indic",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-noto-cjk": {
+    "package": "fonts-noto-cjk",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-noto-cjk-extra": {
+    "package": "fonts-noto-cjk-extra",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-noto-color-emoji": {
+    "package": "fonts-noto-color-emoji",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-ubuntu": {
+    "package": "fonts-ubuntu",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "fzf": {
     "package": "fzf",
     "profiles": [
@@ -125,6 +167,13 @@
     "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
     "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz"
   },
+  "lxappearance": {
+    "package": "lxappearance",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "lxsession": {
     "package": "lxsession",
     "profiles": [
@@ -152,6 +201,13 @@
     "strip": 1,
     "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
     "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
+  },
+  "papirus-icon-theme": {
+    "package": "papirus-icon-theme",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "pasystray": {
     "package": "pasystray",
@@ -213,6 +269,13 @@
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "qt6ct": {
+    "package": "qt6ct",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -313,6 +376,13 @@
   },
   "xscreensaver": {
     "package": "xscreensaver",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "yaru-theme-gtk": {
+    "package": "yaru-theme-gtk",
     "profiles": [
       "workstation"
     ],

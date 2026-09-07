@@ -6,6 +6,6 @@
   `fonts-ubuntu`, `lxappearance`, `papirus-icon-theme`, `qt6ct`,
   `yaru-theme-gtk`.
 - **Acceptance:**
-  - [ ] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
-  - [ ] All ten keys present with `profiles: ["workstation"]`.
-  - [ ] Playbook check-mode parse clean (manifest validation green).
+  - [x] `jq -e 'keys == (keys | sort)' ansible/vars/packages.json` passes.
+  - [x] All ten keys present with `profiles: ["workstation"]`.
+  - [x] Playbook check-mode parse clean (manifest validation green).
