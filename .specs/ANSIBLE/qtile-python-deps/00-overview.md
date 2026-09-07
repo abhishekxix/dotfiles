@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-08 |
 
@@ -59,9 +59,9 @@ workstation install needs no manual `apt install` fix-ups, and log the
 
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
-- [ ] 01 — qtile runtime deps in package-deps.json (01-qtile-package-deps.md)
-- [ ] 02 — generic python3-pip / python3-venv entries (02-generic-python-packages.md)
-- [ ] 03 — lexical-order note in AGENTS.md (03-agents-lexical-order.md)
+- [x] 01 — qtile runtime deps in package-deps.json (01-qtile-package-deps.md)
+- [x] 02 — generic python3-pip / python3-venv entries (02-generic-python-packages.md)
+- [x] 03 — lexical-order note in AGENTS.md (03-agents-lexical-order.md)
 
 ## Risks & Rollback
 
