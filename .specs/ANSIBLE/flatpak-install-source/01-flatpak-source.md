@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Step | 01 |
 | Commit | `ANSIBLE(01): add flatpak install source (remotes + app installs)` |
 
@@ -113,15 +113,15 @@ editing the remotes file runs the validator.
 
 ## Acceptance
 
-- [ ] `.bin/validate-manifest.py` exits 0 on the current manifests.
-- [ ] Negative tests (temp copies via `--packages`/`--flatpak-remotes` flags):
+- [x] `.bin/validate-manifest.py` exits 0 on the current manifests.
+- [x] Negative tests (temp copies via `--packages`/`--flatpak-remotes` flags):
       flatpak entry with unknown remote id, missing `package`, missing
       `remote`, and a malformed remotes file each fail with one precise error.
-- [ ] `pre-commit run --all-files` green; touching
+- [x] `pre-commit run --all-files` green; touching
       `ansible/vars/flatpak-remotes.json` alone triggers the hook.
-- [ ] `ansible-playbook --check --diff --skip-tags packages` parses clean
+- [x] `ansible-playbook --check --diff --skip-tags packages` parses clean
       (syntax + var wiring; no flatpak entries selected yet, so the new
       tasks no-op and the apt bootstrap is skipped).
-- [ ] `pre-commit` hook triggers when `ansible/vars/flatpak-remotes.json` is
+- [x] `pre-commit` hook triggers when `ansible/vars/flatpak-remotes.json` is
       edited, and `packages.schema.json` remains valid JSON with
       `packages.json`'s `$schema` pointer resolving against it.

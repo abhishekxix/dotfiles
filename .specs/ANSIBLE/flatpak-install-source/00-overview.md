@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | In progress |
 | Component | ANSIBLE (also touches `.bin/validate-manifest.py`, INSTALLER-adjacent) |
 | Created | 2026-09-08 |
 
@@ -54,7 +54,7 @@ Flathub.
 
 ## Steps
 
-- [ ] 01 — `01-flatpak-source.md` — flatpak source plumbing (schema, validator, remotes manifest, bootstrap, tasks)
+- [x] 01 — `01-flatpak-source.md` — flatpak source plumbing (schema, validator, remotes manifest, bootstrap, tasks)
 - [ ] 02 — `02-okular-obsidian-flathub.md` — migrate okular, add obsidian, drop the flatpak apt entry
 
 ## Risks & Rollback
