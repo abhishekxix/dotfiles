@@ -67,6 +67,19 @@ under `.config/` (or a top-level concern):
 - `lazy-lock.json` is generated; regenerate with `:Lazy sync` after plugin
   changes and commit the result.
 
+## Remote & destructive actions
+
+Pushes, PRs, and anything touching shared/remote state require **explicit,
+per-action approval**. "Yes" to one step is not consent to the next.
+
+- **Never** merge PRs (via `gh pr merge` or the GitHub UI/API) unless the user
+  asks for that exact action in that moment.
+- **Never** push to `main` or any shared branch without being told to.
+- Force-pushes, branch protection edits, `gh api` mutations, and deleting
+  branches/releases all count as destructive — ask first, every time.
+- When in doubt after finishing a step, stop and report what is pending
+  instead of completing the workflow end-to-end.
+
 ## Working with the installer
 
 - `install` and `ansible/` manage symlinks, packages, and backed-up conflicts.
