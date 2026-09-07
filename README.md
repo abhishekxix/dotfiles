@@ -46,6 +46,13 @@ Edit `ansible/vars/packages.json` to change the package manifest (one object
 per package with `source` + `profiles`) and `ansible/vars/repos.json` for
 third-party apt signing keys and repository lines.
 
+Manifest edits are validated against `ansible/vars/*.schema.json` by
+[pre-commit](https://pre-commit.com) (locally and in CI). Enable the hook with:
+
+```bash
+pip install pre-commit && pre-commit install
+```
+
 The playbook needs the `community.general` collection (cargo/npm/pipx
 modules, minimum version 10.7.0 for `pipx: name: pkg==ver`). The `install`
 wrapper installs it from `ansible/requirements.yml` automatically; for direct
