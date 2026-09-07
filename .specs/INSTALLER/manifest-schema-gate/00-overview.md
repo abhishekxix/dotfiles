@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | In progress |
 | Component | INSTALLER |
 | Created | 2026-09-07 |
 
@@ -46,10 +46,10 @@ manifests can never be committed or merged.
   and `ansible/vars/package-deps.json --schemafile
   ansible/vars/package-deps.schema.json`. Document `pre-commit install`.
 - **Acceptance:**
-  - [ ] `pre-commit run --all-files` passes on the current manifests.
-  - [ ] Deliberately breaking an entry (e.g. `source: tgz`) makes
+  - [x] `pre-commit run --all-files` passes on the current manifests.
+  - [x] Deliberately breaking an entry (e.g. `source: tgz`) makes
     `pre-commit run --all-files` fail with a useful error.
-  - [ ] `git commit` with a broken manifest is rejected after
+  - [x] `git commit` with a broken manifest is rejected after
     `pre-commit install`.
 
 ### 02 — GitHub Actions workflow
@@ -60,7 +60,7 @@ manifests can never be committed or merged.
   `pre-commit run --all-files`.
 - **Acceptance:**
   - [ ] Workflow runs green on a PR touching nothing, and red when the schema
-    check is broken.
+    check is broken. (Requires a push; verify on first PR.)
   - [ ] (Manual, outside git) Branch protection on `main` set to require the
     `validate` check before merge.
 
