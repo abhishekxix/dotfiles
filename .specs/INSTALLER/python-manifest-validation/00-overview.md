@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Component | INSTALLER |
 | Created | 2026-09-07 |
 
@@ -98,19 +98,19 @@ Each step maps to exactly one commit, named `INSTALLER(<NN>): <summary>`.
   - Keep `packages.schema.json` / `package-deps.schema.json` for editor
     `$schema` hints.
 - **Acceptance:**
-  - [ ] `pre-commit run --all-files` passes on the valid manifests.
-  - [ ] Seeded-violation fixture fails the hook with the script's messages.
+  - [x] `pre-commit run --all-files` passes on the valid manifests.
+  - [x] Seeded-violation fixture fails the hook with the script's messages.
 
 ### 04 — E2E verification + spec close
 
 - **Files:** `.specs/INSTALLER/python-manifest-validation/00-overview.md` (EDIT)
 - **Changes:** Full run, close spec.
 - **Acceptance:**
-  - [ ] `./install --check --diff --skip-tags packages` clean
+  - [x] `./install --check --diff --skip-tags packages` clean
         (`changed=0`, exit 0).
-  - [ ] README/docs checked for stale references to the jsonschema gate
+  - [x] README/docs checked for stale references to the jsonschema gate
         (update if any).
-  - [ ] Spec status Done, boxes ticked.
+  - [x] Spec status Done, boxes ticked.
 
 ## Risks & Rollback
 
