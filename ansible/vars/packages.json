@@ -7,11 +7,25 @@
     ],
     "source": "apt"
   },
+  "ayatana-indicator-application": {
+    "package": "ayatana-indicator-application",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "bat": {
     "package": "bat",
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "blueman": {
+    "package": "blueman",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -141,6 +155,13 @@
     ],
     "source": "apt"
   },
+  "gir1.2-ayatanaappindicator3-0.1": {
+    "package": "gir1.2-ayatanaappindicator3-0.1",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "git": {
     "package": "git",
     "profiles": [
@@ -166,6 +187,13 @@
     "source": "archive",
     "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
     "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz"
+  },
+  "libayatana-appindicator3-1": {
+    "package": "libayatana-appindicator3-1",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "lxappearance": {
     "package": "lxappearance",
@@ -201,6 +229,13 @@
     "strip": 1,
     "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
     "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
+  },
+  "network-manager-applet": {
+    "package": "network-manager-applet",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "papirus-icon-theme": {
     "package": "papirus-icon-theme",
