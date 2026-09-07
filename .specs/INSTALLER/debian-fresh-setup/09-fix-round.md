@@ -35,7 +35,7 @@ policy calls, checksum enforcement, untestable-without-fresh-host claims).
     In-playbook preflight assert is therefore viable.
   - `ansible_playbook_pid` is MISSING (no such magic var); `ansible_user_id`
     is `abhi` under a play (undefined for ad-hoc `ansible -m debug`).
-    Backup-dir uniqueness uses `ansible_date_time.iso8601_basic` (microsecond
+    Backup-dir uniqueness uses `ansible_date_time.iso8601_basic_micro` (microsecond
     resolution, e.g. `20260907T112850205990`) instead of a pid.
   - Starship prebuilt musl tarballs for **both** arches return HTTP 200 and
     the x86_64 binary was downloaded, extracted (`tar -tzf` shows a single
@@ -84,7 +84,7 @@ policy calls, checksum enforcement, untestable-without-fresh-host claims).
 | 17 | `playbook.yml:344` `deb` source is dead code | DEFER (no fixture available; dropping the path removes future coverage — revisit when first deb entry lands) |
 | 18 | `packages.schema.json:45` `sha256` never wired | DEFER (follow-up 3; schema already marks it NOT enforced) |
 | 19 | `link.yml:62` copy-pasted `when` + synthetic check predictions | FIX as no-behavior refactor (single `dotfiles_link_conflict` fact; predictions kept — AI-09 behavior unchanged) |
-| 20 | `playbook.yml:13` 1-second backup-root collisions, no retention doc | FIX (microsecond `iso8601_basic` root + README retention note) |
+| 20 | `playbook.yml:13` 1-second backup-root collisions, no retention doc | FIX (microsecond `iso8601_basic_micro` root + README retention note; initially shipped `iso8601_basic` by mistake — corrected in e4e18e1) |
 | 21 | `playbook.yml:12` no root guard | FIX (fail fast when `ansible_user_id == 'root'`) |
 | 22 | `playbook.yml:288` stale `ansible_facts.env.PATH` stitching | FIX (prepend `~/.cargo/bin` on fnm/npm tasks so cargo-installed fnm is found post-bootstrap) |
 | 23 | `playbook.yml:257` triple `apt-get update` | REJECT with evidence (all three carry `cache_valid_time: 3600`; at most one real update per run — same as AR-11) |
