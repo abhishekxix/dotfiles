@@ -6,8 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  manifests:
-    name: Manifest schema validation
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
