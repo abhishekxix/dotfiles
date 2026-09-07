@@ -165,15 +165,9 @@
       tags:
         - packages
 
-    - name: Remove stale downloaded key copies
-      become: true
-      ansible.builtin.file:
-        path: "{{ dotfiles_repos_manifest[item].keyring }}.asc"
-        state: absent
-      loop: "{{ dotfiles_repos_selected }}"
-      when: dotfiles_repos_manifest[item].key_url is defined
-      tags:
-        - packages
+    # 09-18/VG-01: the .asc copy is kept (never deleted) so get_url converges
+    # on content comparison — deleting it made download + removal report
+    # changed on every run. Rotation convergence is follow-up 3 (checksums).
 
     - name: Ensure third-party keyring permissions
       become: true
