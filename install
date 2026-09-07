@@ -25,8 +25,12 @@ Passthrough (anything else is forwarded to ansible-playbook):
   --skip-tags packages
                     Limit a run to dotfile linking (no package installs).
   -e KEY=VALUE, --extra-vars KEY=VALUE
-                    Extra Ansible variables. A value containing
-                    dotfiles_profile overrides --profile.
+                     Extra Ansible variables. A value containing
+                     dotfiles_profile overrides --profile. Only the
+                     values on the command line are inspected:
+                     -e @file.yml indirection is not detected, but
+                     the file still wins because passthrough args
+                     follow the injected default (later -e wins).
   -K, --ask-become-pass, --become-password-file FILE
                     Become-password options. The wrapper adds
                     --ask-become-pass unless you pass one of these.
@@ -158,14 +162,30 @@ if ! command -v ansible-playbook >/dev/null 2>&1; then
     install_ansible
 fi
 
-# AI-02/AI-22: the playbook needs community.general>=10.7.0 (cargo/npm/pipx
+# AI-22/09-15: the playbook needs community.general>=10.7.0 (cargo/npm/pipx
 # modules; pipx `name: pkg==ver` needs the floor). Install when missing,
-# --upgrade when the installed version is below the floor.
+# --upgrade when the installed version is below the floor. Query with
+# --format json (stable machine-readable output) and take the highest
+# version across all collection paths; compare with `sort -V -c`
+# (floor-first input is sorted iff have >= floor).
 dotfiles_collection_floor="10.7.0"
-dotfiles_collection_have="$(ansible-galaxy collection list 2>/dev/null | awk '$1 == "community.general" { print $2; exit }')"
+dotfiles_collection_have="$(
+    ansible-galaxy collection list community.general --format json 2>/dev/null \
+        | python3 -c 'import json, sys
+try:
+    data = json.load(sys.stdin)
+except Exception:
+    data = {}
+for path_collections in data.values():
+    if isinstance(path_collections, dict):
+        entry = path_collections.get("community.general")
+        if isinstance(entry, dict) and entry.get("version"):
+            print(entry["version"])' 2>/dev/null \
+        | sort -V 2>/dev/null | tail -n 1 || true
+)"
 if [[ -z "${dotfiles_collection_have}" ]]; then
     ansible-galaxy collection install -r "${repo_root}/ansible/requirements.yml"
-elif [[ "${dotfiles_collection_have}" != "${dotfiles_collection_floor}" ]] && [[ "$(printf '%s\n%s\n' "${dotfiles_collection_floor}" "${dotfiles_collection_have}" | sort -V | head -n 1)" != "${dotfiles_collection_floor}" ]]; then
+elif ! printf '%s\n%s\n' "${dotfiles_collection_floor}" "${dotfiles_collection_have}" | sort -V -c 2>/dev/null; then
     ansible-galaxy collection install --upgrade -r "${repo_root}/ansible/requirements.yml"
 fi
 unset dotfiles_collection_have dotfiles_collection_floor
