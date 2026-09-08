@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Component | HOME |
 | Created | 2026-09-08 |
 
@@ -115,10 +115,10 @@ Each step maps to exactly one commit, named `HOME(<NN>): <summary>`.
   `~/.cargo/env` source; add `. "$HOME/.path"` in their place. Keep the
   bash-sources-`.bashrc` block and the `QT_QPA_PLATFORMTHEME` export.
 - **Acceptance:**
-  - [ ] `env -i HOME="$HOME" bash -lc 'echo $PATH' | tr ':' '\n' | sort`
+  - [x] `env -i HOME="$HOME" bash -lc 'echo $PATH' | tr ':' '\n' | sort`
         is unchanged from before this spec (same set of dirs, same
         cargo-then-.local/bin-then-bin relative order).
-  - [ ] No duplicates: `env -i HOME="$HOME" bash -lc 'echo $PATH' |
+  - [x] No duplicates: `env -i HOME="$HOME" bash -lc 'echo $PATH' |
         tr ':' '\n' | sort | uniq -d` is empty (`.profile` sources both
         `.bashrc`→`.path` and `.path` directly).
 
@@ -130,11 +130,13 @@ Each step maps to exactly one commit, named `HOME(<NN>): <summary>`.
   also finds user tools. Interactive-only config (nvm) stays behind the
   guard.
 - **Acceptance:**
-  - [ ] `bash -c 'echo $PATH'` (non-login, non-interactive) contains
+  - [x] `bash -c 'echo $PATH'` (non-login, non-interactive) contains
         `~/.local/bin`, `~/bin`, `~/.cargo/bin`.
-  - [ ] `env -i HOME="$HOME" bash -lc 'echo $PATH' | tr ':' '\n' | sort |
-        uniq -d` still empty; shellcheck clean on all three edited files.
-  - [ ] Fresh login zsh and bash both show the expected PATH with no
+  - [x] `env -i HOME="$HOME" bash -lc 'echo $PATH' | tr ':' '\n' | sort |
+        uniq -d` still empty; shellcheck clean on all three edited files
+        (one `# shellcheck` directive line added per file — SC2148/SC1091
+        are inherent to sourced dotfiles).
+  - [x] Fresh login zsh and bash both show the expected PATH with no
         duplicates; spec status flipped to Done.
 
 ## Risks & Rollback
