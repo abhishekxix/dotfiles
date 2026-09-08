@@ -56,13 +56,26 @@ Playbook behavior (Debian stable only, `become: true`):
 1. Load `repos.json`. Compute the set of repo ids referenced by the
    profile-selected `packages.json` entries with `source == "apt"` and a
    `repo` field.
-2. For each referenced repo: `get_url` key → dearmor into `keyring`
-   (idempotent, mode `0644`), then `apt_repository` with the `repo` line
-   (idempotent). Skip unreferenced repos entirely — selecting profile `server`
+2. Healing first, before every `apt` invocation: remove a foreign
+   `/etc/apt/sources.list.d/<id>.sources` deb822 twin, then own the exact
+   content of `/etc/apt/sources.list.d/<id>.list` with `copy`. apt parses
+   all of sources.list.d on startup, so a drifted host (vendor installers
+   like docker's `docker.asc` entry or Microsoft's `vscode.sources`, or
+   lines left by older manifest formats) fails every apt task — even
+   `update_cache` in the prerequisites step — with "Conflicting values set
+   for option Signed-By" until healed. `apt_repository` is deliberately
+   not used: it only appends its line and never removes foreign ones.
+   Content-owned `copy` overwrites that drift while a matching file stays
+   `ok`. Skip unreferenced repos entirely — selecting profile `server`
    must not add workstation-only repos.
-3. `apt-get update` after any repo change, before any install (installs
-   themselves are step 03). The update is gated on key/repo change with
-   `cache_valid_time` so clean re-runs stay `ok`.
+3. Install keyring prerequisites (`gnupg`, `ca-certificates`) with no
+   `update_cache`: on a fresh host the `.list` files already reference
+   keyrings that don't exist until dearmor runs, so an earlier index
+   refresh would abort with "repository is not signed".
+4. `get_url` key → dearmor into `keyring` (idempotent, mode `0644`).
+5. `apt-get update` after any repo change, before any install (installs
+   themselves are step 03). The update is gated on purge/key/copy change
+   with `cache_valid_time` so clean re-runs stay `ok`.
 
 ## Acceptance
 
