@@ -1,21 +1,12 @@
 ---
 # -- Toolchain bootstrap (always installed) ------------------------------
-- name: Check for cargo
-  ansible.builtin.command:
-    argv: [cargo, --version]
-  register: dotfiles_cargo_check
-  changed_when: false
-  failed_when: false
-  tags:
-    - packages
-
+# Idempotency is the installer's job: shell tasks skip via `creates`
+# markers, apt tasks via `state: present`. No exist-probes.
 - name: Install rustup (cargo provider)
   ansible.builtin.shell:
     cmd: "set -o pipefail && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
     executable: /bin/bash
     creates: "{{ dotfiles_home }}/.cargo/bin/cargo"
-  when:
-    - dotfiles_cargo_check.rc | default(0) != 0
   tags:
     - packages
 
@@ -36,24 +27,6 @@
   tags:
     - packages
 
-- name: Check for fnm
-  ansible.builtin.stat:
-    path: "{{ dotfiles_home }}/.cargo/bin/fnm"
-  register: dotfiles_fnm_check
-  tags:
-    - packages
-
-# AI-30: fnm installs via cargo, but a host may still have one from
-# elsewhere (apt, manual) — probe PATH too so we don't reinstall over it.
-- name: Check PATH for fnm
-  ansible.builtin.command:
-    argv: [fnm, --version]
-  register: dotfiles_fnm_path_check
-  changed_when: false
-  failed_when: false
-  tags:
-    - packages
-
 - name: Install fnm (node provider)
   ansible.builtin.shell:
     cmd: "set -o pipefail && cargo install fnm --locked"
@@ -61,9 +34,6 @@
     creates: "{{ dotfiles_home }}/.cargo/bin/fnm"
   environment:
     PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
-  when:
-    - not (dotfiles_fnm_check.stat.exists | default(false))
-    - dotfiles_fnm_path_check.rc | default(0) != 0
   tags:
     - packages
 
@@ -80,20 +50,10 @@
   tags:
     - packages
 
-- name: Check for flatpak
-  ansible.builtin.command:
-    argv: [flatpak, --version]
-  register: dotfiles_flatpak_check
-  changed_when: false
-  failed_when: false
-  tags:
-    - packages
-
-# Unlike cargo/fnm the flatpak CLI is an apt package, so the bootstrap is a
-# plain apt install. update_cache covers fresh hosts whose apt cache is still
-# empty (toolchain.yml runs before packages.yml's cache refresh). This task is
-# the single source of truth for the flatpak CLI — there is intentionally no
-# dedicated `flatpak` apt entry in packages.json.
+# The flatpak CLI is an apt package. update_cache covers fresh hosts whose
+# apt cache is still empty (toolchain.yml runs before packages.yml's cache
+# refresh). This task is the single source of truth for the flatpak CLI —
+# there is intentionally no dedicated `flatpak` apt entry in packages.json.
 - name: Install flatpak CLI (flatpak provider)
   become: true
   ansible.builtin.apt:
@@ -101,9 +61,5 @@
     state: present
     update_cache: true
     cache_valid_time: 3600
-  when:
-    - dotfiles_flatpak_check.rc | default(0) != 0
   tags:
     - packages
-
-
