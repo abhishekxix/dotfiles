@@ -1,0 +1,64 @@
+---
+# -- Apt component normalization (fail fast on unusable sources) ---------
+# Fresh Debian trixie defaults to `main contrib non-free-firmware`; the
+# manifest also needs plain `non-free` (fonts-ubuntu, nvidia-*) and `contrib`
+# (mscorefonts). Components cannot be derived per-package before the indexes
+# are fetched (chicken-and-egg), so they are normalized unconditionally.
+# Legacy one-line sources.list is not rewritten — fail fast instead.
+# See .specs/ANSIBLE/enable-nonfree-components/.
+- name: Check apt source files
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /etc/apt/sources.list
+    - /etc/apt/sources.list.d/debian.sources
+  register: dotfiles_sources_stat
+  tags:
+    - packages
+
+- name: Fail fast on legacy-only apt sources
+  ansible.builtin.assert:
+    that:
+      - dotfiles_sources_stat.results[1].stat.exists
+    fail_msg: >-
+      /etc/apt/sources.list.d/debian.sources (deb822) not found; this playbook
+      only normalizes the trixie deb822 layout. Migrate /etc/apt/sources.list
+      to deb822 or add '{{ dotfiles_apt_components }}' manually, then re-run.
+    quiet: true
+  tags:
+    - packages
+
+# Read-only probes must survive --check (mirrors the preflight pattern).
+- name: Read debian.sources
+  ansible.builtin.slurp:
+    src: /etc/apt/sources.list.d/debian.sources
+  register: dotfiles_debian_sources
+  check_mode: false
+  tags:
+    - packages
+
+# Without this, the replace below would be a silent no-op on a stanza-less
+# file and the missing components would resurface as an apt install error.
+- name: Assert debian.sources declares components
+  ansible.builtin.assert:
+    that:
+      - "'Components:' in (dotfiles_debian_sources.content | b64decode)"
+    fail_msg: >-
+      No 'Components:' stanza in /etc/apt/sources.list.d/debian.sources;
+      component normalization would be a silent no-op. Fix the file manually.
+    quiet: true
+  tags:
+    - packages
+
+# Negative lookahead keeps the target line from matching → idempotent.
+# Normalizes every stanza (repo, security, updates, backports); Debian
+# security suites serve all four components.
+- name: Normalize apt source components
+  become: true
+  ansible.builtin.replace:
+    path: /etc/apt/sources.list.d/debian.sources
+    regexp: '^Components: (?!{{ dotfiles_apt_components | regex_escape }}$).+$'
+    replace: "Components: {{ dotfiles_apt_components }}"
+  register: dotfiles_components_result
+  tags:
+    - packages

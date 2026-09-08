@@ -1,10 +1,13 @@
 ---
 # -- Per-source installs ------------------------------------------------
+# cache_valid_time drops to 0 when tasks/components.yml changed the apt
+# components — otherwise a <1h-old cache (e.g. from a just-failed run on a
+# fresh host) would skip the refresh and the new indexes would never load.
 - name: Update APT package metadata
   become: true
   ansible.builtin.apt:
     update_cache: true
-    cache_valid_time: 3600
+    cache_valid_time: "{{ 0 if (dotfiles_components_result.changed | default(false)) else 3600 }}"
   tags:
     - packages
 

@@ -32,6 +32,11 @@
     dotfiles_pkgs_archive: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'archive') | list }}"
     dotfiles_pkgs_git: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'git') | list }}"
     dotfiles_pkgs_flatpak: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'flatpak') | list }}"
+    # Required Debian components for the manifest: plain `non-free` is
+    # needed by fonts-ubuntu/nvidia-*, `contrib` by mscorefonts. Normalized
+    # into debian.sources by tasks/components.yml (see
+    # .specs/ANSIBLE/enable-nonfree-components/).
+    dotfiles_apt_components: main contrib non-free non-free-firmware
     # AI-01/AI-27: map kernel arch names to Debian apt arch names; anything
     # unmapped fails fast in validation instead of writing a broken arch= line.
     dotfiles_deb_arch_map:
@@ -47,6 +52,10 @@
     # system/user change; see tasks/preflight.yml) -------------------------
     - name: Run preflight and manifest validation
       ansible.builtin.import_tasks: tasks/preflight.yml
+
+    # -- Apt component normalization (before any index refresh) ------------
+    - name: Ensure required apt components are enabled
+      ansible.builtin.import_tasks: tasks/components.yml
 
     # -- Third-party apt repos (referenced only, step 02) -------------------
     - name: Set up third-party apt repositories
