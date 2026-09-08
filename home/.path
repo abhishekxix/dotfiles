@@ -2,9 +2,8 @@
 # ~/.path — PATH setup shared by .zshenv, .profile, and .bashrc.
 # POSIX sh; safe to source more than once (entries are never duplicated).
 
-# Prepend $1 to PATH unless the directory is missing or already present.
+# Prepend $1 to PATH unless it is already present.
 dot_path_add() {
-	[ -d "$1" ] || return
 	case ":$PATH:" in
 	*":$1:"*) return ;;
 	esac
