@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-08 |
 
@@ -60,10 +60,12 @@ Each step maps to exactly one commit, named `ANSIBLE(<NN>): <summary>`.
   `dirname(creates)`/`link`, `path` = `~/.local/bin/` + `basename(link)`,
   `state: link`, `force: true`).
 - **Acceptance:**
-  - [ ] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
-  - [ ] `python3 .bin/validate-manifest.py` passes.
-  - [ ] Negative test: a script entry with `link: "/abs"` or `link: "~/x"`
-    is rejected by the validator.
+  - [x] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
+  - [x] `python3 .bin/validate-manifest.py` passes.
+  - [x] Negative test: a script entry with `link: "/abs"` or `link: "~/x"`
+    is rejected by the validator (verified 2026-09-08 with temporary
+    entries `bad-abs`/`bad-home`; validator exits 1 with per-entry errors,
+    manifest then restored).
 
 ### 02 — opencode uses link; drop the .zshenv PATH entry
 
@@ -72,10 +74,11 @@ Each step maps to exactly one commit, named `ANSIBLE(<NN>): <summary>`.
 - **Changes:** opencode entry gains `link: "opencode"`; `.zshenv` returns to
   cargo-env-only (no `~/.opencode/bin`).
 - **Acceptance:**
-  - [ ] `python3 .bin/validate-manifest.py` passes; lexical key order intact.
-  - [ ] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
-  - [ ] On this host `~/.local/bin/opencode` resolves to
-    `~/.opencode/bin/opencode` (pre-existing symlink; task converges).
+  - [x] `python3 .bin/validate-manifest.py` passes; lexical key order intact.
+  - [x] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
+  - [x] On this host `~/.local/bin/opencode` resolves to
+    `~/.opencode/bin/opencode` (pre-existing manual symlink, verified
+    2026-09-08; the new link task converges future hosts to the same state).
 
 ## Risks & Rollback
 
