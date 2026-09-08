@@ -58,6 +58,15 @@
     ],
     "source": "apt"
   },
+  "claude-code": {
+    "creates": "~/.local/bin/claude",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "script",
+    "url": "https://claude.ai/install.sh"
+  },
   "copyq": {
     "package": "copyq",
     "profiles": [
