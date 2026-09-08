@@ -501,15 +501,17 @@
     "source": "apt"
   },
   "starship": {
-    "creates": "~/.local/bin/starship",
-    "dest": "~/.local/bin",
+    "args": [
+      "-y"
+    ],
+    "creates": "/usr/local/bin/starship",
+    "interpreter": "sh",
     "profiles": [
       "workstation",
       "server"
     ],
-    "source": "archive",
-    "url": "https://github.com/starship/starship/releases/download/v1.22.1/starship-x86_64-unknown-linux-musl.tar.gz",
-    "url_arm64": "https://github.com/starship/starship/releases/download/v1.22.1/starship-aarch64-unknown-linux-musl.tar.gz"
+    "source": "script",
+    "url": "https://starship.rs/install.sh"
   },
   "tmux": {
     "package": "tmux",
