@@ -37,6 +37,11 @@
       "pattern": "^https://",
       "description": "Used for script/deb/archive URLs (piped to curl)."
     },
+    "absPath": {
+      "type": "string",
+      "pattern": "^/",
+      "description": "Absolute filesystem path (for creates paths outside the target user's home)."
+    },
     "homePath": {
       "type": "string",
       "pattern": "^~/",
@@ -119,7 +124,17 @@
           "type": "array",
           "items": { "type": "string" }
         },
-        "creates": { "$ref": "#/definitions/homePath" },
+        "creates": {
+          "oneOf": [
+            { "$ref": "#/definitions/homePath" },
+            { "$ref": "#/definitions/absPath" }
+          ]
+        },
+        "interpreter": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Shell the downloaded installer is piped into (upstream requirement, e.g. starship refuses bash); default bash."
+        },
         "link": {
           "$ref": "#/definitions/relPath",
           "description": "Binary (relative to the creates file's directory) to expose as ~/.local/bin/<basename>."
