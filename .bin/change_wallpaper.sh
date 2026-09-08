@@ -12,7 +12,7 @@ fi
 if (($# == 1)); then
   wallpaper=$1
 elif ! IFS= read -r -d '' wallpaper < <(
-  find "$wallpaper_dir" -type f -not -path '*/.git/*' -print0 | shuf -z -n 1
+  find "$wallpaper_dir" -type f -not -path '*/.git/*' -not -iname '*.svg' -print0 | shuf -z -n 1
 ); then
   printf 'No wallpapers found in %s\n' "$wallpaper_dir" >&2
   exit 1
@@ -20,6 +20,11 @@ fi
 
 if [[ ! -f $wallpaper ]]; then
   printf 'Wallpaper does not exist: %s\n' "$wallpaper" >&2
+  exit 1
+fi
+
+if [[ ${wallpaper,,} == *.svg ]]; then
+  printf 'SVG wallpapers are not supported: %s\n' "$wallpaper" >&2
   exit 1
 fi
 
