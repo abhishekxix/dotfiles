@@ -10,7 +10,9 @@
       - README.md
     dotfiles_repo_root: "{{ playbook_dir | ansible.builtin.dirname }}"
     dotfiles_home: "{{ ansible_facts.user_dir }}"
-    dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic_micro }}"
+    # ansible-core 2.19 dropped iso8601_basic_micro and folded the
+    # microseconds into iso8601_basic (YYYYmmddTHHMMSSffffff, filename-safe).
+    dotfiles_backup_root: "{{ ansible_facts.user_dir }}/.local/state/dotfiles/backups/{{ ansible_date_time.iso8601_basic }}"
     # The manifest may carry a "$schema" pointer for editor support; strip it
     # before treating values as package entries (it has no profiles/source).
     dotfiles_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/packages.json') | from_json | dict2items | rejectattr('key', 'equalto', '$schema') | items2dict }}"
