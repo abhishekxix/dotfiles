@@ -34,8 +34,8 @@ probes with the new artifact location:
 
 ## Acceptance
 
-- [ ] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
-- [ ] On this host: "Install fnm" skips via the stat (`~/.cargo/bin/fnm`
+- [x] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
+- [x] On this host: "Install fnm" skips via the stat (`~/.cargo/bin/fnm`
   exists) and `fnm --version` works afterwards.
-- [ ] "Install Node LTS via fnm" skips via the `aliases/default`
+- [x] "Install Node LTS via fnm" skips via the `aliases/default`
   creates-marker — behavior unchanged.

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-08 |
 
@@ -78,10 +78,10 @@ Each step maps to exactly one commit, named `ANSIBLE(<NN>): <summary>`.
   Zero npm entries remain; the npm install loop becomes a no-op until a
   future npm entry appears.
 - **Acceptance:**
-  - [ ] `python3 -m json.tool ansible/vars/packages.json` exits 0.
-  - [ ] `ansible-playbook --check --tags packages ansible/playbook.yml`
+  - [x] `python3 -m json.tool ansible/vars/packages.json` exits 0.
+  - [x] `ansible-playbook --check --tags packages ansible/playbook.yml`
     passes preflight schema validation.
-  - [ ] The "Install cargo crates" loop now includes `tree-sitter-cli`
+  - [x] The "Install cargo crates" loop now includes `tree-sitter-cli`
     (visible in `--check` task labels).
 
 ### 02 — Toolchain bootstrap runs unconditionally
@@ -95,8 +95,8 @@ Each step maps to exactly one commit, named `ANSIBLE(<NN>): <summary>`.
   the section header comment and the playbook import comment
   ("auto, gated on selected sources" → "always installed").
 - **Acceptance:**
-  - [ ] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
-  - [ ] `--check --tags packages` run: toolchain tasks are no longer skipped
+  - [x] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
+  - [x] `--check --tags packages` run: toolchain tasks are no longer skipped
     for gate reasons; on this host each still skips via its
     existing-install guard (cargo present, fnm on PATH, default alias
     exists, flatpak installed).
@@ -114,10 +114,10 @@ Each step maps to exactly one commit, named `ANSIBLE(<NN>): <summary>`.
   now (`~/.cargo/bin/fnm` resolves the binary), so a legacy curl-installed
   binary lingering there no longer shadows the cargo one.
 - **Acceptance:**
-  - [ ] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
-  - [ ] On this host the fnm install task skips (stat `~/.cargo/bin/fnm`
+  - [x] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
+  - [x] On this host the fnm install task skips (stat `~/.cargo/bin/fnm`
     exists) and `fnm --version` still works.
-  - [ ] Node LTS task untouched behavior: skips via the `aliases/default`
+  - [x] Node LTS task untouched behavior: skips via the `aliases/default`
     creates-marker.
 
 ## Risks & Rollback

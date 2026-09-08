@@ -33,8 +33,8 @@ keeping each commit independently green and revertible.
 
 ## Acceptance
 
-- [ ] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
-- [ ] `ansible-playbook --check --tags packages ansible/playbook.yml`:
+- [x] `ansible-playbook --syntax-check ansible/playbook.yml` exits 0.
+- [x] `ansible-playbook --check --tags packages ansible/playbook.yml`:
   toolchain tasks are evaluated (not skipped for empty source sets); on
   this host each skips via its existing-install guard — cargo rc 0, fnm on
   PATH, `~/.local/share/fnm/aliases/default` exists, flatpak installed.

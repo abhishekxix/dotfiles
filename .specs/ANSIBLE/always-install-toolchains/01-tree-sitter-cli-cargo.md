@@ -32,9 +32,9 @@ Replace the npm entry with a cargo entry. The key stays `tree-sitter-cli`
 
 ## Acceptance
 
-- [ ] `python3 -m json.tool ansible/vars/packages.json` exits 0.
-- [ ] `ansible-playbook --check --tags packages ansible/playbook.yml`
+- [x] `python3 -m json.tool ansible/vars/packages.json` exits 0.
+- [x] `ansible-playbook --check --tags packages ansible/playbook.yml`
   passes preflight manifest/schema validation
   (`ansible/tasks/preflight.yml:56`).
-- [ ] `--check` output shows `tree-sitter-cli` in the
+- [x] `--check` output shows `tree-sitter-cli` in the
   "Install cargo crates" task labels.
