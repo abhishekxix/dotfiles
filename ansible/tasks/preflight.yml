@@ -24,10 +24,10 @@
     - packages
     - dotfiles
 
-# 09-04/09-28: community.general>=10.7.0 is required (pipx `name:
-# pkg==ver`); ansible-core>=2.15 is that collection's own floor (upstream
-# galaxy.yml runtime `requires_ansible`). Fail with an actionable message
-# instead of a confusing module error later.
+# 09-04/09-28: community.general>=10.7.0 is a known-good floor for the
+# cargo/npm modules on the ansible-core Debian stable ships (ansible-core>=2.15
+# is that collection's own floor, per upstream galaxy.yml `requires_ansible`).
+# Fail with an actionable message instead of a confusing module error later.
 - name: Check community.general collection version
   ansible.builtin.assert:
     that:
@@ -47,58 +47,28 @@
     - packages
     - dotfiles
 
-# -- Manifest validation (fail fast on schema violations; AI-07) -------
-- name: Validate package manifest schema
-  ansible.builtin.assert:
-    that:
-      - dotfiles_manifest is mapping
-      - dotfiles_manifest.values() | selectattr('source', 'undefined') | length == 0
-      - dotfiles_manifest.values() | map(attribute='source') | reject('in', ['apt', 'cargo', 'npm', 'pipx', 'script', 'deb', 'archive', 'git']) | length == 0
-      - dotfiles_manifest.values() | selectattr('profiles', 'undefined') | length == 0
-      - dotfiles_manifest.values() | map(attribute='profiles') | select('equalto', []) | length == 0
-      - dotfiles_manifest.values() | map(attribute='profiles') | flatten | difference(['workstation', 'server']) | length == 0
-      # AI-27: unknown arches must not silently become a broken arch= line.
-      - not (dotfiles_deb_arch is search('^UNKNOWN:'))
-      # AI-29: minimal type checks so malformed entries fail fast.
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'script') | selectattr('args', 'defined') | rejectattr('args', 'sequence') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | selectattr('strip', 'defined') | rejectattr('strip', 'number') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | selectattr('build', 'defined') | rejectattr('build', 'sequence') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'apt') | rejectattr('package', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'cargo') | rejectattr('crate', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'npm') | rejectattr('package', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'pipx') | rejectattr('package', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'script') | rejectattr('url', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'script') | rejectattr('creates', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'deb') | rejectattr('url', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('url', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('dest', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | rejectattr('creates', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'archive') | selectattr('link', 'defined') | rejectattr('link', 'match', '^[^~/]') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('repo', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'git') | rejectattr('creates', 'defined') | length == 0
-      - dotfiles_manifest.values() | selectattr('source', 'equalto', 'apt') | selectattr('repo', 'defined') | rejectattr('repo', 'in', dotfiles_repos_manifest.keys() | list) | length == 0
-    fail_msg: "Invalid package manifest: unknown source, bad profile, missing per-source field, or unknown repo id."
-    quiet: true
+# -- Manifest validation (fail fast on schema violations; AI-07) --------
+# The stdlib-only validator (.bin/validate-manifest.py) encodes the rules
+# the previous Jinja assert pipelines did, and reports one precise error
+# per violation. check_mode: false keeps it running under --check; the
+# kernel-arch fact check below stays here because it validates a host
+# fact, not the manifest (AI-27).
+- name: Validate package and build-deps manifests
+  ansible.builtin.command:
+    cmd: "{{ dotfiles_repo_root }}/.bin/validate-manifest.py"
+  changed_when: false
+  check_mode: false
+  register: dotfiles_manifest_validation
+  failed_when: dotfiles_manifest_validation.rc != 0
   tags:
     - packages
     - dotfiles
 
-# -- Build-deps manifest validation (package-deps.json) -----------------
-- name: Validate build-deps manifest
+- name: Fail on kernel arch without apt mapping (AI-27)
   ansible.builtin.assert:
     that:
-      - dotfiles_deps_manifest is mapping
-      # Every dep key must be a real package name — catches typos and
-      # stale keys after a package is renamed or removed.
-      - dotfiles_deps_manifest.keys() | list | difference(dotfiles_manifest.keys() | list) | length == 0
-      # NB: strings are sequences in Jinja, so test for string/mapping
-      # values explicitly instead of rejecting 'sequence'.
-      - dotfiles_deps_manifest.values() | select('string') | length == 0
-      - dotfiles_deps_manifest.values() | select('mapping') | length == 0
-      - dotfiles_deps_manifest.values() | map('length') | reject('gt', 0) | length == 0
-      - dotfiles_deps_manifest.values() | flatten | reject('string') | length == 0
-      - dotfiles_deps_manifest.values() | flatten | select('equalto', '') | length == 0
-    fail_msg: "Invalid build-deps manifest: unknown package key or malformed dep list."
+      - not (dotfiles_deb_arch is search('^UNKNOWN:'))
+    fail_msg: "No apt arch mapping for {{ ansible_facts.architecture }}; refusing to build a broken arch= line."
     quiet: true
   tags:
     - packages

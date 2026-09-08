@@ -27,5 +27,11 @@
     "libxcb-shape0-dev",
     "libxcb-util-dev",
     "libxcb-xfixes0-dev"
+  ],
+  "qtile": [
+    "lm-sensors",
+    "python3-dbus-fast",
+    "python3-psutil",
+    "python3-xdg"
   ]
 }

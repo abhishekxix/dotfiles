@@ -1,24 +1,19 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
 
-set -Eeuo pipefail
+REPO_ROOT = os.path.dirname(os.path.realpath(__file__))
+PROFILE_DEFAULT = "workstation"
+PROFILES = ("workstation", "server")
+COLLECTION_FLOOR = (10, 7, 0)
 
-repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" && pwd)"
+DESCRIPTION = "Configure this machine via Ansible (Debian stable only)."
 
-usage() {
-    cat <<'EOF'
-Usage: ./install [--profile NAME] [ansible-playbook options]
-
-Configure this machine via Ansible (Debian stable only).
-
-Profiles:
-  --profile NAME, --profile=NAME
-      workstation   Full set: GUI apps + CLI tools (default).
-      server        Headless set: CLI tools only.
-
-Help:
-  -h, --help        Show this help and exit.
-
-Passthrough (anything else is forwarded to ansible-playbook):
+USAGE_NOTES = """Passthrough (anything else is forwarded to ansible-playbook):
   --tags packages|dotfiles
                     Run only app installs or only dotfile linking.
   --check --diff    Preview changes without applying them.
@@ -31,9 +26,6 @@ Passthrough (anything else is forwarded to ansible-playbook):
                      -e @file.yml indirection is not detected, but
                      the file still wins because passthrough args
                      follow the injected default (later -e wins).
-  -K, --ask-become-pass, --become-password-file FILE
-                    Become-password options. The wrapper adds
-                    --ask-become-pass unless you pass one of these.
 
 Wrapper behavior:
   - Installs ansible via apt when ansible-playbook is missing
@@ -53,153 +45,189 @@ Examples:
   ./install --tags packages
   ./install --check --diff --skip-tags packages
   ./install --profile server --tags packages
-EOF
-}
+"""
 
-usage_error() {
-    usage >&2
-}
 
-dotfiles_profile="workstation"
-passthrough=()
-saw_become_pass=false
-saw_profile_e=false
-# AI-24: collect -e/--extra-vars VALUES; only a value mentioning
-# dotfiles_profile suppresses the default profile injection. Handles both
-# split (-e VALUE) and joined (-eVALUE, --extra-vars=VALUE) forms.
-extra_vals=()
-prev_was_extra=false
-prev_was_extra_val=""
-for arg in "$@"; do
-    if [[ "${prev_was_extra}" == "true" ]]; then
-        # AI-24: a split `-e a=1 b=2` second value belongs to ansible, not to
-        # -e — only the immediately following value is the extra-vars payload.
-        if [[ -z "${prev_was_extra_val}" ]]; then
-            prev_was_extra_val="${arg}"
-            extra_vals+=("${arg}")
-        fi
-        prev_was_extra=false
-        continue
-    fi
-    case "${arg}" in
-    --ask-become-pass | --ask-become-pass=* | -K | --become-password-file | --become-password-file=*)
-        saw_become_pass=true
-        ;;
-    -K*) saw_become_pass=true ;;
-    -e | --extra-vars) prev_was_extra=true ;;
-    -e*) extra_vals+=("${arg#-e}") ;;
-    --extra-vars=*) extra_vals+=("${arg#--extra-vars=}") ;;
-    esac
-done
-for val in ${extra_vals[@]+"${extra_vals[@]}"}; do
-    case "${val}" in
-    *dotfiles_profile*) saw_profile_e=true ;;
-    esac
-done
-unset extra_vals prev_was_extra prev_was_extra_val val arg
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-    --profile)
-        if [[ $# -lt 2 ]]; then
-            usage_error
-            exit 1
-        fi
-        dotfiles_profile="$2"
-        shift 2
-        ;;
-    --profile=*)
-        dotfiles_profile="${1#--profile=}"
-        shift
-        ;;
-    -h | --help)
-        usage
-        exit 0
-        ;;
-    *)
-        passthrough+=("$1")
-        shift
-        ;;
-    esac
-done
+def run(cmd):
+    try:
+        proc = subprocess.run(cmd)
+    except OSError as exc:
+        print(f"Failed to run {cmd[0]}: {exc}", file=sys.stderr)
+        sys.exit(1)
+    if proc.returncode != 0:
+        sys.exit(proc.returncode)
 
-case "${dotfiles_profile}" in
-workstation | server) ;;
-*)
-    printf 'Invalid profile: %s (expected workstation or server).\n' "${dotfiles_profile}" >&2
-    usage_error
-    exit 1
-    ;;
-esac
 
-install_ansible() {
-    if [[ ! -r /etc/os-release ]]; then
-        printf 'Cannot detect this Linux distribution. Install Ansible and rerun this command.\n' >&2
-        exit 1
-    fi
+def parse(argv):
+    parser = argparse.ArgumentParser(
+        prog="./install",
+        description="Configure this machine via Ansible (Debian stable only).",
+        epilog=USAGE_NOTES,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        allow_abbrev=False,
+    )
+    parser.add_argument(
+        "--profile",
+        default=PROFILE_DEFAULT,
+        choices=PROFILES,
+        help="workstation: full GUI + CLI set (default); server: CLI only",
+    )
+    parser.add_argument(
+        "-e",
+        "--extra-vars",
+        dest="extra_vars",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="extra Ansible variables; a value containing dotfiles_profile overrides --profile",
+    )
+    parser.add_argument(
+        "-K",
+        "--ask-become-pass",
+        dest="ask_become_pass",
+        action="store_true",
+        help="prompt for the privilege-escalation password",
+    )
+    parser.add_argument(
+        "--become-password-file",
+        dest="become_password_file",
+        metavar="FILE",
+        default=None,
+        help="read the privilege-escalation password from FILE",
+    )
+    ns, passthrough = parser.parse_known_args(argv)
+    saw_become = ns.ask_become_pass or ns.become_password_file is not None
+    if ns.ask_become_pass:
+        passthrough.append("--ask-become-pass")
+    if ns.become_password_file is not None:
+        passthrough.extend(["--become-password-file", ns.become_password_file])
+    for val in ns.extra_vars:
+        passthrough.extend(["--extra-vars", val])
+    saw_profile_e = any("dotfiles_profile" in val for val in ns.extra_vars)
+    return ns.profile, passthrough, saw_profile_e, saw_become
 
-    # shellcheck source=/dev/null
-    source /etc/os-release
-    distribution_id="${ID:-}"
 
-    case "${distribution_id}" in
-    debian)
-        if command -v sudo >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install --yes ansible
-        else
-            apt-get update
-            apt-get install --yes ansible
-        fi
-        ;;
-    *)
-        printf 'Unsupported distribution (v1 supports Debian stable only). Install Ansible and rerun this command.\n' >&2
-        exit 1
-        ;;
-    esac
-}
+def version_key(version):
+    parts = []
+    for comp in version.split("."):
+        digits = ""
+        for ch in comp:
+            if ch.isdigit():
+                digits += ch
+            else:
+                break
+        if not digits or digits != comp:
+            return (-1,)
+        parts.append(int(digits))
+    return tuple(parts)
 
-if ! command -v ansible-playbook >/dev/null 2>&1; then
-    install_ansible
-fi
 
-# AI-22/09-15: the playbook needs community.general>=10.7.0 (cargo/npm/pipx
-# modules; pipx `name: pkg==ver` needs the floor). Install when missing,
-# --upgrade when the installed version is below the floor. Query with
-# --format json (stable machine-readable output) and take the highest
-# version across all collection paths; compare with `sort -V -c`
-# (floor-first input is sorted iff have >= floor).
-dotfiles_collection_floor="10.7.0"
-dotfiles_collection_have="$(
-    ansible-galaxy collection list community.general --format json 2>/dev/null \
-        | python3 -c 'import json, sys
-try:
-    data = json.load(sys.stdin)
-except Exception:
-    data = {}
-for path_collections in data.values():
-    if isinstance(path_collections, dict):
-        entry = path_collections.get("community.general")
-        if isinstance(entry, dict) and entry.get("version"):
-            print(entry["version"])' 2>/dev/null \
-        | sort -V 2>/dev/null | tail -n 1 || true
-)"
-if [[ -z "${dotfiles_collection_have}" ]]; then
-    ansible-galaxy collection install -r "${repo_root}/ansible/requirements.yml"
-elif ! printf '%s\n%s\n' "${dotfiles_collection_floor}" "${dotfiles_collection_have}" | sort -V -c 2>/dev/null; then
-    ansible-galaxy collection install --upgrade -r "${repo_root}/ansible/requirements.yml"
-fi
-unset dotfiles_collection_have dotfiles_collection_floor
+def below_floor(have):
+    key = version_key(have)
+    if key[0] < 0:
+        return True
+    for h, f in zip(key, COLLECTION_FLOOR):
+        if h != f:
+            return h < f
+    return len(key) < len(COLLECTION_FLOOR)
 
-cd "${repo_root}"
-if [[ "${saw_become_pass}" == "true" ]]; then
-    become_args=()
-else
-    become_args=(--ask-become-pass)
-fi
-if [[ "${saw_profile_e}" == "true" ]]; then
-    profile_args=()
-else
-    # shellcheck disable=SC2206
-    profile_args=(-e "dotfiles_profile=${dotfiles_profile}")
-fi
-exec ansible-playbook "${become_args[@]}" ansible/playbook.yml "${profile_args[@]}" "${passthrough[@]}"
+
+def collection_version():
+    try:
+        proc = subprocess.run(
+            [
+                "ansible-galaxy",
+                "collection",
+                "list",
+                "community.general",
+                "--format",
+                "json",
+            ],
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return ""
+    if proc.returncode != 0:
+        return ""
+    try:
+        data = json.loads(proc.stdout)
+    except ValueError:
+        return ""
+    versions = []
+    for path_collections in data.values():
+        if isinstance(path_collections, dict):
+            entry = path_collections.get("community.general")
+            if isinstance(entry, dict) and entry.get("version"):
+                versions.append(entry["version"])
+    if not versions:
+        return ""
+    return max(versions, key=version_key)
+
+
+def install_ansible():
+    try:
+        with open("/etc/os-release") as f:
+            content = f.read()
+    except OSError:
+        print(
+            "Cannot detect this Linux distribution. Install Ansible and rerun this command.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    distro_id = ""
+    for line in content.splitlines():
+        line = line.strip()
+        if line.startswith("ID="):
+            distro_id = line[3:].strip().strip('"')
+            break
+    if distro_id != "debian":
+        print(
+            "Unsupported distribution (v1 supports Debian stable only). Install Ansible and rerun this command.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    prefix = ["sudo"] if shutil.which("sudo") else []
+    run(prefix + ["apt-get", "update"])
+    run(prefix + ["apt-get", "install", "--yes", "ansible"])
+
+
+def main():
+    argv = sys.argv[1:]
+    profile, passthrough, saw_profile_e, saw_become = parse(argv)
+
+    if not shutil.which("ansible-playbook"):
+        install_ansible()
+
+    have = collection_version()
+    if not have:
+        run([
+            "ansible-galaxy",
+            "collection",
+            "install",
+            "-r",
+            os.path.join(REPO_ROOT, "ansible", "requirements.yml"),
+        ])
+    elif below_floor(have):
+        run([
+            "ansible-galaxy",
+            "collection",
+            "install",
+            "--upgrade",
+            "-r",
+            os.path.join(REPO_ROOT, "ansible", "requirements.yml"),
+        ])
+
+    os.chdir(REPO_ROOT)
+    cmd = ["ansible-playbook"]
+    if not saw_become:
+        cmd.append("--ask-become-pass")
+    cmd.append("ansible/playbook.yml")
+    if not saw_profile_e:
+        cmd.extend(["-e", f"dotfiles_profile={profile}"])
+    cmd.extend(passthrough)
+    os.execvp(cmd[0], cmd)
+
+
+if __name__ == "__main__":
+    main()

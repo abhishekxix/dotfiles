@@ -68,14 +68,32 @@
   tags:
     - packages
 
-- name: Install pipx via apt when a pipx package is selected
-  become: true
-  ansible.builtin.apt:
-    name: pipx
-    state: present
-  when:
-    - (dotfiles_pkgs_pipx | length) > 0
-    - "'pipx' not in dotfiles_pkgs_apt | map(attribute='value.package')"
+- name: Check for flatpak
+  ansible.builtin.command:
+    argv: [flatpak, --version]
+  register: dotfiles_flatpak_check
+  changed_when: false
+  failed_when: false
+  when: (dotfiles_pkgs_flatpak | length) > 0
   tags:
     - packages
+
+# Unlike cargo/fnm the flatpak CLI is an apt package, so the bootstrap is a
+# plain apt install. update_cache covers fresh hosts whose apt cache is still
+# empty (toolchain.yml runs before packages.yml's cache refresh). This task is
+# the single source of truth for the flatpak CLI — there is intentionally no
+# dedicated `flatpak` apt entry in packages.json.
+- name: Install flatpak CLI (flatpak provider)
+  become: true
+  ansible.builtin.apt:
+    name: flatpak
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when:
+    - (dotfiles_pkgs_flatpak | length) > 0
+    - dotfiles_flatpak_check.rc | default(0) != 0
+  tags:
+    - packages
+
 

@@ -1,165 +1,650 @@
 {
   "$schema": "./packages.schema.json",
-  "curl": {
-    "source": "apt",
-    "package": "curl",
-    "profiles": ["workstation", "server"]
+  "alacritty": {
+    "package": "alacritty",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
-  "git": {
-    "source": "apt",
-    "package": "git",
-    "profiles": ["workstation", "server"]
-  },
-  "tmux": {
-    "source": "apt",
-    "package": "tmux",
-    "profiles": ["workstation", "server"]
-  },
-  "zsh": {
-    "source": "apt",
-    "package": "zsh",
-    "profiles": ["workstation", "server"]
-  },
-  "neovim": {
-    "source": "archive",
-    "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
-    "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz",
-    "strip": 1,
-    "dest": "~/.local/src/nvim",
-    "creates": "~/.local/src/nvim/bin/nvim",
-    "link": "bin/nvim",
-    "profiles": ["workstation", "server"]
-  },
-  "fzf": {
-    "source": "apt",
-    "package": "fzf",
-    "profiles": ["workstation", "server"]
+  "ayatana-indicator-application": {
+    "package": "ayatana-indicator-application",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "bat": {
-    "source": "apt",
     "package": "bat",
-    "profiles": ["workstation", "server"]
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
   },
-  "unzip": {
-    "source": "apt",
-    "package": "unzip",
-    "profiles": ["workstation", "server"]
+  "blueman": {
+    "package": "blueman",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
-  "gnupg": {
-    "source": "apt",
-    "package": "gnupg",
-    "profiles": ["workstation", "server"]
+  "breeze": {
+    "package": "breeze",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "ca-certificates": {
-    "source": "apt",
     "package": "ca-certificates",
-    "profiles": ["workstation", "server"]
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
   },
-  "pipx": {
-    "source": "apt",
-    "package": "pipx",
-    "profiles": ["workstation", "server"]
+  "calf-plugins": {
+    "package": "calf-plugins",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
-  "alacritty": {
-    "source": "apt",
-    "package": "alacritty",
-    "profiles": ["workstation"]
+  "cava": {
+    "package": "cava",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "copyq": {
+    "package": "copyq",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "curl": {
+    "package": "curl",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "docker-buildx-plugin": {
+    "package": "docker-buildx-plugin",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "docker",
+    "source": "apt"
+  },
+  "docker-ce": {
+    "package": "docker-ce",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "docker",
+    "source": "apt"
+  },
+  "docker-compose-plugin": {
+    "package": "docker-compose-plugin",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "docker",
+    "source": "apt"
   },
   "dunst": {
-    "source": "apt",
     "package": "dunst",
-    "profiles": ["workstation"]
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "easyeffects": {
+    "package": "easyeffects",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fastfetch": {
+    "package": "fastfetch",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "ffmpeg": {
+    "package": "ffmpeg",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "firmware-misc-nonfree": {
+    "package": "firmware-misc-nonfree",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "flameshot": {
-    "source": "apt",
     "package": "flameshot",
-    "profiles": ["workstation"]
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-indic": {
+    "package": "fonts-indic",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-noto-cjk": {
+    "package": "fonts-noto-cjk",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-noto-cjk-extra": {
+    "package": "fonts-noto-cjk-extra",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-noto-color-emoji": {
+    "package": "fonts-noto-color-emoji",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fonts-ubuntu": {
+    "package": "fonts-ubuntu",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "fzf": {
+    "package": "fzf",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "gh": {
+    "package": "gh",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "gir1.2-ayatanaappindicator3-0.1": {
+    "package": "gir1.2-ayatanaappindicator3-0.1",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "git": {
+    "package": "git",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "gnupg": {
+    "package": "gnupg",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "iosevka-nerd-font": {
+    "creates": "~/.local/share/fonts/IosevkaNerdFont-Regular.ttf",
+    "dest": "~/.local/share/fonts",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "archive",
+    "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
+    "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz"
+  },
+  "java-21-amazon-corretto-jdk": {
+    "package": "java-21-amazon-corretto-jdk",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "corretto",
+    "source": "apt"
+  },
+  "libavcodec-extra": {
+    "package": "libavcodec-extra",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "libayatana-appindicator3-1": {
+    "package": "libayatana-appindicator3-1",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "libnss3-tools": {
+    "package": "libnss3-tools",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "linux-headers-amd64": {
+    "package": "linux-headers-amd64",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "lxappearance": {
+    "package": "lxappearance",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "lxlock": {
+    "package": "lxlock",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "lxpolkit": {
+    "package": "lxpolkit",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "lxsession": {
+    "package": "lxsession",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "maven": {
+    "package": "maven",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "neovim": {
+    "creates": "~/.local/src/nvim/bin/nvim",
+    "dest": "~/.local/src/nvim",
+    "link": "bin/nvim",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "archive",
+    "strip": 1,
+    "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
+    "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
+  },
+  "network-manager-applet": {
+    "package": "network-manager-applet",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvidia-driver": {
+    "package": "nvidia-driver",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvidia-kernel-dkms": {
+    "package": "nvidia-kernel-dkms",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvidia-xconfig": {
+    "package": "nvidia-xconfig",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "nvtop": {
+    "package": "nvtop",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "obs-studio": {
+    "package": "obs-studio",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "obsidian": {
+    "package": "md.obsidian.Obsidian",
+    "profiles": [
+      "workstation"
+    ],
+    "remote": "flathub",
+    "source": "flatpak"
+  },
+  "okular": {
+    "package": "org.kde.okular",
+    "profiles": [
+      "workstation"
+    ],
+    "remote": "flathub",
+    "source": "flatpak"
+  },
+  "papirus-icon-theme": {
+    "package": "papirus-icon-theme",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "pasystray": {
+    "package": "pasystray",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "pavucontrol": {
+    "package": "pavucontrol",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "picom": {
-    "source": "git",
-    "repo": "https://github.com/yshui/picom.git",
-    "version": "v12",
     "build": [
       "rm -rf build && meson setup --buildtype=release -Dprefix=\"$HOME/.local\" build && ninja -C build install"
     ],
     "creates": "~/.local/bin/picom",
-    "profiles": ["workstation"]
+    "profiles": [
+      "workstation"
+    ],
+    "repo": "https://github.com/yshui/picom.git",
+    "source": "git",
+    "version": "v12"
   },
-  "rofi": {
-    "source": "apt",
-    "package": "rofi",
-    "profiles": ["workstation"]
+  "playerctl": {
+    "package": "playerctl",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
-  "xbindkeys": {
-    "source": "apt",
-    "package": "xbindkeys",
-    "profiles": ["workstation"]
+  "pulseaudio-equalizer": {
+    "package": "pulseaudio-equalizer",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
-  "xscreensaver": {
-    "source": "apt",
-    "package": "xscreensaver",
-    "profiles": ["workstation"]
+  "pulseaudio-utils": {
+    "package": "pulseaudio-utils",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "python3-pip": {
+    "package": "python3-pip",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "python3-venv": {
+    "package": "python3-venv",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "qt6ct": {
+    "package": "qt6ct",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "qtile": {
-    "source": "apt",
     "package": "qtile",
-    "profiles": ["workstation"]
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
-  "lxsession": {
-    "source": "apt",
-    "package": "lxsession",
-    "profiles": ["workstation"]
+  "ripgrep": {
+    "package": "ripgrep",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
   },
-  "docker-ce": {
-    "source": "apt",
-    "package": "docker-ce",
-    "repo": "docker",
-    "profiles": ["workstation", "server"]
+  "rofi": {
+    "package": "rofi",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
-  "vscode": {
-    "source": "apt",
-    "package": "code",
-    "repo": "vscode",
-    "profiles": ["workstation"]
+  "shellcheck": {
+    "package": "shellcheck",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
   },
   "starship": {
+    "creates": "~/.local/bin/starship",
+    "dest": "~/.local/bin",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
     "source": "archive",
     "url": "https://github.com/starship/starship/releases/download/v1.22.1/starship-x86_64-unknown-linux-musl.tar.gz",
-    "url_arm64": "https://github.com/starship/starship/releases/download/v1.22.1/starship-aarch64-unknown-linux-musl.tar.gz",
-    "dest": "~/.local/bin",
-    "creates": "~/.local/bin/starship",
-    "profiles": ["workstation", "server"]
+    "url_arm64": "https://github.com/starship/starship/releases/download/v1.22.1/starship-aarch64-unknown-linux-musl.tar.gz"
   },
-  "iosevka-nerd-font": {
-    "source": "archive",
-    "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
-    "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
-    "dest": "~/.local/share/fonts",
-    "creates": "~/.local/share/fonts/IosevkaNerdFont-Regular.ttf",
-    "profiles": ["workstation"]
+  "tmux": {
+    "package": "tmux",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
   },
-  "zsh-syntax-highlighting": {
-    "source": "git",
-    "repo": "https://github.com/zsh-users/zsh-syntax-highlighting.git",
-    "dest": "~/.zsh/zsh-syntax-highlighting",
-    "version": "0.8.0",
-    "creates": "~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
-    "profiles": ["workstation", "server"]
+  "tree": {
+    "package": "tree",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "tree-sitter-cli": {
+    "package": "tree-sitter-cli",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "npm"
+  },
+  "ttf-mscorefonts-installer": {
+    "package": "ttf-mscorefonts-installer",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "unzip": {
+    "package": "unzip",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "v4l2loopback-dkms": {
+    "package": "v4l2loopback-dkms",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "v4l2loopback-utils": {
+    "package": "v4l2loopback-utils",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "vim": {
+    "package": "vim",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "volumeicon-alsa": {
+    "package": "volumeicon-alsa",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "vscode": {
+    "package": "code",
+    "profiles": [
+      "workstation"
+    ],
+    "repo": "vscode",
+    "source": "apt"
+  },
+  "xbindkeys": {
+    "package": "xbindkeys",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "xclip": {
+    "package": "xclip",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "xdg-desktop-portal-gtk": {
+    "package": "xdg-desktop-portal-gtk",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "xscreensaver": {
+    "package": "xscreensaver",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "xwallpaper": {
+    "package": "xwallpaper",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "yaru-theme-gtk": {
+    "package": "yaru-theme-gtk",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "zsh": {
+    "package": "zsh",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
   },
   "zsh-autosuggestions": {
-    "source": "git",
-    "repo": "https://github.com/zsh-users/zsh-autosuggestions.git",
-    "dest": "~/.zsh/zsh-autosuggestions",
-    "version": "v0.7.1",
     "creates": "~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh",
-    "profiles": ["workstation", "server"]
+    "dest": "~/.zsh/zsh-autosuggestions",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "https://github.com/zsh-users/zsh-autosuggestions.git",
+    "source": "git",
+    "version": "v0.7.1"
   },
   "zsh-completions": {
-    "source": "git",
-    "repo": "https://github.com/zsh-users/zsh-completions.git",
-    "dest": "~/.zsh/zsh-completions",
-    "version": "0.35.0",
     "creates": "~/.zsh/zsh-completions/src/_git",
-    "profiles": ["workstation", "server"]
+    "dest": "~/.zsh/zsh-completions",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "https://github.com/zsh-users/zsh-completions.git",
+    "source": "git",
+    "version": "0.35.0"
+  },
+  "zsh-syntax-highlighting": {
+    "creates": "~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
+    "dest": "~/.zsh/zsh-syntax-highlighting",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "repo": "https://github.com/zsh-users/zsh-syntax-highlighting.git",
+    "source": "git",
+    "version": "0.8.0"
   }
 }
