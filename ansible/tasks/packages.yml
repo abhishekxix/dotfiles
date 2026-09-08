@@ -101,7 +101,9 @@
   ansible.builtin.shell:
     # 09-19: script entries are one-off installers (fnm ships via the
     # toolchain bootstrap above, which is the single source of truth).
-    cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | bash -s -- {{ item.value.args | default([]) | map('quote') | join(' ') }}"
+    # 09-09: the pipe target is per-entry (default bash) — starship's
+    # installer aborts under bash, so it overrides to sh.
+    cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | {{ item.value.interpreter | default('bash', true) }} -s -- {{ item.value.args | default([]) | map('quote') | join(' ') }}"
     executable: /bin/bash
     creates: "{{ item.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
   loop: "{{ dotfiles_pkgs_script }}"
