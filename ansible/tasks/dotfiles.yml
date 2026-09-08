@@ -1,5 +1,14 @@
 ---
 # -- Dotfile linking (identical for all profiles) -----------------------
+- name: Set user's default shell to zsh
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    shell: /usr/bin/zsh
+  when: "'zsh' in (dotfiles_packages_selected | map(attribute='key') | list)"
+  tags:
+    - dotfiles
+
 - name: Ensure user config directory exists
   ansible.builtin.file:
     path: "{{ dotfiles_home }}/.config"
