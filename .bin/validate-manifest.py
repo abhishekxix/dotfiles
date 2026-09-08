@@ -74,7 +74,7 @@ def validate_packages(packages, repos, flatpak_remotes, errors):
                 errors.append(
                     f"packages.json: '{name}': field '{field}' must be a number"
                 )
-        if source == "archive" and "link" in entry:
+        if source in ("archive", "script") and "link" in entry:
             link = entry["link"]
             if not isinstance(link, str) or not link or link[0] in "~/":
                 errors.append(

@@ -50,7 +50,7 @@
     "relPath": {
       "type": "string",
       "pattern": "^[^~/]",
-      "description": "Path relative to the entry's dest (no leading ~ or /); used by archive `link`."
+      "description": "Path relative to the entry's install root (dest for archive, the creates file's directory for script; no leading ~ or /); used by link."
     },
     "apt": {
       "type": "object",
@@ -120,6 +120,10 @@
           "items": { "type": "string" }
         },
         "creates": { "$ref": "#/definitions/homePath" },
+        "link": {
+          "$ref": "#/definitions/relPath",
+          "description": "Binary (relative to the creates file's directory) to expose as ~/.local/bin/<basename>."
+        },
         "sha256": { "$ref": "#/definitions/optSha256" },
         "profiles": { "$ref": "#/definitions/profiles" }
       }
