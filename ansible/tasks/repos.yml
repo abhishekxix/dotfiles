@@ -1,6 +1,45 @@
 ---
 # -- Third-party apt repos (referenced only, step 02) -------------------
+# Healing (purge + copy) runs before EVERY apt invocation below: apt parses
+# all of sources.list.d on startup, so on a drifted host — vendor installers
+# (docker's /etc/apt/keyrings/docker.asc entry, Microsoft's vscode.sources)
+# or lines left by older manifest formats — even `apt` module tasks fail
+# with "Conflicting values set for option Signed-By" until the stale
+# definitions are gone. The index refresh is gated to the end of the file:
+# on a fresh host the .list files exist before their keyrings do (dearmor
+# runs later), so an earlier update would abort with "repository is not
+# signed".
+- name: Remove foreign deb822 repo definitions
+  become: true
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/{{ item }}.sources"
+    state: absent
+  loop: "{{ dotfiles_repos_selected }}"
+  register: dotfiles_repo_purge
+  tags:
+    - packages
+
+# apt_repository is deliberately not used: it only appends its line and
+# never removes foreign ones, so the drift above would survive forever.
+# copy owns the exact file content instead — drift is overwritten on the
+# next run, and a matching file stays ok (idempotent).
+- name: Add third-party apt repositories
+  become: true
+  ansible.builtin.copy:
+    dest: "/etc/apt/sources.list.d/{{ item }}.list"
+    # 09-12: @ARCH@/@RELEASE@ are plain (non-Jinja) placeholders, expanded
+    # here with the Debian arch (amd64/arm64) and the release codename.
+    content: "{{ dotfiles_repos_manifest[item].repo | replace('@ARCH@', dotfiles_deb_arch) | replace('@RELEASE@', ansible_facts.distribution_release) }}\n"
+    mode: "0644"
+  loop: "{{ dotfiles_repos_selected }}"
+  register: dotfiles_repo_add
+  tags:
+    - packages
+
 # -- Toolchain prerequisites (AI-11: before any gpg/dearmor use) --------
+# No update_cache here: on a fresh host the .list files above already
+# reference keyrings that don't exist until the dearmor task runs; the
+# gated refresh at the end of this file covers the index instead.
 - name: Ensure keyring prerequisites are installed
   become: true
   ansible.builtin.apt:
@@ -8,13 +47,10 @@
       - gnupg
       - ca-certificates
     state: present
-    update_cache: true
-    cache_valid_time: 3600
   when: (dotfiles_repos_selected | length) > 0
   tags:
     - packages
 
-# -- Third-party apt repos (referenced only, step 02) -------------------
 - name: Download third-party apt signing keys
   become: true
   ansible.builtin.get_url:
@@ -61,26 +97,12 @@
   tags:
     - packages
 
-- name: Add third-party apt repositories
-  become: true
-  ansible.builtin.apt_repository:
-    # 09-12: @ARCH@/@RELEASE@ are plain (non-Jinja) placeholders, expanded
-    # here with the Debian arch (amd64/arm64) and the release codename.
-    repo: "{{ dotfiles_repos_manifest[item].repo | replace('@ARCH@', dotfiles_deb_arch) | replace('@RELEASE@', ansible_facts.distribution_release) }}"
-    filename: "{{ item }}"
-    state: present
-  loop: "{{ dotfiles_repos_selected }}"
-  register: dotfiles_repo_add
-  tags:
-    - packages
-
 - name: Update APT metadata after adding third-party repos
   become: true
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
   # AI-03: only refresh when a key or repo actually changed.
-  when: dotfiles_key_download is changed or dotfiles_key_dearmor is changed or dotfiles_repo_add is changed
+  when: dotfiles_key_download is changed or dotfiles_key_dearmor is changed or dotfiles_repo_purge is changed or dotfiles_repo_add is changed
   tags:
     - packages
-
