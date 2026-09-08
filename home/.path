@@ -1,0 +1,23 @@
+# shellcheck shell=sh
+# ~/.path — PATH setup shared by .zshenv, .profile, and .bashrc.
+# POSIX sh; safe to source more than once (entries are never duplicated).
+
+# Prepend $1 to PATH unless the directory is missing or already present.
+dot_path_add() {
+	[ -d "$1" ] || return
+	case ":$PATH:" in
+	*":$1:"*) return ;;
+	esac
+	if [ -n "$PATH" ]; then
+		PATH="$1:$PATH"
+	else
+		PATH="$1"
+	fi
+}
+
+dot_path_add "$HOME/bin"
+dot_path_add "$HOME/.local/bin"
+# Inlined instead of sourcing ~/.cargo/env (which exports only this same
+# PATH entry, unconditionally) so the duplicate guard applies in nested
+# shells too.
+dot_path_add "$HOME/.cargo/bin"
