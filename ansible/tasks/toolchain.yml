@@ -19,6 +19,23 @@
   tags:
     - packages
 
+# build-essential is a toolchain like cargo/fnm/flatpak: always installed,
+# regardless of manifest sources or profile. The cargo installs below ("Install
+# fnm") and in packages.yml (crates) link with cc, which build-essential
+# guarantees. It is chosen over bare gcc because gcc only Recommends libc6-dev
+# while build-essential hard-Depends on it. No rc probe: apt state=present is
+# idempotent (ok when present, installs when missing), matching the other
+# toolchains' always-install rule.
+- name: Install build tools (cargo linker)
+  become: true
+  ansible.builtin.apt:
+    name: build-essential
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  tags:
+    - packages
+
 - name: Check for fnm
   ansible.builtin.stat:
     path: "{{ dotfiles_home }}/.cargo/bin/fnm"
