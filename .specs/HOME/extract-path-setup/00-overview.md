@@ -102,11 +102,11 @@ Each step maps to exactly one commit, named `HOME(<NN>): <summary>`.
 - **Changes:** Replace the `~/.cargo/env` source with
   `. "$HOME/.path"`. Keep `GTK2_RC_FILES` / `QT_QPA_PLATFORMTHEME` exports.
 - **Acceptance:**
-  - [ ] `env -i HOME="$HOME" zsh -lc 'echo $PATH'` now contains
+  - [x] `env -i HOME="$HOME" zsh -lc 'echo $PATH'` now contains
         `~/.local/bin`, `~/bin`, and `~/.cargo/bin` (the fragility fix).
-  - [ ] `zsh -c 'echo $PATH' | tr ':' '\n' | sort | uniq -d` prints nothing
+  - [x] `zsh -c 'echo $PATH' | tr ':' '\n' | sort | uniq -d` prints nothing
         when run from an interactive zsh (nested shells add nothing).
-  - [ ] `grep -c cargo/env home/.zshenv` is `0`.
+  - [x] `grep -c cargo/env home/.zshenv` is `0`.
 
 ### 03 — replace `.profile` PATH block with the source
 
