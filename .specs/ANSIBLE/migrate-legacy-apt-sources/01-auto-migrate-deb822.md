@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Step | 01 |
 | Commit | `ANSIBLE(01): auto-migrate legacy one-line apt sources to deb822` |
 
@@ -55,9 +55,11 @@ In `components.yml`, between the stat task and the slurp task:
      ```
 
      register `dotfiles_sources_migrated`.
-   - `ansible.builtin.command: mv /etc/apt/sources.list
-     /etc/apt/sources.list.bak-{{ ansible_date_time.iso8601_basic_micro }}`
-     (become, `creates:` the backup path).
+    - `ansible.builtin.command: mv /etc/apt/sources.list
+      /etc/apt/sources.list.bak-{{ ansible_date_time.iso8601_basic }}`
+      (become, `creates:` the backup path; ansible-core 2.19 folded the
+      microseconds into `iso8601_basic` and dropped `iso8601_basic_micro`,
+      so the implementation uses `iso8601_basic`).
    - `rescue`: move the backup back, `ansible.builtin.file state=absent`
      the generated `debian.sources`, then `ansible.builtin.fail` with a
      message pointing at the backup.
@@ -81,19 +83,19 @@ refresh — third-party indexes would never be fetched on first run.
 
 ## Acceptance
 
-- [ ] `ansible-playbook --syntax-check ansible/playbook.yml` passes.
-- [ ] Jinja URI extraction verified via an ad-hoc `localhost` `set_fact`
+- [x] `ansible-playbook --syntax-check ansible/playbook.yml` passes.
+- [x] Jinja URI extraction verified via an ad-hoc `localhost` `set_fact`
       probe against fixture contents: default one-liner, options-bracket
       one-liner, `cdrom:` line, comments-only file.
-- [ ] This host (`debian.sources` present): `--check --tags packages` run
+- [x] This host (`debian.sources` present): `--check --tags packages` run
       proceeds past all migration/assert tasks unchanged and stops only at
       the known sudo wall on the become tasks.
-- [ ] Fresh-container simulation (`docker run debian:trixie` with a legacy
+- [x] Fresh-container simulation (`docker run debian:trixie` with a legacy
       `deb.debian.org` one-liner): migration writes canonical
       `debian.sources`, legacy file moved to `.bak-*`, `apt-get update`
       succeeds; second run reports no changes (idempotent).
-- [ ] Fresh-container simulation with a non-default mirror URI: run fails
+- [x] Fresh-container simulation with a non-default mirror URI: run fails
       fast with the manual-migration message; no files touched.
-- [ ] Fresh-container simulation with no sources at all: fails with the
+- [x] Fresh-container simulation with no sources at all: fails with the
       "no apt sources found" message.
-- [ ] `.bin/validate-manifest.py` and `pre-commit run --all-files` green.
+- [x] `.bin/validate-manifest.py` and `pre-commit run --all-files` green.

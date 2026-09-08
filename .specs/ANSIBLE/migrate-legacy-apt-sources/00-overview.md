@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-08 |
 
@@ -66,7 +66,7 @@ without a manual apt-sources detour.
 
 ## Steps
 
-- [ ] 01 — `01-auto-migrate-deb822.md` — migrate legacy-only default-mirror
+- [x] 01 — `01-auto-migrate-deb822.md` — migrate legacy-only default-mirror
   sources to deb822 (backup + rescue rollback), extend the fail-fast guard
   for custom mirrors and no-sources hosts, force the packages.yml refresh
   on migration
