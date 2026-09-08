@@ -112,6 +112,32 @@
   tags:
     - packages
 
+# script entries with `link` expose the installed binary on PATH via
+# ~/.local/bin (the script source has no dest; the install root is the
+# creates file's directory — e.g. opencode's installer hardcodes
+# ~/.opencode/bin).
+- name: Ensure ~/.local/bin exists for script links
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.local/bin"
+    state: directory
+    mode: "0755"
+  when: (dotfiles_pkgs_script | selectattr('value.link', 'defined') | list | length) > 0
+  tags:
+    - packages
+
+- name: Link script binaries into ~/.local/bin
+  ansible.builtin.file:
+    # force so a reinstalled/retargeted binary relinks instead of failing.
+    src: "{{ ((item.value.creates | regex_replace('^~/', dotfiles_home + '/') | ansible.builtin.dirname) ~ '/' ~ item.value.link) }}"
+    path: "{{ dotfiles_home }}/.local/bin/{{ item.value.link | basename }}"
+    state: link
+    force: true
+  loop: "{{ dotfiles_pkgs_script | selectattr('value.link', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.key }}"
+  tags:
+    - packages
+
 # AI-21: the per-user deb cache dir must exist before get_url writes into it.
 - name: Ensure deb download cache directory exists
   ansible.builtin.file:

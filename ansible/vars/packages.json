@@ -371,6 +371,19 @@
     "remote": "flathub",
     "source": "flatpak"
   },
+  "opencode": {
+    "args": [
+      "--no-modify-path"
+    ],
+    "creates": "~/.opencode/bin/opencode",
+    "link": "opencode",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "script",
+    "url": "https://opencode.ai/install"
+  },
   "papirus-icon-theme": {
     "package": "papirus-icon-theme",
     "profiles": [
@@ -506,11 +519,11 @@
     "source": "apt"
   },
   "tree-sitter-cli": {
-    "package": "tree-sitter-cli",
+    "crate": "tree-sitter-cli",
     "profiles": [
       "workstation"
     ],
-    "source": "npm"
+    "source": "cargo"
   },
   "ttf-mscorefonts-installer": {
     "package": "ttf-mscorefonts-installer",
