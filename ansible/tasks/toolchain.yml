@@ -21,13 +21,13 @@
 
 - name: Check for fnm
   ansible.builtin.stat:
-    path: "{{ dotfiles_home }}/.local/share/fnm/fnm"
+    path: "{{ dotfiles_home }}/.cargo/bin/fnm"
   register: dotfiles_fnm_check
   tags:
     - packages
 
-# AI-30: fnm may already be on PATH (e.g. cargo-installed) even when the
-# stock install path above is absent — probe PATH too so we don't reinstall.
+# AI-30: fnm installs via cargo, but a host may still have one from
+# elsewhere (apt, manual) — probe PATH too so we don't reinstall over it.
 - name: Check PATH for fnm
   ansible.builtin.command:
     argv: [fnm, --version]
@@ -39,9 +39,9 @@
 
 - name: Install fnm (node provider)
   ansible.builtin.shell:
-    cmd: "set -o pipefail && curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell"
+    cmd: "set -o pipefail && cargo install fnm --locked"
     executable: /bin/bash
-    creates: "{{ dotfiles_home }}/.local/share/fnm/fnm"
+    creates: "{{ dotfiles_home }}/.cargo/bin/fnm"
   environment:
     PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
   when:
@@ -52,13 +52,14 @@
 
 - name: Install Node LTS via fnm
   ansible.builtin.shell:
-    # 09-18: invoke the fnm binary via PATH (stock install dir first, then
-    # ~/.cargo/bin for cargo-installed fnm, then system dirs).
+    # 09-18/03-fnm-cargo: invoke fnm via PATH (~/.cargo/bin — the cargo
+    # install location — then system dirs). ~/.local/share/fnm is data-only
+    # (FNM_DIR default), so it is deliberately not on PATH.
     cmd: 'set -o pipefail && eval "$(fnm env --shell bash)" && fnm install --lts && fnm alias "$(fnm current)" default'
     executable: /bin/bash
     creates: "{{ dotfiles_home }}/.local/share/fnm/aliases/default"
   environment:
-    PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+    PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
   tags:
     - packages
 
