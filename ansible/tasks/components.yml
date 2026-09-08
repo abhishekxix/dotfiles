@@ -4,8 +4,11 @@
 # manifest also needs plain `non-free` (fonts-ubuntu, nvidia-*) and `contrib`
 # (mscorefonts). Components cannot be derived per-package before the indexes
 # are fetched (chicken-and-egg), so they are normalized unconditionally.
-# Legacy one-line sources.list is not rewritten — fail fast instead.
-# See .specs/ANSIBLE/enable-nonfree-components/.
+# A legacy one-line sources.list is auto-migrated to canonical deb822 — but
+# only when every URI in it is a default mirror (deb.debian.org or
+# security.debian.org); custom mirrors and source-less hosts fail fast.
+# See .specs/ANSIBLE/enable-nonfree-components/ and
+# .specs/ANSIBLE/migrate-legacy-apt-sources/.
 - name: Check apt source files
   ansible.builtin.stat:
     path: "{{ item }}"
@@ -16,6 +19,114 @@
   tags:
     - packages
 
+# Read-only probes must survive --check (mirrors the preflight pattern).
+- name: Read legacy sources.list
+  ansible.builtin.slurp:
+    src: /etc/apt/sources.list
+  register: dotfiles_legacy_sources
+  when: dotfiles_sources_stat.results[0].stat.exists and not dotfiles_sources_stat.results[1].stat.exists
+  check_mode: false
+  tags:
+    - packages
+
+# First URI token of every active deb/deb-src line; the optional options
+# bracket is consumed separately, so `cdrom:` keeps its bracket as part of
+# the token and fails the default-mirror gate below. A skipped slurp (no
+# legacy file) decodes to '' → empty list; comments-only files also yield [].
+- name: Extract legacy mirror URIs
+  ansible.builtin.set_fact:
+    dotfiles_legacy_uris: "{{ dotfiles_legacy_sources.content | default('', true) | b64decode | ansible.builtin.regex_findall(dotfiles_legacy_uri_re) }}"
+  vars:
+    dotfiles_legacy_uri_re: '(?m)^\s*deb(?:-src)?(?:\s+\[[^\]]*\])?\s+(\S+)'
+  tags:
+    - packages
+
+- name: Fail fast on custom apt mirrors
+  ansible.builtin.assert:
+    that:
+      - dotfiles_legacy_uris | reject('match', dotfiles_default_mirror_re) | list | length == 0
+    fail_msg: >-
+      /etc/apt/sources.list.d/debian.sources (deb822) not found; this playbook
+      only normalizes the trixie deb822 layout. Non-default mirror detected in
+      /etc/apt/sources.list; migrate to deb822 manually or add
+      '{{ dotfiles_apt_components }}' manually, then re-run.
+    quiet: true
+  when: dotfiles_sources_stat.results[0].stat.exists and not dotfiles_sources_stat.results[1].stat.exists
+  vars:
+    dotfiles_default_mirror_re: '^https?://(deb\.debian\.org|security\.debian\.org)/'
+  tags:
+    - packages
+
+# Auto-migration = wholesale replacement, not in-place editing. The
+# validation update runs inside the block so the rescue can undo a bad
+# migration; the timestamped backup outlives the run either way.
+- name: Migrate legacy sources.list to deb822
+  when:
+    - dotfiles_sources_stat.results[0].stat.exists
+    - not dotfiles_sources_stat.results[1].stat.exists
+    - dotfiles_legacy_uris | reject('match', dotfiles_default_mirror_re) | list | length == 0
+  vars:
+    dotfiles_default_mirror_re: '^https?://(deb\.debian\.org|security\.debian\.org)/'
+  tags:
+    - packages
+  block:
+    - name: Write canonical deb822 sources
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/debian.sources
+        mode: "0644"
+        content: |
+          Types: deb
+          URIs: http://deb.debian.org/debian
+          Suites: {{ ansible_facts.distribution_release }} {{ ansible_facts.distribution_release }}-updates
+          Components: {{ dotfiles_apt_components }}
+          Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+          Types: deb
+          URIs: http://deb.debian.org/debian-security
+          Suites: {{ ansible_facts.distribution_release }}-security
+          Components: {{ dotfiles_apt_components }}
+          Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+      register: dotfiles_sources_migrated
+
+    # iso8601_basic (YYYYmmddTHHMMSSffffff) is filename-safe, microsecond-
+    # precise, and gathered once per play — block and rescue see one path.
+    # NB: iso8601_basic_micro does not exist in ansible-core 2.19 date facts.
+    - name: Move legacy sources.list to timestamped backup
+      become: true
+      ansible.builtin.command:
+        cmd: mv /etc/apt/sources.list /etc/apt/sources.list.bak-{{ ansible_date_time.iso8601_basic }}
+        creates: /etc/apt/sources.list.bak-{{ ansible_date_time.iso8601_basic }}
+
+    - name: Validate migrated sources
+      become: true
+      ansible.builtin.apt:
+        update_cache: true
+  rescue:
+    - name: Restore legacy sources.list from backup
+      become: true
+      ansible.builtin.command:
+        cmd: mv /etc/apt/sources.list.bak-{{ ansible_date_time.iso8601_basic }} /etc/apt/sources.list
+        removes: /etc/apt/sources.list.bak-{{ ansible_date_time.iso8601_basic }}
+
+    - name: Remove generated deb822 sources
+      become: true
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/debian.sources
+        state: absent
+
+    - name: Report failed migration
+      ansible.builtin.fail:
+        msg: >-
+          Migrating /etc/apt/sources.list to deb822 failed; the legacy file
+          was restored from
+          /etc/apt/sources.list.bak-{{ ansible_date_time.iso8601_basic }}
+          and the generated /etc/apt/sources.list.d/debian.sources removed.
+          Inspect the failing task above, then re-run.
+
+# Split from the old single guard: legacy hosts either migrated above or
+# were refused at the custom-mirror gate; this backstops anything left over
+# (e.g. a stale legacy file next to deb822) without blocking the migration.
 - name: Fail fast on legacy-only apt sources
   ansible.builtin.assert:
     that:
@@ -25,6 +136,20 @@
       only normalizes the trixie deb822 layout. Migrate /etc/apt/sources.list
       to deb822 or add '{{ dotfiles_apt_components }}' manually, then re-run.
     quiet: true
+  when: dotfiles_sources_stat.results[0].stat.exists and not (dotfiles_sources_migrated.changed | default(false))
+  tags:
+    - packages
+
+- name: Fail fast on missing apt sources
+  ansible.builtin.assert:
+    that:
+      - dotfiles_sources_stat.results[1].stat.exists
+    fail_msg: >-
+      No apt sources found: neither /etc/apt/sources.list nor
+      /etc/apt/sources.list.d/debian.sources exists. Configure Debian apt
+      sources manually, then re-run.
+    quiet: true
+  when: not dotfiles_sources_stat.results[0].stat.exists
   tags:
     - packages
 
