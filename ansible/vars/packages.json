@@ -44,13 +44,6 @@
     ],
     "source": "apt"
   },
-  "calf-plugins": {
-    "package": "calf-plugins",
-    "profiles": [
-      "workstation"
-    ],
-    "source": "apt"
-  },
   "cava": {
     "package": "cava",
     "profiles": [
@@ -116,13 +109,6 @@
     ],
     "source": "apt"
   },
-  "easyeffects": {
-    "package": "easyeffects",
-    "profiles": [
-      "workstation"
-    ],
-    "source": "apt"
-  },
   "fastfetch": {
     "package": "fastfetch",
     "profiles": [
@@ -141,7 +127,8 @@
   "firmware-misc-nonfree": {
     "package": "firmware-misc-nonfree",
     "profiles": [
-      "workstation"
+      "workstation",
+      "server"
     ],
     "source": "apt"
   },
@@ -239,8 +226,7 @@
   "java-21-amazon-corretto-jdk": {
     "package": "java-21-amazon-corretto-jdk",
     "profiles": [
-      "workstation",
-      "server"
+      "workstation"
     ],
     "repo": "corretto",
     "source": "apt"
@@ -304,8 +290,7 @@
   "maven": {
     "package": "maven",
     "profiles": [
-      "workstation",
-      "server"
+      "workstation"
     ],
     "source": "apt"
   },
@@ -532,7 +517,8 @@
   "tree-sitter-cli": {
     "crate": "tree-sitter-cli",
     "profiles": [
-      "workstation"
+      "workstation",
+      "server"
     ],
     "source": "cargo"
   },
