@@ -376,6 +376,7 @@
       "--no-modify-path"
     ],
     "creates": "~/.opencode/bin/opencode",
+    "link": "opencode",
     "profiles": [
       "workstation",
       "server"
