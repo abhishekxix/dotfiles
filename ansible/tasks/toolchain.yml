@@ -1,12 +1,11 @@
 ---
-# -- Toolchain bootstrap (auto, gated on selected sources) --------------
+# -- Toolchain bootstrap (always installed) ------------------------------
 - name: Check for cargo
   ansible.builtin.command:
     argv: [cargo, --version]
   register: dotfiles_cargo_check
   changed_when: false
   failed_when: false
-  when: (dotfiles_pkgs_cargo | length) > 0
   tags:
     - packages
 
@@ -16,7 +15,6 @@
     executable: /bin/bash
     creates: "{{ dotfiles_home }}/.cargo/bin/cargo"
   when:
-    - (dotfiles_pkgs_cargo | length) > 0
     - dotfiles_cargo_check.rc | default(0) != 0
   tags:
     - packages
@@ -25,7 +23,6 @@
   ansible.builtin.stat:
     path: "{{ dotfiles_home }}/.local/share/fnm/fnm"
   register: dotfiles_fnm_check
-  when: (dotfiles_pkgs_npm | length) > 0
   tags:
     - packages
 
@@ -37,7 +34,6 @@
   register: dotfiles_fnm_path_check
   changed_when: false
   failed_when: false
-  when: (dotfiles_pkgs_npm | length) > 0
   tags:
     - packages
 
@@ -49,7 +45,6 @@
   environment:
     PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
   when:
-    - (dotfiles_pkgs_npm | length) > 0
     - not (dotfiles_fnm_check.stat.exists | default(false))
     - dotfiles_fnm_path_check.rc | default(0) != 0
   tags:
@@ -64,7 +59,6 @@
     creates: "{{ dotfiles_home }}/.local/share/fnm/aliases/default"
   environment:
     PATH: "{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
-  when: (dotfiles_pkgs_npm | length) > 0
   tags:
     - packages
 
@@ -74,7 +68,6 @@
   register: dotfiles_flatpak_check
   changed_when: false
   failed_when: false
-  when: (dotfiles_pkgs_flatpak | length) > 0
   tags:
     - packages
 
@@ -91,7 +84,6 @@
     update_cache: true
     cache_valid_time: 3600
   when:
-    - (dotfiles_pkgs_flatpak | length) > 0
     - dotfiles_flatpak_check.rc | default(0) != 0
   tags:
     - packages

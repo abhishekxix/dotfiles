@@ -63,7 +63,7 @@
     - name: Set up third-party apt repositories
       ansible.builtin.import_tasks: tasks/repos.yml
 
-    # -- Toolchain bootstrap (auto, gated on selected sources) --------------
+    # -- Toolchain bootstrap (always installed) ------------------------------
     - name: Bootstrap language toolchains (cargo, fnm, flatpak)
       ansible.builtin.import_tasks: tasks/toolchain.yml
 
