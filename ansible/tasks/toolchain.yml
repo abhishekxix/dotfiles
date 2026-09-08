@@ -2,21 +2,13 @@
 # -- Toolchain bootstrap (always installed) ------------------------------
 # Idempotency is the installer's job: shell tasks skip via `creates`
 # markers, apt tasks via `state: present`. No exist-probes.
-- name: Install rustup (cargo provider)
-  ansible.builtin.shell:
-    cmd: "set -o pipefail && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
-    executable: /bin/bash
-    creates: "{{ dotfiles_home }}/.cargo/bin/cargo"
-  tags:
-    - packages
 
 # build-essential is a toolchain like cargo/fnm/flatpak: always installed,
-# regardless of manifest sources or profile. The cargo installs below ("Install
+# regardless of manifest sources or profile, and first so the linker is
+# guaranteed for every step below. The cargo installs in this file ("Install
 # fnm") and in packages.yml (crates) link with cc, which build-essential
-# guarantees. It is chosen over bare gcc because gcc only Recommends libc6-dev
-# while build-essential hard-Depends on it. No rc probe: apt state=present is
-# idempotent (ok when present, installs when missing), matching the other
-# toolchains' always-install rule.
+# guarantees. It is chosen over bare gcc because gcc only Recommends
+# libc6-dev while build-essential hard-Depends on it.
 - name: Install build tools (cargo linker)
   become: true
   ansible.builtin.apt:
@@ -24,6 +16,14 @@
     state: present
     update_cache: true
     cache_valid_time: 3600
+  tags:
+    - packages
+
+- name: Install rustup (cargo provider)
+  ansible.builtin.shell:
+    cmd: "set -o pipefail && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
+    executable: /bin/bash
+    creates: "{{ dotfiles_home }}/.cargo/bin/cargo"
   tags:
     - packages
 
