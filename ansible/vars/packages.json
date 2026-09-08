@@ -506,11 +506,11 @@
     "source": "apt"
   },
   "tree-sitter-cli": {
-    "package": "tree-sitter-cli",
+    "crate": "tree-sitter-cli",
     "profiles": [
       "workstation"
     ],
-    "source": "npm"
+    "source": "cargo"
   },
   "ttf-mscorefonts-installer": {
     "package": "ttf-mscorefonts-installer",
