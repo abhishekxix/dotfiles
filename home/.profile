@@ -1,3 +1,4 @@
+# shellcheck shell=sh disable=SC1091
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
 	# include .bashrc if it exists
@@ -6,15 +7,7 @@ if [ -n "$BASH_VERSION" ]; then
 	fi
 fi
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ]; then
-	PATH="$HOME/bin:$PATH"
-fi
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ]; then
-	PATH="$HOME/.local/bin:$PATH"
-fi
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+# Shared PATH setup (idempotent; also sourced by .zshenv / .bashrc).
+[ -f "$HOME/.path" ] && . "$HOME/.path"
 
 export QT_QPA_PLATFORMTHEME="qt6ct"
