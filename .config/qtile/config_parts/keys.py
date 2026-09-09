@@ -108,13 +108,4 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
             lazy.window.toggle_minimize(),
             desc="Toggle minimize state of a window",
         ),
-        Key([], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%"), desc="Raise volume"),
-        Key([], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%"), desc="Lower volume"),
-        Key([], "XF86AudioMute", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle"), desc="Mute volume"),
-        Key([], "XF86AudioMicMute", lazy.spawn("pactl set-source-mute @DEFAULT_SOURCE@ toggle"), desc="Mute mic"),
-        Key([], "XF86MonBrightnessUp", lazy.spawn("sh -c 'b=$(cat /sys/class/backlight/*/brightness | head -1); m=$(cat /sys/class/backlight/*/max_brightness | head -1); echo $((b + m / 20 > m ? m : b + m / 20)) | tee /sys/class/backlight/*/brightness'"), desc="Brightness up"),
-        Key([], "XF86MonBrightnessDown", lazy.spawn("sh -c 'b=$(cat /sys/class/backlight/*/brightness | head -1); m=$(cat /sys/class/backlight/*/max_brightness | head -1); echo $((b - m / 20 < 1 ? 1 : b - m / 20)) | tee /sys/class/backlight/*/brightness'"), desc="Brightness down"),
-        Key([modkey], "o", lazy.next_screen(), desc="Focus next screen"),
-        Key([modkey, shiftkey], "o", lazy.window.toscreen(), desc="Move window to next screen"),
-        Key([modkey], "u", lazy.group.unminimize_all(), desc="Unminimize all windows"),
     ]
