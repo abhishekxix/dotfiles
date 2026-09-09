@@ -26,7 +26,6 @@ def build_floating_layout():
             Match(title="pinentry"),  # GPG key password entry
             Match(wm_class="blueberry.py"),
             Match(wm_class="copyq"),
-            Match(wm_class="flameshot"),
             Match(wm_class="nm-connection-editor"),
             Match(wm_class="blueman-manager"),
             Match(wm_class="pavucontrol"),
