@@ -1,6 +1,8 @@
 return {
   'folke/todo-comments.nvim',
-  event = 'VimEnter',
+  keys = {
+    { '<leader>st', '<cmd>TodoTelescope<CR>', desc = '[S]earch [T]ODOs' },
+  },
   dependencies = { 'nvim-lua/plenary.nvim' },
   opts = { signs = false },
 }

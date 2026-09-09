@@ -8,12 +8,7 @@ def build_layouts(layout_theme):
     return [
         layout.Columns(**layout_theme),
         layout.Max(**layout_theme),
-        layout.Stack(num_stacks=2, **layout_theme),
-        layout.Matrix(**layout_theme),
-        layout.RatioTile(**layout_theme),
         layout.Tile(**layout_theme),
-        layout.VerticalTile(**layout_theme),
-        layout.Zoomy(**layout_theme),
         layout.Floating(**layout_theme),
     ]
 
@@ -31,6 +26,8 @@ def build_floating_layout():
             Match(title="pinentry"),  # GPG key password entry
             Match(wm_class="blueberry.py"),
             Match(wm_class="copyq"),
+            Match(wm_class="nm-connection-editor"),
+            Match(wm_class="blueman-manager"),
             Match(wm_class="pavucontrol"),
             Match(wm_class="gnome-system-monitor"),
         ]

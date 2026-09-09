@@ -149,3 +149,16 @@ symbol = " "
 
 [sudo]
 disabled = false
+symbol = " "
+
+[status]
+disabled = false
+
+[jobs]
+symbol = "✦"
+
+[cmd_duration]
+min_time = 2000
+
+[maven]
+symbol = " "

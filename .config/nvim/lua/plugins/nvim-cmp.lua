@@ -31,9 +31,23 @@ return {
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
         ['<C-f>'] = cmp.mapping.scroll_docs(4),
 
-        ['<CR>'] = cmp.mapping.confirm { select = true },
-        ['<Tab>'] = cmp.mapping.select_next_item(),
-        ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+        -- select = false: <CR> on an empty menu inserts a newline instead
+        -- of accepting the uninvited top item (<C-y> to accept explicitly).
+        ['<CR>'] = cmp.mapping.confirm { select = false },
+        ['<Tab>'] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_next_item()
+          else
+            fallback()
+          end
+        end, { 'i', 's' }),
+        ['<S-Tab>'] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_prev_item()
+          else
+            fallback()
+          end
+        end, { 'i', 's' }),
 
         ['<C-Space>'] = cmp.mapping.complete {},
 

@@ -1,10 +1,19 @@
 """Screen and bar definitions."""
 
+import glob
 import os
 
 from libqtile import bar, widget
 from libqtile.config import Screen
 from libqtile.lazy import lazy
+
+
+def _detect_backlight():
+    """First sysfs backlight device, or the historical default."""
+    found = sorted(glob.glob("/sys/class/backlight/*"))
+    if found:
+        return os.path.basename(found[0])
+    return "intel_backlight"
 
 
 def _separator(colors):
@@ -47,8 +56,8 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
 
     status_widgets.extend(
         [
+            # interface=None: combined throughput of all active NICs.
             widget.Net(
-                interface="wlo1",
                 format="󰖩   {down:.0f}{down_suffix}↓ {up:.0f}{up_suffix}↑",
                 foreground=colors["accent"],
                 padding=6,
@@ -69,7 +78,7 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
             ),
             widget.Backlight(
                 fmt="󰃠   {}",
-                backlight_name="intel_backlight",
+                backlight_name=_detect_backlight(),
                 brightness_file="brightness",
                 foreground=colors["yellow"],
                 padding=6,
@@ -80,7 +89,7 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
     status_widgets.extend(
         [
             _separator(colors),
-            widget.Clock(format="%a %d %b %Y · %H:%M:%S", padding=6),
+            widget.Clock(format="%a %d %b %Y · %H:%M", update_interval=60, padding=6),
         ]
     )
 
@@ -88,7 +97,6 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
         status_widgets.extend(
             [
                 _separator(colors),
-                widget.StatusNotifier(icon_size=20, padding=4),
                 widget.Systray(icon_size=20, padding=4),
             ]
         )
@@ -135,7 +143,24 @@ def _build_screen(my_config_dict, colors, visible_groups, primary=False):
     )
 
 
+def _has_external():
+    """True when an external output is connected (checked at config load)."""
+    from config_parts.monitors import connected_outputs, external_outputs
+
+    try:
+        return bool(external_outputs(connected_outputs()))
+    except Exception:
+        return True  # fail open: keep the two-screen layout
+
+
 def build_screens(my_config_dict, colors):
+    if not _has_external():
+        # Solo internal panel: one bar showing all 10 groups.
+        return [_build_screen(my_config_dict, colors, list("12345asdfg"), True)]
+    # Order matches qtile's CRTC enumeration (panel first: it is CRTC 0 and
+    # xrandr --listmonitors index 0). Qtile binds config screens[i] to
+    # enumerated screen[i] positionally, so a left-to-right order here puts
+    # the bars on the wrong outputs. Real x/y/w/h comes from enumeration.
     return [
         _build_screen(my_config_dict, colors, ["1", "2", "3", "4", "5"], True),
         _build_screen(my_config_dict, colors, ["a", "s", "d", "f", "g"]),

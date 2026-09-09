@@ -42,7 +42,7 @@ M.language_config = {
     linters = { 'stylelint' },
   },
   { ft = 'diff', parser = 'diff' },
-  { ft = 'html', parser = 'html' },
+  { ft = 'html', parser = 'html', formatters = { 'prettier' } },
   {
     ft = 'javascript',
     parser = 'javascript',
