@@ -21,7 +21,13 @@ try_launch() {
   command -v "$1" >/dev/null 2>&1 && "$@" &
 }
 
-try_launch picom
+# Compositor needs a real GPU: skip in VMs/containers (software rendering
+# burns CPU for no gain) and when no DRI device exists. Fail open when
+# systemd-detect-virt is missing (assume bare metal, today's behavior).
+if { ! command -v systemd-detect-virt >/dev/null 2>&1 || ! systemd-detect-virt --quiet; } \
+  && compgen -G '/dev/dri/card*' >/dev/null; then
+  try_launch picom
+fi
 try_launch xbindkeys
 try_launch flameshot
 try_launch dunst
