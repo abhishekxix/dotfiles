@@ -44,4 +44,4 @@ size = 13
 WINIT_X11_SCALE_FACTOR = "1"
 
 [general]
-import = ["~/.config/alacritty/themes/catppuccin_mocha.toml"]
+import = ["./themes/catppuccin_mocha.toml"]
