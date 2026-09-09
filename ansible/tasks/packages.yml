@@ -13,20 +13,6 @@
   tags:
     - packages
 
-# 09-08: mscorefonts' postinst prompts for its EULA via debconf — preseed
-# the acceptance so the non-interactive apt transaction cannot hang or fail.
-# Gate mirrors the docker-group task below.
-- name: Preseed mscorefonts EULA acceptance
-  become: true
-  ansible.builtin.debconf:
-    name: ttf-mscorefonts-installer
-    question: msttcorefonts/accepted-mscorefonts-eula
-    value: "true"
-    vtype: boolean
-  when: "'ttf-mscorefonts-installer' in dotfiles_pkgs_apt | map(attribute='value.package')"
-  tags:
-    - packages
-
 # AI-17: one task, one apt transaction for all selected apt packages.
 - name: Install apt packages
   become: true
@@ -45,31 +31,6 @@
     name: "{{ dotfiles_deps_apt }}"
     state: present
   when: (dotfiles_deps_apt | length) > 0
-  tags:
-    - packages
-
-# 09-26: docker is installed but unusable until the invoking user is in
-# the docker group (service enablement stays out of v1 scope per spec).
-- name: Add invoking user to docker group
-  become: true
-  ansible.builtin.user:
-    name: "{{ ansible_user_id }}"
-    groups: docker
-    append: true
-  when: "'docker-ce' in dotfiles_pkgs_apt | map(attribute='value.package')"
-  tags:
-    - packages
-
-# 2026-09-09: libvirt is installed but unusable until the invoking user is
-# in the libvirt group (mirrors the docker-group task above; service
-# enablement stays out of scope).
-- name: Add invoking user to libvirt group
-  become: true
-  ansible.builtin.user:
-    name: "{{ ansible_user_id }}"
-    groups: libvirt
-    append: true
-  when: "'libvirt-daemon-system' in dotfiles_pkgs_apt | map(attribute='value.package')"
   tags:
     - packages
 
