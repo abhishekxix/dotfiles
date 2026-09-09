@@ -67,9 +67,17 @@
     - name: Bootstrap language toolchains (cargo, fnm, flatpak)
       ansible.builtin.import_tasks: tasks/toolchain.yml
 
+    # -- Pre-install hooks (global + per-package ensure-state scripts) -----
+    - name: Run pre-install hooks
+      ansible.builtin.import_tasks: tasks/hooks-pre.yml
+
     # -- Per-source installs ------------------------------------------------
     - name: Install packages for selected sources
       ansible.builtin.import_tasks: tasks/packages.yml
+
+    # -- Post-install hooks --------------------------------------------------
+    - name: Run post-install hooks
+      ansible.builtin.import_tasks: tasks/hooks-post.yml
 
     # -- Dotfile linking (identical for all profiles) -----------------------
     - name: Link dotfiles into home and .config

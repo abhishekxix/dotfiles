@@ -1,0 +1,39 @@
+---
+# -- Package installer hooks (post) --------------------------------------
+# Convention: ansible/hooks/<key>.post[.root].<sh|py>. See hooks/README.md.
+- name: Discover post-install hooks
+  ansible.builtin.set_fact:
+    dotfiles_post_hooks: "{{ query('ansible.builtin.fileglob', (test_hooks_dir | default(playbook_dir + '/hooks')) + '/*.post.*') }}"
+    dotfiles_selected_keys: "{{ dotfiles_packages_selected | map(attribute='key') | list }}"
+  tags:
+    - packages
+
+- name: Run global post-install hook
+  ansible.builtin.script: "{{ item }}"
+  loop: "{{ dotfiles_post_hooks | select('search', '/global\\.post\\.') | list }}"
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  changed_when: false
+  tags:
+    - packages
+
+- name: Run per-package post-install hooks
+  ansible.builtin.script: "{{ item }}"
+  loop: "{{ dotfiles_post_hooks | reject('search', '/global\\.post\\.') | reject('search', '\\.root\\.') | list }}"
+  when: (item | basename).split('.') | first in dotfiles_selected_keys
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  changed_when: false
+  tags:
+    - packages
+
+- name: Run per-package post-install hooks (root)
+  ansible.builtin.script: "{{ item }}"
+  loop: "{{ dotfiles_post_hooks | reject('search', '/global\\.post\\.') | select('search', '\\.root\\.') | list }}"
+  when: (item | basename).split('.') | first in dotfiles_selected_keys
+  become: true
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  changed_when: false
+  tags:
+    - packages
