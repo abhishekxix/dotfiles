@@ -213,6 +213,14 @@
     ],
     "source": "apt"
   },
+  "google-chrome-stable": {
+    "package": "google-chrome-stable",
+    "profiles": [
+      "workstation"
+    ],
+    "repo": "google",
+    "source": "apt"
+  },
   "iosevka-nerd-font": {
     "creates": "~/.local/share/fonts/IosevkaNerdFont-Regular.ttf",
     "dest": "~/.local/share/fonts",
@@ -247,6 +255,20 @@
   },
   "libnss3-tools": {
     "package": "libnss3-tools",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "libvirt-clients": {
+    "package": "libvirt-clients",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "libvirt-daemon-system": {
+    "package": "libvirt-daemon-system",
     "profiles": [
       "workstation"
     ],
@@ -448,6 +470,13 @@
     ],
     "source": "apt"
   },
+  "qemu-system": {
+    "package": "qemu-system",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "qt6ct": {
     "package": "qt6ct",
     "profiles": [
@@ -556,6 +585,13 @@
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "virt-manager": {
+    "package": "virt-manager",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },

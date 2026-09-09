@@ -9,6 +9,11 @@
     "keyring": "/usr/share/keyrings/docker-archive-keyring.gpg",
     "repo": "deb [arch=@ARCH@ signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian @RELEASE@ stable"
   },
+  "google": {
+    "key_url": "https://dl-ssl.google.com/linux/linux_signing_key.pub",
+    "keyring": "/usr/share/keyrings/google-archive-keyring.gpg",
+    "repo": "deb [arch=@ARCH@ signed-by=/usr/share/keyrings/google-archive-keyring.gpg] https://dl.google.com/linux/chrome/deb/ stable main"
+  },
   "vscode": {
     "key_url": "https://packages.microsoft.com/keys/microsoft.asc",
     "keyring": "/usr/share/keyrings/packages.microsoft.gpg",
