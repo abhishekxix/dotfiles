@@ -60,6 +60,19 @@
   tags:
     - packages
 
+# 2026-09-09: libvirt is installed but unusable until the invoking user is
+# in the libvirt group (mirrors the docker-group task above; service
+# enablement stays out of scope).
+- name: Add invoking user to libvirt group
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    groups: libvirt
+    append: true
+  when: "'libvirt-daemon-system' in dotfiles_pkgs_apt | map(attribute='value.package')"
+  tags:
+    - packages
+
 - name: Install cargo crates
   community.general.cargo:
     name: "{{ item.value.crate }}"
