@@ -100,6 +100,19 @@ def _reconfigure_on_hotplug_inner():
             groups[name].toscreen(panel_idx if n_screens > 1 else 0)
         for name in SECONDARY_GROUPS:
             groups[name].toscreen(ext_idx if (dual and n_screens > 1) else 0)
+        # toscreen focuses each group it moves, so re-show the first of
+        # each set — otherwise both screens sit on the last group (5, g).
+        try:
+            if n_screens > 1 and dual:
+                qtile.focus_screen(panel_idx)
+                groups[PRIMARY_GROUPS[0]].toscreen()
+                qtile.focus_screen(ext_idx)
+                groups[SECONDARY_GROUPS[0]].toscreen()
+            else:
+                qtile.focus_screen(0)
+                groups[PRIMARY_GROUPS[0]].toscreen()
+        except Exception:
+            pass
         after = len(qtile.screens)
         # Converge the bar layout (one vs two Screens) when count changed —
         # reload_config() rebuilds from config, which builds in CRTC order,
