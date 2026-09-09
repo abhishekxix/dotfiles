@@ -7,13 +7,6 @@
     ],
     "source": "apt"
   },
-  "ayatana-indicator-application": {
-    "package": "ayatana-indicator-application",
-    "profiles": [
-      "workstation"
-    ],
-    "source": "apt"
-  },
   "bat": {
     "package": "bat",
     "profiles": [
@@ -190,13 +183,6 @@
     ],
     "source": "apt"
   },
-  "gir1.2-ayatanaappindicator3-0.1": {
-    "package": "gir1.2-ayatanaappindicator3-0.1",
-    "profiles": [
-      "workstation"
-    ],
-    "source": "apt"
-  },
   "git": {
     "package": "git",
     "profiles": [
@@ -241,13 +227,6 @@
   },
   "libavcodec-extra": {
     "package": "libavcodec-extra",
-    "profiles": [
-      "workstation"
-    ],
-    "source": "apt"
-  },
-  "libayatana-appindicator3-1": {
-    "package": "libayatana-appindicator3-1",
     "profiles": [
       "workstation"
     ],
