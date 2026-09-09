@@ -176,23 +176,13 @@ def current_rects(lines=None):
         except Exception:
             return []
         lines = out.splitlines()
-        rects = []
-        for line in lines:
-            m = re.match(r"^\s*\d+:\s+\S+\s+(\d+)/\S+x(\d+)/\S+\+(\d+)\+(\d+)\s+(\S+)", line)
-            if m:
-                w, h, x, y, name = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), m.group(5)
-                rects.append((name, x, y, w, h))
-        return rects
     rects = []
     for line in lines:
-        m = re.match(
-            r"^(\S+) connected(?: primary)? (\d+)x(\d+)\+(\d+)\+(\d+)", line
-        )
+        m = re.match(r"^\s*\d+:\s+\S+\s+(\d+)/\S+x(\d+)/\S+\+(\d+)\+(\d+)\s+(\S+)", line)
         if m:
-            name, w, h, x, y = m.group(1), *(int(g) for g in m.groups()[1:])
+            w, h, x, y, name = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), m.group(5)
             rects.append((name, x, y, w, h))
-    # Canned --query text has no CRTC order; sort by x for determinism.
-    return sorted(rects, key=lambda r: (r[1], r[2]))
+    return rects
 
 
 def plan(lines=None, verbose=None):
