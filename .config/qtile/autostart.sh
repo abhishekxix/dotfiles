@@ -39,6 +39,13 @@ if [ -s "$HOME/.xwallpaper" ]; then
   xargs -r xwallpaper --stretch <"$HOME/.xwallpaper" &
 fi
 
-# Set the audio settings.
-pactl load-module module-echo-cancel source_master=alsa_input.pci-0000_00_1f.3.analog-stereo sink_master=alsa_output.pci-0000_00_1f.3.analog-stereo aec_method=webrtc aec_args="analog_gain_control=0 digital_gain_control=0" use_master_format=yes
-pactl set-default-source echo-cancel-source
+# Echo-cancel: skip if already loaded (login is not idempotent-safe),
+# tolerate machines without this card.
+if command -v pactl >/dev/null 2>&1 \
+  && ! pactl list modules short 2>/dev/null | grep -q 'module-echo-cancel'; then
+  pactl load-module module-echo-cancel source_master=alsa_input.pci-0000_00_1f.3.analog-stereo sink_master=alsa_output.pci-0000_00_1f.3.analog-stereo aec_method=webrtc aec_args="analog_gain_control=0 digital_gain_control=0" use_master_format=yes || true
+fi
+if command -v pactl >/dev/null 2>&1 \
+  && pactl list sources short 2>/dev/null | grep -q 'echo-cancel-source'; then
+  pactl set-default-source echo-cancel-source
+fi
