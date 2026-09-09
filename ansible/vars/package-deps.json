@@ -29,6 +29,8 @@
     "libxcb-xfixes0-dev"
   ],
   "qtile": [
+    "gir1.2-ayatanaappindicator3-0.1",
+    "libayatana-appindicator3-1",
     "lm-sensors",
     "python3-dbus-fast",
     "python3-psutil",

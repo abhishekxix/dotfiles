@@ -13,6 +13,7 @@
 !/install
 !/README.md
 !/xorg.conf
+!/CLAUDE.md
 
 __pycache__/
 *.py[cod]
