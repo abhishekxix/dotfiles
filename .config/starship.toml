@@ -3,6 +3,8 @@
 
 add_newline = false
 
+format = """$directory$git_branch$git_commit$git_status$nodejs$python$rust$golang$lua$php$jobs$cmd_duration$status$line_break$character"""
+
 [aws]
 symbol = "  "
 
@@ -61,7 +63,7 @@ symbol = " "
 tag_symbol = '  '
 
 [git_metrics]
-disabled = false
+disabled = true
 
 [golang]
 symbol = " "
@@ -148,4 +150,13 @@ symbol = " "
 symbol = " "
 
 [sudo]
+disabled = true
+
+[status]
 disabled = false
+
+[jobs]
+symbol = "✦"
+
+[cmd_duration]
+min_time = 2000
