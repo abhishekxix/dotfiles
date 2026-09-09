@@ -516,9 +516,11 @@
   },
   "starship": {
     "args": [
-      "-y"
+      "-y",
+      "-b",
+      "~/.local/bin"
     ],
-    "creates": "/usr/local/bin/starship",
+    "creates": "~/.local/bin/starship",
     "interpreter": "sh",
     "profiles": [
       "workstation",
