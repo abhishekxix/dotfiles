@@ -165,6 +165,13 @@ def validate_hooks(packages, hooks_dir, errors):
             )
             continue
         key = m.group(1)
+        if key == "$schema":
+            continue
+        if key == "global" and m.group(3):
+            errors.append(
+                f"hooks: '{name}': global hooks cannot use .root (global hooks run unprivileged)"
+            )
+            continue
         if key != "global" and key not in packages:
             errors.append(
                 f"hooks: '{name}': orphan key '{key}' (no such package in packages.json)"

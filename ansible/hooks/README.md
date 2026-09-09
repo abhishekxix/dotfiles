@@ -4,7 +4,8 @@ Before/after scripts for package installs. Naming: `<key>.<pre|post>[.root].<sh|
 
 - `<key>` is a `packages.json` key, or `global` (runs once per play, not per package).
 - `.pre` runs before `packages.yml`; `.post` runs after.
-- `.root` runs with `become: true`; without it, runs as the invoking user.
+- `.root` runs with `become: true`; without it, runs as the invoking user. Global hooks cannot use `.root` (they run unprivileged).
+- For apt packages the hook key must equal the entry's `package` field.
 - Runner is `ansible.builtin.script` (shebang honored; `.sh` and `.py` both work).
 - Env: `DOTFILES_USER` is the invoking user (never assume root or `$USER`).
 - Hooks must be idempotent (check state before mutating) and executable (`chmod +x`).
