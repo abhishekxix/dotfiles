@@ -8,12 +8,9 @@ lxsession --session=qtile &
 
 gnome-keyring-daemon --start --login --components=pkcs11,secrets,ssh &
 
-# Dual-monitor layout; only when both outputs are connected, else leave the
-# server layout alone (single-monitor / foreign dock).
-if xrandr --query 2>/dev/null | grep -q '^HDMI-0 connected' \
-  && xrandr --query 2>/dev/null | grep -q '^eDP-1-1 connected'; then
-  xrandr --output HDMI-0 --mode 2560x1440 --rate 75 --pos 0x0 --rotate normal --output eDP-1-1 --primary --mode 1920x1080 --rate 120 --pos 2560x360 --rotate normal
-fi
+# Monitor layout via the step-01 helper: same generic logic as the hotplug
+# hook (internal primary @ max rate, externals left of it, --auto fallback).
+python3 "$HOME/.config/qtile/config_parts/monitors.py" &
 
 export WINIT_X11_SCALE_FACTOR=1
 
