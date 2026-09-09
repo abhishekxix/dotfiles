@@ -158,6 +158,10 @@ def build_screens(my_config_dict, colors):
     if not _has_external():
         # Solo internal panel: one bar showing all 10 groups.
         return [_build_screen(my_config_dict, colors, list("12345asdfg"), True)]
+    # Order matches qtile's CRTC enumeration (panel first: it is CRTC 0 and
+    # xrandr --listmonitors index 0). Qtile binds config screens[i] to
+    # enumerated screen[i] positionally, so a left-to-right order here puts
+    # the bars on the wrong outputs. Real x/y/w/h comes from enumeration.
     return [
         _build_screen(my_config_dict, colors, ["1", "2", "3", "4", "5"], True),
         _build_screen(my_config_dict, colors, ["a", "s", "d", "f", "g"]),

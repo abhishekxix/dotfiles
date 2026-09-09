@@ -162,6 +162,39 @@ def current_pos(output, lines=None):
     return (int(m.group(1)), int(m.group(2))) if m else None
 
 
+def current_rects(lines=None):
+    """[(name, x, y, w, h)] per connected output, in `xrandr --listmonitors`
+    order (CRTC order — panel first here). This is the order qtile itself
+    enumerates screens in, so config screens[i] must be built to match it
+    (see build_screens): sort-by-x would put the external first and swap
+    the bars onto the wrong outputs."""
+    if lines is None:
+        try:
+            out = subprocess.run(
+                ["xrandr", "--listmonitors"], capture_output=True, text=True
+            ).stdout
+        except Exception:
+            return []
+        lines = out.splitlines()
+        rects = []
+        for line in lines:
+            m = re.match(r"^\s*\d+:\s+\S+\s+(\d+)/\S+x(\d+)/\S+\+(\d+)\+(\d+)\s+(\S+)", line)
+            if m:
+                w, h, x, y, name = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)), m.group(5)
+                rects.append((name, x, y, w, h))
+        return rects
+    rects = []
+    for line in lines:
+        m = re.match(
+            r"^(\S+) connected(?: primary)? (\d+)x(\d+)\+(\d+)\+(\d+)", line
+        )
+        if m:
+            name, w, h, x, y = m.group(1), *(int(g) for g in m.groups()[1:])
+            rects.append((name, x, y, w, h))
+    # Canned --query text has no CRTC order; sort by x for determinism.
+    return sorted(rects, key=lambda r: (r[1], r[2]))
+
+
 def plan(lines=None, verbose=None):
     """Desired xrandr args per output, or {} when state already matches."""
     lines = lines if lines is not None else _run_xrandr_query()
