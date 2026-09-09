@@ -9,8 +9,8 @@ x = 8
 y = 8
 
 [window.dimensions]
-columns = 140
-lines = 40
+columns = 80
+lines = 25
 
 [cursor]
 blink_interval = 500
