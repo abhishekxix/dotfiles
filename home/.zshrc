@@ -3,6 +3,10 @@ set -o extended_history
 set -o hist_expire_dups_first
 set -o hist_ignore_dups
 set -o hist_ignore_space
+set -o hist_verify
+set -o share_history
+set -o append_history
+set -o inc_append_history
 set -o auto_cd
 set -o auto_pushd
 set -o pushd_ignore_dups

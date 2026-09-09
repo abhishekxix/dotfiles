@@ -10,12 +10,25 @@
 
 [diff]
 	tool = vimdiff
+	colorMoved = zebra
 
 [difftool "vimdiff"]
 	cmd = "nvim -d $LOCAL $REMOTE"
 
 [color]
 	ui = auto
+
+[column]
+	ui = auto
+
+[fetch]
+	prune = true
+
+[push]
+	autoSetupRemote = true
+
+[pull]
+	rebase = true
 
 [merge]
 	conflictstyle = diff3

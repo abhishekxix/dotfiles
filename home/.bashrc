@@ -11,6 +11,12 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+# history: large, shared feel, verify expansions (matches zsh opts)
+HISTSIZE=100000
+HISTFILESIZE=100000
+HISTCONTROL=ignoredups:erasedups
+shopt -s histappend histverify 2>/dev/null
+
 alias ls='ls --color=auto'
 alias cp='cp -i'
 alias mv='mv -i'
