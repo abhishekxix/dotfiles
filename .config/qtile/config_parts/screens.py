@@ -1,10 +1,19 @@
 """Screen and bar definitions."""
 
+import glob
 import os
 
 from libqtile import bar, widget
 from libqtile.config import Screen
 from libqtile.lazy import lazy
+
+
+def _detect_backlight():
+    """First sysfs backlight device, or the historical default."""
+    found = sorted(glob.glob("/sys/class/backlight/*"))
+    if found:
+        return os.path.basename(found[0])
+    return "intel_backlight"
 
 
 def _separator(colors):
@@ -47,8 +56,8 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
 
     status_widgets.extend(
         [
+            # interface=None: combined throughput of all active NICs.
             widget.Net(
-                interface="wlo1",
                 format="󰖩   {down:.0f}{down_suffix}↓ {up:.0f}{up_suffix}↑",
                 foreground=colors["accent"],
                 padding=6,
@@ -69,7 +78,7 @@ def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
             ),
             widget.Backlight(
                 fmt="󰃠   {}",
-                backlight_name="intel_backlight",
+                backlight_name=_detect_backlight(),
                 brightness_file="brightness",
                 foreground=colors["yellow"],
                 padding=6,
