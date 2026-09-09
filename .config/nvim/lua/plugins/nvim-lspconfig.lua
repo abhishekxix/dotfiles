@@ -37,10 +37,14 @@ return {
       },
     })
 
+    -- NB: merge over the '*' cmp defaults above; a bare table here would
+    -- replace them and silently degrade clangd completions/snippets.
     vim.lsp.config('clangd', {
-      capabilities = {
-        offsetEncoding = 'utf-8',
-      },
+      capabilities = vim.tbl_deep_extend(
+        'force',
+        require('cmp_nvim_lsp').default_capabilities(),
+        { offsetEncoding = 'utf-8' }
+      ),
     })
 
     vim.lsp.config('bashls', {
