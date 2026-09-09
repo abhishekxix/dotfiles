@@ -23,9 +23,12 @@ return {
           ['\\'] = 'close_window',
         },
       },
+      follow_current_file = {
+        enabled = true,
+      },
       filtered_items = {
-        hide_dotfiles = false,
-        hide_gitignored = false,
+        hide_dotfiles = true,
+        hide_gitignored = true,
         visible = true,
       },
     },
