@@ -8,7 +8,6 @@ return {
     },
     spec = {
       { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
-      { '<leader>f', group = '[F]ormat', mode = { 'n', 'x' } },
       { '<leader>d', group = '[D]ocument' },
       { '<leader>r', group = '[R]ename' },
       { '<leader>s', group = '[S]earch' },
