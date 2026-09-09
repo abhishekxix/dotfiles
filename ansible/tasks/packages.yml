@@ -112,15 +112,19 @@
 
 - name: Run script installers
   ansible.builtin.shell:
-    # 09-19: script entries are one-off installers (fnm ships via the
-    # toolchain bootstrap above, which is the single source of truth).
+    # 09-19: fnm ships via the toolchain bootstrap above, which is the
+    # single source of truth.
     # 09-09: the pipe target is per-entry (default bash) — starship's
     # installer aborts under bash, so it overrides to sh.
     # 09-09: leading ~/ in args is expanded (quoting suppresses shell
     # tilde expansion), mirroring the creates expansion below.
+    # 09-09: deliberately no `creates:` guard — these installers track
+    # upstream latest and self-manage reruns (starship reinstalls,
+    # opencode exits 0 when current), so a guard would freeze the
+    # first-installed version forever. `creates` stays in the manifest
+    # for the link task below.
     cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | {{ item.value.interpreter | default('bash', true) }} -s -- {{ item.value.args | default([]) | map('regex_replace', '^~/', dotfiles_home + '/') | map('quote') | join(' ') }}"
     executable: /bin/bash
-    creates: "{{ item.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
   loop: "{{ dotfiles_pkgs_script }}"
   loop_control:
     label: "{{ item.key }}"
