@@ -62,12 +62,11 @@ M.language_config = {
     servers = { 'lua_ls' },
     formatters = { 'stylua' },
   },
-  { ft = 'markdown', parser = 'markdown', formatters = { 'prettier' } },
+  { ft = 'markdown', parser = 'markdown' },
   {
     ft = 'php',
     parser = 'php',
     servers = { 'phpactor' },
-    formatters = { 'prettier' },
   },
   {
     ft = 'python',
