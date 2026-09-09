@@ -2,6 +2,7 @@
 
 import glob
 import os
+import shutil
 
 from libqtile import bar, widget
 from libqtile.config import Screen
@@ -14,6 +15,25 @@ def _detect_backlight():
     if found:
         return os.path.basename(found[0])
     return "intel_backlight"
+
+
+def _has_battery():
+    return bool(glob.glob("/sys/class/power_supply/BAT*"))
+
+
+def _has_backlight():
+    return bool(glob.glob("/sys/class/backlight/*"))
+
+
+def _has_nvidia():
+    return shutil.which("nvidia-smi") is not None
+
+
+def _has_thermal():
+    return bool(
+        glob.glob("/sys/class/thermal/thermal_zone*")
+        or glob.glob("/sys/class/hwmon/hwmon*")
+    )
 
 
 def _separator(colors):
@@ -37,58 +57,75 @@ def _group_box(visible_groups, colors):
 
 
 def _temperature_widgets(colors):
-    return [
-        widget.ThermalSensor(
-            format="   {temp:.0f}{unit}",
-            foreground=colors["red"],
-            padding=6,
-        ),
-        widget.NvidiaSensors(
-            format="󰢮   {temp}°C",
-            foreground=colors["red"],
+    """Only for hardware present — skip (no separator) when absent."""
+    widgets = []
+    if _has_thermal():
+        widgets.append(
+            widget.ThermalSensor(
+                format="   {temp:.0f}{unit}",
+                foreground=colors["red"],
+                padding=6,
+            )
+        )
+    if _has_nvidia():
+        widgets.append(
+            widget.NvidiaSensors(
+                format="󰢮   {temp}°C",
+                foreground=colors["red"],
+                padding=6,
+            )
+        )
+    if not widgets:
+        return []
+    return [*widgets, _separator(colors)]
+
+
+def _battery_widgets(colors):
+    """Battery + optional backlight, or [] when no battery exists."""
+    if not _has_battery():
+        return []
+    widgets = [
+        widget.Battery(
+            format="󰁹  {char} {percent:2.0%}",
+            foreground=colors["green"],
             padding=6,
         ),
     ]
-
-
-def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
-    status_widgets = []
-
-    status_widgets.extend(
-        [
-            # interface=None: combined throughput of all active NICs.
-            widget.Net(
-                format="󰖩   {down:.0f}{down_suffix}↓ {up:.0f}{up_suffix}↑",
-                foreground=colors["accent"],
-                padding=6,
-            ),
-            _separator(colors),
-            widget.Memory(
-                format="󰍛  {MemUsed: .2f}/{MemTotal: .2f} {mm}",
-                measure_mem="G",
-                padding=6,
-            ),
-            _separator(colors),
-            *_temperature_widgets(colors),
-            _separator(colors),
-            widget.Battery(
-                format="󰁹  {char} {percent:2.0%}",
-                foreground=colors["green"],
-                padding=6,
-            ),
+    if _has_backlight():
+        widgets.append(
             widget.Backlight(
                 fmt="󰃠   {}",
                 backlight_name=_detect_backlight(),
                 brightness_file="brightness",
                 foreground=colors["yellow"],
                 padding=6,
-            ),
-        ]
-    )
+            )
+        )
+    return [*widgets, _separator(colors)]
 
+
+def _build_bar_widgets(my_config_dict, colors, visible_groups, primary=False):
+    status_widgets = [
+        # interface=None: combined throughput of all active NICs.
+        widget.Net(
+            format="󰖩   {down:.0f}{down_suffix}↓ {up:.0f}{up_suffix}↑",
+            foreground=colors["accent"],
+            padding=6,
+        ),
+        _separator(colors),
+        widget.Memory(
+            format="󰍛  {MemUsed: .2f}/{MemTotal: .2f} {mm}",
+            measure_mem="G",
+            padding=6,
+        ),
+        _separator(colors),
+        *_temperature_widgets(colors),
+        *_battery_widgets(colors),
+    ]
+
+    # _temperature/_battery_widgets carry their own trailing separator.
     status_widgets.extend(
         [
-            _separator(colors),
             widget.Clock(format="%a %d %b %Y · %H:%M", update_interval=60, padding=6),
         ]
     )
