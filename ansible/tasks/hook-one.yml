@@ -1,0 +1,24 @@
+---
+# -- Run one hook phase for one package key -------------------------------
+# Expects `hook_key` and `hook_phase` (pre|post). Picks the first existing
+# candidate (.root before user, .sh before .py); at most one runs per key,
+# so a duplicate (.sh + .py) pair is a validation error, not a silent pick.
+# `hook_candidates` is a relative dir listing (valid filenames only), so the
+# script path cannot escape ansible/hooks/.
+- name: Run package hook
+  ansible.builtin.script: "{{ (test_hooks_dir | default(playbook_dir + '/hooks')) + '/' + hook_file }}"
+  vars:
+    hook_dir_files: "{{ query('ansible.builtin.fileglob', (test_hooks_dir | default(playbook_dir + '/hooks')) + '/' + hook_key + '.' + hook_phase + '.*') | map('basename') | list }}"
+    hook_candidates:
+      - "{{ hook_key }}.{{ hook_phase }}.root.sh"
+      - "{{ hook_key }}.{{ hook_phase }}.root.py"
+      - "{{ hook_key }}.{{ hook_phase }}.sh"
+      - "{{ hook_key }}.{{ hook_phase }}.py"
+    hook_file: "{{ hook_candidates | intersect(hook_dir_files) | first | default('') }}"
+  become: "{{ '.root.' in hook_file }}"
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  when: hook_file | length > 0
+  changed_when: false
+  tags:
+    - packages

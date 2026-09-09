@@ -1,0 +1,25 @@
+---
+# Expects `pkg` ({key, value} for one npm entry). Pre-hook, install, post-hook.
+- name: Pre-hook for npm package
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: pre
+
+- name: Install global npm package
+  community.general.npm:
+    name: "{{ pkg.value.package }}"
+    version: "{{ pkg.value.version | default(omit, true) }}"
+    global: true
+    state: present
+    # AI-10: resolve node/npm through the fnm-managed default alias.
+    executable: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin/npm"
+  environment:
+    # 09-22: ~/.cargo/bin added so a cargo-installed fnm is also found.
+    PATH: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin:{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+
+- name: Post-hook for npm package
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: post

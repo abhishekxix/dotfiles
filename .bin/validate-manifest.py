@@ -178,6 +178,25 @@ def validate_hooks(packages, hooks_dir, errors):
             )
         if not os.access(path, os.X_OK):
             errors.append(f"hooks: '{name}': not executable (chmod +x)")
+    seen = {}
+    for name in names:
+        if name == "README.md":
+            continue
+        path = os.path.join(hooks_dir, name)
+        if not os.path.isfile(path):
+            continue
+        m = HOOK_RE.match(name)
+        if not m:
+            continue
+        if m.group(1) == "$schema":
+            continue
+        dup_key = (m.group(1), m.group(2), bool(m.group(3)))
+        if dup_key in seen:
+            errors.append(
+                f"hooks: '{name}': duplicate hook for {seen[dup_key]} (at most one .sh/.py per key.phase[.root])"
+            )
+        else:
+            seen[dup_key] = name
 
 
 def main():

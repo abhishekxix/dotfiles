@@ -1,10 +1,13 @@
 ---
 # -- Package installer hooks (pre) --------------------------------------
-# Convention: ansible/hooks/<key>.pre[.root].<sh|py>. See hooks/README.md.
+# Runs before any install: global.pre.* once, then every selected apt key's
+# pre-hook (the apt transaction is one batch, so its pre-hooks run up front).
+# Looping sources get true per-package pre-hooks inside their own wrappers.
+# See hooks/README.md.
 - name: Discover pre-install hooks
   ansible.builtin.set_fact:
     dotfiles_pre_hooks: "{{ query('ansible.builtin.fileglob', (test_hooks_dir | default(playbook_dir + '/hooks')) + '/*.pre.*') }}"
-    dotfiles_selected_keys: "{{ dotfiles_packages_selected | map(attribute='key') | list }}"
+    dotfiles_apt_keys: "{{ dotfiles_pkgs_apt | map(attribute='key') | list }}"
   tags:
     - packages
 
@@ -17,21 +20,11 @@
   tags:
     - packages
 
-- name: Run per-package pre-install hooks
+- name: Run apt pre-install hooks
   ansible.builtin.script: "{{ item }}"
-  loop: "{{ dotfiles_pre_hooks | reject('search', '/global\\.pre\\.') | reject('search', '\\.root\\.') | list }}"
-  when: (item | basename).split('.') | first in dotfiles_selected_keys
-  environment:
-    DOTFILES_USER: "{{ ansible_user_id }}"
-  changed_when: false
-  tags:
-    - packages
-
-- name: Run per-package pre-install hooks (root)
-  ansible.builtin.script: "{{ item }}"
-  loop: "{{ dotfiles_pre_hooks | reject('search', '/global\\.pre\\.') | select('search', '\\.root\\.') | list }}"
-  when: (item | basename).split('.') | first in dotfiles_selected_keys
-  become: true
+  loop: "{{ dotfiles_pre_hooks | reject('search', '/global\\.pre\\.') | list }}"
+  when: (item | basename).split('.') | first in dotfiles_apt_keys
+  become: "{{ '.root.' in (item | basename) }}"
   environment:
     DOTFILES_USER: "{{ ansible_user_id }}"
   changed_when: false

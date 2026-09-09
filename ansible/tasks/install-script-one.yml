@@ -1,0 +1,25 @@
+---
+# Expects `pkg` ({key, value} for one script entry). Pre-hook, install, post-hook.
+- name: Pre-hook for script installer
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: pre
+
+- name: Run script installer
+  ansible.builtin.shell:
+    # 09-19: script entries are one-off installers (fnm ships via the
+    # toolchain bootstrap above, which is the single source of truth).
+    # 09-09: the pipe target is per-entry (default bash) — starship's
+    # installer aborts under bash, so it overrides to sh.
+    cmd: "set -o pipefail && curl -fsSL {{ pkg.value.url | quote }} | {{ pkg.value.interpreter | default('bash', true) }} -s -- {{ pkg.value.args | default([]) | map('quote') | join(' ') }}"
+    executable: /bin/bash
+    creates: "{{ pkg.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
+  environment:
+    PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+
+- name: Post-hook for script installer
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: post

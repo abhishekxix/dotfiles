@@ -34,57 +34,44 @@
   tags:
     - packages
 
+# Per-package pre/post hooks wrap these loops via install-*-one.yml: each
+# entry runs pre-hook, install, post-hook in order (see hooks/README.md).
 - name: Install cargo crates
-  community.general.cargo:
-    name: "{{ item.value.crate }}"
-    # AI-26: quotes are REQUIRED (bare {{ }} is a YAML parse error);
-    # default(omit, true) also rescues empty-string/falsy values.
-    version: "{{ item.value.version | default(omit, true) }}"
-    features: "{{ item.value.features | default(omit, true) }}"
-    state: present
+  ansible.builtin.include_tasks:
+    file: tasks/install-cargo-one.yml
+    apply:
+      tags:
+        - packages
   loop: "{{ dotfiles_pkgs_cargo }}"
   loop_control:
-    label: "{{ item.value.crate }}"
-  environment:
-    # 09-18/09-22: resolve cargo via PATH (rustup ~/.cargo/bin first, then
-    # the inherited PATH which covers apt /usr/bin/cargo). Do NOT pin
-    # `executable:` to the rustup path — bootstrap may have been skipped
-    # because cargo already existed elsewhere.
-    PATH: "{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+    loop_var: pkg
+    label: "{{ pkg.value.crate }}"
   tags:
     - packages
 
 - name: Install global npm packages
-  community.general.npm:
-    name: "{{ item.value.package }}"
-    version: "{{ item.value.version | default(omit, true) }}"
-    global: true
-    state: present
-    # AI-10: resolve node/npm through the fnm-managed default alias.
-    executable: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin/npm"
+  ansible.builtin.include_tasks:
+    file: tasks/install-npm-one.yml
+    apply:
+      tags:
+        - packages
   loop: "{{ dotfiles_pkgs_npm }}"
   loop_control:
-    label: "{{ item.value.package }}"
-  environment:
-    # 09-22: ~/.cargo/bin added so a cargo-installed fnm is also found.
-    PATH: "{{ dotfiles_home }}/.local/share/fnm/aliases/default/bin:{{ dotfiles_home }}/.local/share/fnm:{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+    loop_var: pkg
+    label: "{{ pkg.value.package }}"
   tags:
     - packages
 
 - name: Run script installers
-  ansible.builtin.shell:
-    # 09-19: script entries are one-off installers (fnm ships via the
-    # toolchain bootstrap above, which is the single source of truth).
-    # 09-09: the pipe target is per-entry (default bash) — starship's
-    # installer aborts under bash, so it overrides to sh.
-    cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | {{ item.value.interpreter | default('bash', true) }} -s -- {{ item.value.args | default([]) | map('quote') | join(' ') }}"
-    executable: /bin/bash
-    creates: "{{ item.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
+  ansible.builtin.include_tasks:
+    file: tasks/install-script-one.yml
+    apply:
+      tags:
+        - packages
   loop: "{{ dotfiles_pkgs_script }}"
   loop_control:
-    label: "{{ item.key }}"
-  environment:
-    PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+    loop_var: pkg
+    label: "{{ pkg.key }}"
   tags:
     - packages
 
@@ -124,24 +111,16 @@
   tags:
     - packages
 
-- name: Download deb packages
-  ansible.builtin.get_url:
-    url: "{{ item.value.url }}"
-    dest: "{{ dotfiles_home }}/.cache/dotfiles-debs/{{ item.key }}.deb"
-    mode: "0644"
+- name: Download and install deb packages
+  ansible.builtin.include_tasks:
+    file: tasks/install-deb-one.yml
+    apply:
+      tags:
+        - packages
   loop: "{{ dotfiles_pkgs_deb }}"
   loop_control:
-    label: "{{ item.key }}"
-  tags:
-    - packages
-
-- name: Install deb packages
-  become: true
-  ansible.builtin.apt:
-    deb: "{{ dotfiles_home }}/.cache/dotfiles-debs/{{ item.key }}.deb"
-  loop: "{{ dotfiles_pkgs_deb }}"
-  loop_control:
-    label: "{{ item.key }}"
+    loop_var: pkg
+    label: "{{ pkg.key }}"
   tags:
     - packages
 
@@ -174,19 +153,15 @@
     - packages
 
 - name: Extract archives
-  ansible.builtin.unarchive:
-    # AI-23: per-arch URL override (e.g. url_arm64), else the default url.
-    src: "{{ item.value['url_' + dotfiles_deb_arch] | default(item.value.url, true) }}"
-    dest: "{{ item.value.dest | regex_replace('^~/', dotfiles_home + '/') }}"
-    remote_src: true
-    creates: "{{ item.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
-    # AI-20/AI-32: strip-components is tar-only; never passed for .zip
-    # (case-insensitive, query-string tolerant). 09-14: test the same
-    # resolved per-arch URL that src: downloads, not the base url.
-    extra_opts: "{{ ['--strip-components=' + (item.value.strip | string)] if (item.value.strip is defined and (item.value['url_' + dotfiles_deb_arch] | default(item.value.url, true)) is not search('(?i)\\.zip($|\\?)')) else [] }}"
+  ansible.builtin.include_tasks:
+    file: tasks/install-archive-one.yml
+    apply:
+      tags:
+        - packages
   loop: "{{ dotfiles_pkgs_archive }}"
   loop_control:
-    label: "{{ item.key }}"
+    loop_var: pkg
+    label: "{{ pkg.key }}"
   tags:
     - packages
 
@@ -229,32 +204,19 @@
   tags:
     - packages
 
-- name: Clone git sources
-  ansible.builtin.git:
-    repo: "{{ item.value.repo }}"
-    dest: "{{ (item.value.dest | default('~/.local/src/' + item.key)) | regex_replace('^~/', dotfiles_home + '/') }}"
-    version: "{{ item.value.version | default(omit, true) }}"
-    # 09-15: a pinned version must NOT fetch on every run; only unpinned
-    # (floating) clones track the remote. Ansible coerces to bool.
-    update: "{{ item.value.version is not defined }}"
+- name: Clone git sources and run build steps
+  ansible.builtin.include_tasks:
+    file: tasks/install-git-one.yml
+    apply:
+      tags:
+        - packages
   loop: "{{ dotfiles_pkgs_git }}"
   loop_control:
-    label: "{{ item.key }}"
+    loop_var: pkg
+    label: "{{ pkg.key }}"
     index_var: dotfiles_git_idx
-  when: not (dotfiles_git_marker.results[dotfiles_git_idx].stat.exists | default(false))
-  tags:
-    - packages
-
-- name: Run git build steps
-  ansible.builtin.shell: "{{ build_step }}"
-  args:
-    chdir: "{{ (item.0.value.dest | default('~/.local/src/' + item.0.key)) | regex_replace('^~/', dotfiles_home + '/') }}"
-    creates: "{{ (item.1.creates | default(item.0.value.creates, true)) | regex_replace('^~/', dotfiles_home + '/') }}"
-  loop: "{{ dotfiles_pkgs_git | subelements('value.build', skip_missing=True) }}"
-  loop_control:
-    label: "{{ item.0.key }}: {{ item.1.cmd if item.1 is mapping else item.1 }}"
   vars:
-    build_step: "{{ item.1.cmd if item.1 is mapping else item.1 }}"
+    git_marker: "{{ dotfiles_git_marker.results[dotfiles_git_idx] }}"
   tags:
     - packages
 
@@ -273,15 +235,15 @@
     - packages
 
 - name: Install flatpak applications
-  become: true
-  community.general.flatpak:
-    name: "{{ item.value.package }}"
-    remote: "{{ item.value.remote }}"
-    state: present
-    method: system
+  ansible.builtin.include_tasks:
+    file: tasks/install-flatpak-one.yml
+    apply:
+      tags:
+        - packages
   loop: "{{ dotfiles_pkgs_flatpak }}"
   loop_control:
-    label: "{{ item.value.package }}"
+    loop_var: pkg
+    label: "{{ pkg.value.package }}"
   tags:
     - packages
 

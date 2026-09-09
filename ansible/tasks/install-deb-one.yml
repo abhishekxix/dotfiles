@@ -1,0 +1,24 @@
+---
+# Expects `pkg` ({key, value} for one deb entry). Pre-hook, download, install, post-hook.
+- name: Pre-hook for deb package
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: pre
+
+- name: Download deb package
+  ansible.builtin.get_url:
+    url: "{{ pkg.value.url }}"
+    dest: "{{ dotfiles_home }}/.cache/dotfiles-debs/{{ pkg.key }}.deb"
+    mode: "0644"
+
+- name: Install deb package
+  become: true
+  ansible.builtin.apt:
+    deb: "{{ dotfiles_home }}/.cache/dotfiles-debs/{{ pkg.key }}.deb"
+
+- name: Post-hook for deb package
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: post

@@ -1,0 +1,21 @@
+---
+# Expects `pkg` ({key, value} for one flatpak entry). Pre-hook, install, post-hook.
+- name: Pre-hook for flatpak application
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: pre
+
+- name: Install flatpak application
+  become: true
+  community.general.flatpak:
+    name: "{{ pkg.value.package }}"
+    remote: "{{ pkg.value.remote }}"
+    state: present
+    method: system
+
+- name: Post-hook for flatpak application
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: post
