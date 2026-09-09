@@ -21,15 +21,6 @@
 [column]
 	ui = auto
 
-[fetch]
-	prune = true
-
-[push]
-	autoSetupRemote = true
-
-[pull]
-	rebase = true
-
 [merge]
 	conflictstyle = diff3
 	tool = "nvim"
