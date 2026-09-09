@@ -37,9 +37,8 @@ Key facts:
    them. `keys = <leader>st → TodoTelescope` both lazy-loads and makes the
    plugin reachable.
 3. **opencode fully eager** (`opencode.lua:1`): no `cmd`/`keys`/`event` — pays
-   AI-plugin startup on every launch. Its keymaps are the lazy trigger.
-   (`<C-a>` hijack noted in audit but explicitly out of scope — muscle-memory
-   decision deferred to a keymap-review spec.)
+   AI-plugin startup on every launch. ~~Its keymaps are the lazy trigger.~~
+   **Update:** plugin removed entirely per user request (`76b0c35`) — moot.
 4. **mini.nvim fully eager** (`mini.lua:2`): loads ai/surround/indentscope/move/
    statusline at startup. `event = 'VeryLazy'` defers to after UI render;
    statusline appears on first paint either way (VeryLazy fires before first
@@ -47,8 +46,9 @@ Key facts:
 5. **neo-tree noise** (`neo-tree.lua:26-30`): `visible = true` +
    `hide_dotfiles = false` + `hide_gitignored = false` shows `.git/`,
    `node_modules/`, dotfiles — noise on every reveal. No `follow_current_file`
-   means `nvim <dir>/` never tracks. `filtered_items` fix is display-only;
-   `follow_current_file.enabled = true` changes reveal behavior (verify).
+   means `nvim <dir>/` never tracks.
+   **Update:** hide-filters reverted per user (`76b0c35`) — only
+   `follow_current_file.enabled = true` kept.
 6. **treesitter non-parser filetypes** (`autocommands.lua:13`): pattern from
    `langs.get_filetypes()` includes `zsh`, `yaml.docker-compose`,
    `javascriptreact` — none is a parser name, so `vim.treesitter.start()`
@@ -57,7 +57,8 @@ Key facts:
    (`vim.treesitter.language.add` / parser lookup), else skip silently.
 7. **which-key gaps** (`which-key.lua:10-18`): groups exist for c/d/r/s/w/t/h/m/p
    but slice 1 added `<leader>f` (format), `<leader>tf`, `<leader>tc`
-   (copilot) with no groups — popup shows them ungrouped. Add `f` group.
+   (copilot) with no groups — popup shows them ungrouped.
+   **Update:** `f` group reverted per user (`76b0c35`) — ungrouped again.
 8. **lint staleness** (`lint.lua:11`): autocmd misses `TextChanged` — eslint /
    shellcheck results go stale while editing without save. Cheap add.
    (`BufEnter` over-firing noted in audit but harmless; leave it.)
@@ -97,14 +98,17 @@ Each step maps to exactly one commit, named `NVIM(<NN>): <summary>`.
 - **Acceptance:**
   - [ ] plugin not loaded at startup; `<leader>st` works
 
-### 03 — Lazy-load opencode on its keys
+### 03 — Lazy-load opencode on its keys (REVERTED per user: plugin removed)
 
-- **Files:** `lua/plugins/opencode.lua` (EDIT)
-- **Changes:** move the existing `vim.keymap.set` calls into a lazy.nvim
-  `keys` table (same lhs/rhs/desc). No binding changes.
-- **Test:** startup assert for `opencode`; trigger one binding manually
+- **Files:** `lua/plugins/opencode.lua` (DELETE)
+- **Changes:** ~~move the existing `vim.keymap.set` calls into a lazy.nvim
+  `keys` table~~ — plugin removed entirely in `76b0c35` per user request;
+  all 6 bindings gone with it. (The `opencode` CLI entry in
+  `ansible/vars/packages.json` and the `lazy-lock.json` entry are untouched —
+  the binary still installs, `lazy-lock.json` regenerates via `:Lazy sync`.)
+- **Test:** n/a (reverted)
 - **Acceptance:**
-  - [ ] plugin not loaded at startup; all existing bindings work unchanged
+  - [x] reverted — plugin spec deleted, no opencode bindings
 
 ### 04 — Defer mini.nvim to VeryLazy
 
@@ -114,15 +118,15 @@ Each step maps to exactly one commit, named `NVIM(<NN>): <summary>`.
 - **Acceptance:**
   - [ ] statusline renders normally; mini loads post-startup
 
-### 05 — Neo-tree follow + hide noise
+### 05 — Neo-tree follow (hide-filters REVERTED per user)
 
 - **Files:** `lua/plugins/neo-tree.lua` (EDIT)
-- **Changes:** `follow_current_file.enabled = true`; `hide_dotfiles = true`,
-  `hide_gitignored = true` (keep `visible = true` so they're one keystroke
-  away with `H`).
-- **Test:** open `nvim <dir>/file`, confirm tree reveals and tracks; `.git/` hidden until `H`
+- **Changes:** `follow_current_file.enabled = true` (kept).
+  ~~`hide_dotfiles = true`, `hide_gitignored = true`~~ — reverted in `76b0c35`;
+  both back to `false` (noise visible again).
+- **Test:** open `nvim <dir>/file`, confirm tree reveals and tracks
 - **Acceptance:**
-  - [ ] tree follows current file; ignored/dotfiles hidden by default, toggleable
+  - [ ] tree follows current file; dotfiles/gitignored shown (main behavior)
 
 ### 06 — Guard treesitter start to real parsers
 
@@ -135,20 +139,22 @@ Each step maps to exactly one commit, named `NVIM(<NN>): <summary>`.
 - **Acceptance:**
   - [ ] no error spam on parser-less filetypes; highlighting intact elsewhere
 
-### 07 — which-key format group + lint on TextChanged
+### 07 — lint on TextChanged (which-key group REVERTED per user)
 
-- **Files:** `lua/plugins/which-key.lua` (EDIT), `lua/plugins/lint.lua` (EDIT)
-- **Changes:** add `{ '<leader>f', group = '[F]ormat' }` (covers `<leader>f`
-  and `<leader>tf`). Add `TextChanged` to the lint autocmd events.
-- **Test:** `:checkhealth which-key` clean; edit a `.sh` file without saving, confirm lint refreshes
+- **Files:** `lua/plugins/lint.lua` (EDIT) — `lua/plugins/which-key.lua` reverted
+- **Changes:** Add `TextChanged` to the lint autocmd events (kept).
+  ~~Add `{ '<leader>f', group = '[F]ormat' }`~~ — reverted in `76b0c35`;
+  `<leader>f`/`<leader>tf` ungrouped in popup again.
+- **Test:** edit a `.sh` file without saving, confirm lint refreshes
 - **Acceptance:**
-  - [ ] `<leader>f` grouped in popup; lint no longer stale mid-edit
+  - [ ] lint no longer stale mid-edit; no which-key change vs `main`
 
 ## Risks & Rollback
 
-- **Lazy-loading (steps 01–04):** if a `keys` entry is mistyped, the binding
+- **Lazy-loading (steps 01–02, 04):** if a `keys` entry is mistyped, the binding
   silently vanishes. Mitigation: the acceptance check presses every moved
-  binding. Rollback: `git revert` restores the event.
+  binding. Rollback: `git revert` restores the event. (Step 03 moot — plugin
+  deleted.)
 - **mini VeryLazy (step 04):** statusline could flash on slow machines —
   verify visually; revert if so.
 - **neo-tree follow (step 05):** changes reveal behavior (`nvim <dir>/`
