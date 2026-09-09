@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Component | ANSIBLE |
 | Created | 2026-09-09 |
 
@@ -47,7 +47,7 @@ working while `packages.json` only lists tools the user chose.
 
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
-- [ ] 01 — drop indicator host, move client libs to qtile deps (01-tray-deps.md)
+- [x] 01 — drop indicator host, move client libs to qtile deps (01-tray-deps.md)
 
 ## Risks & Rollback
 

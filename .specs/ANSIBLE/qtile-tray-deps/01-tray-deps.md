@@ -17,11 +17,11 @@
   --diff --skip-tags packages ansible/playbook.yml` parses cleanly with the
   "Validate package and build-deps manifests" task green.
 - **Acceptance:**
-  - [ ] `jq 'has("ayatana-indicator-application")' ansible/vars/packages.json`
+  - [x] `jq 'has("ayatana-indicator-application")' ansible/vars/packages.json`
         → `false`, and likewise for `libayatana-appindicator3-1` and
         `gir1.2-ayatanaappindicator3-0.1`.
-  - [ ] `jq '.qtile' ansible/vars/package-deps.json` includes both
+  - [x] `jq '.qtile' ansible/vars/package-deps.json` includes both
         `gir1.2-ayatanaappindicator3-0.1` and `libayatana-appindicator3-1`
         alongside the existing four entries.
-  - [ ] Both files remain lexically ordered (top-level keys; `qtile` dep list
+  - [x] Both files remain lexically ordered (top-level keys; `qtile` dep list
         sorted).
