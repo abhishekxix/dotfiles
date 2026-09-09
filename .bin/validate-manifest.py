@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -9,6 +10,8 @@ PACKAGES_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "packages.json")
 DEPS_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "package-deps.json")
 REPOS_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "repos.json")
 FLATPAK_REMOTES_PATH = os.path.join(REPO_ROOT, "ansible", "vars", "flatpak-remotes.json")
+HOOKS_DIR = os.path.join(REPO_ROOT, "ansible", "hooks")
+HOOK_RE = re.compile(r"^([^.]+)\.(pre|post)(\.root)?\.(sh|py)$")
 
 SOURCES = {"apt", "cargo", "flatpak", "npm", "script", "deb", "archive", "git"}
 PROFILES = {"workstation", "server"}
@@ -141,6 +144,35 @@ def validate_flatpak_remotes(remotes, errors):
             )
 
 
+def validate_hooks(packages, hooks_dir, errors):
+    try:
+        names = sorted(os.listdir(hooks_dir))
+    except FileNotFoundError:
+        return
+    except OSError as exc:
+        errors.append(f"hooks: cannot list ({exc.strerror})")
+        return
+    for name in names:
+        if name == "README.md":
+            continue
+        path = os.path.join(hooks_dir, name)
+        if not os.path.isfile(path):
+            continue
+        m = HOOK_RE.match(name)
+        if not m:
+            errors.append(
+                f"hooks: '{name}': must match <key>.<pre|post>[.root].<sh|py>"
+            )
+            continue
+        key = m.group(1)
+        if key != "global" and key not in packages:
+            errors.append(
+                f"hooks: '{name}': orphan key '{key}' (no such package in packages.json)"
+            )
+        if not os.access(path, os.X_OK):
+            errors.append(f"hooks: '{name}': not executable (chmod +x)")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="validate-manifest.py",
@@ -150,6 +182,7 @@ def main():
     parser.add_argument("--deps", default=DEPS_PATH)
     parser.add_argument("--repos", default=REPOS_PATH)
     parser.add_argument("--flatpak-remotes", default=FLATPAK_REMOTES_PATH)
+    parser.add_argument("--hooks", default=HOOKS_DIR)
     args = parser.parse_args()
 
     packages = load(args.packages)
@@ -164,6 +197,7 @@ def main():
     validate_packages(packages, repos, flatpak_remotes, errors)
     validate_deps(deps, packages, errors)
     validate_flatpak_remotes(flatpak_remotes, errors)
+    validate_hooks(packages, args.hooks, errors)
     for err in errors:
         print(err, file=sys.stderr)
     if errors:
