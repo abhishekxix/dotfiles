@@ -18,18 +18,11 @@ HISTCONTROL=ignoredups:erasedups
 shopt -s histappend histverify 2>/dev/null
 
 alias ls='ls --color=auto'
-alias cp='cp -i'
-alias mv='mv -i'
-alias rm='rm -i'
 PS1='[\u@\h \W]\$ '
 
-# fnm owns node (lazy: env only on first node/fnm use; replaces system nvm)
+# fnm setup
 if command -v fnm >/dev/null 2>&1; then
-  _fnm_lazy() { unset -f node npm npx fnm 2>/dev/null; eval "$(fnm env --use-on-cd --shell bash)"; }
-  node() { _fnm_lazy; node "$@"; }
-  npm() { _fnm_lazy; npm "$@"; }
-  npx() { _fnm_lazy; npx "$@"; }
-  fnm() { _fnm_lazy; fnm "$@"; }
+  eval "$(fnm env --use-on-cd --shell bash)"
 fi
 
 # bash-completion when installed

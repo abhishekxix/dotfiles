@@ -13,7 +13,7 @@ set -o pushd_ignore_dups
 set -o pushdminus
 
 # env variables.
-export EDITOR=nvim
+export EDITOR=vim
 export WINIT_X11_SCALE_FACTOR=1
 
 # keybinds
@@ -37,10 +37,6 @@ source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # ### aliases ###
 alias ls='ls --color=auto'
-alias cp='cp -i'
-alias mv='mv -i'
-alias rm='rm -i'
-alias mkdir='mkdir -pv'
 
 # Functions
 help() {
@@ -62,11 +58,7 @@ export FZF_DEFAULT_OPTS="--info=inline --preview '$(_bat_preview)' --border --ma
 # Starship setup
 eval "$(starship init zsh)"
 
-# fnm setup (lazy: env only on first node/fnm use)
+# fnm setup
 if command -v fnm >/dev/null 2>&1; then
-  _fnm_lazy() { unfunction node npm npx fnm 2>/dev/null; eval "$(fnm env --use-on-cd --shell zsh)"; }
-  node() { _fnm_lazy; node "$@"; }
-  npm() { _fnm_lazy; npm "$@"; }
-  npx() { _fnm_lazy; npx "$@"; }
-  fnm() { _fnm_lazy; fnm "$@"; }
+  eval "$(fnm env --use-on-cd --shell zsh)"
 fi
