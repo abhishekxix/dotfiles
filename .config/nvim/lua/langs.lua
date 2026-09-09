@@ -42,7 +42,7 @@ M.language_config = {
     linters = { 'stylelint' },
   },
   { ft = 'diff', parser = 'diff' },
-  { ft = 'html', parser = 'html' },
+  { ft = 'html', parser = 'html', formatters = { 'prettier' } },
   {
     ft = 'javascript',
     parser = 'javascript',
@@ -62,11 +62,12 @@ M.language_config = {
     servers = { 'lua_ls' },
     formatters = { 'stylua' },
   },
-  { ft = 'markdown', parser = 'markdown' },
+  { ft = 'markdown', parser = 'markdown', formatters = { 'prettier' } },
   {
     ft = 'php',
     parser = 'php',
     servers = { 'phpactor' },
+    formatters = { 'prettier' },
   },
   {
     ft = 'python',

@@ -6,6 +6,45 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Equalize splits when the terminal window is resized.
+vim.api.nvim_create_autocmd('VimResized', {
+  desc = 'Equalize splits on terminal resize',
+  group = vim.api.nvim_create_augroup('as-resize-splits', { clear = true }),
+  callback = function()
+    vim.cmd 'wincmd ='
+  end,
+})
+
+-- Reload files changed on disk when regaining focus or entering a buffer.
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
+  desc = 'Reload file changed on disk',
+  group = vim.api.nvim_create_augroup('as-checktime', { clear = true }),
+  command = 'checktime',
+})
+
+-- Jump to the last cursor position when reopening a file.
+vim.api.nvim_create_autocmd('BufReadPost', {
+  desc = 'Jump to last cursor position',
+  group = vim.api.nvim_create_augroup('as-last-place', { clear = true }),
+  callback = function(args)
+    local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
+    local lines = vim.api.nvim_buf_line_count(args.buf)
+    if mark[1] > 0 and mark[1] <= lines then
+      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
+  end,
+})
+
+-- `q` closes help and quickfix buffers.
+vim.api.nvim_create_autocmd('FileType', {
+  desc = 'q closes help/quickfix',
+  group = vim.api.nvim_create_augroup('as-q-close', { clear = true }),
+  pattern = { 'help', 'qf' },
+  callback = function(args)
+    vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = args.buf, silent = true })
+  end,
+})
+
 -- Enable treesitter highlighting + folds for filetypes that have a parser.
 -- (Parser install list lives in plugins/nvim-treesitter.lua.)
 local langs = require 'langs'
