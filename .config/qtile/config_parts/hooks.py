@@ -15,7 +15,7 @@ def autostart():
 
 @hook.subscribe.client_new
 def bring_to_current_group(window):
-    if "copyq" in window.get_wm_class():
+    if "copyq" in (window.get_wm_class() or []):
         group = qtile.current_group
 
         if window.group != group:
