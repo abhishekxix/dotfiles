@@ -9,7 +9,8 @@ from libqtile import hook, qtile
 @hook.subscribe.startup_once
 def autostart():
     autostart_script = os.path.expanduser("~/.config/qtile/autostart.sh")
-    subprocess.run([autostart_script])
+    # Fire-and-forget: don't block WM startup on slow xrandr/tray apps.
+    subprocess.Popen([autostart_script])
 
 
 @hook.subscribe.client_new
