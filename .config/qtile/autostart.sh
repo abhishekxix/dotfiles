@@ -10,7 +10,9 @@ gnome-keyring-daemon --start --login --components=pkcs11,secrets,ssh &
 
 # Monitor layout via the step-01 helper: same generic logic as the hotplug
 # hook (internal primary @ max rate, externals left of it, --auto fallback).
-python3 "$HOME/.config/qtile/config_parts/monitors.py" &
+# Foreground: xwallpaper below must paint after the framebuffer settles,
+# or the image lands on stale geometry (smeared panel).
+python3 "$HOME/.config/qtile/config_parts/monitors.py"
 
 export WINIT_X11_SCALE_FACTOR=1
 
