@@ -116,7 +116,9 @@
     # toolchain bootstrap above, which is the single source of truth).
     # 09-09: the pipe target is per-entry (default bash) — starship's
     # installer aborts under bash, so it overrides to sh.
-    cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | {{ item.value.interpreter | default('bash', true) }} -s -- {{ item.value.args | default([]) | map('quote') | join(' ') }}"
+    # 09-09: leading ~/ in args is expanded (quoting suppresses shell
+    # tilde expansion), mirroring the creates expansion below.
+    cmd: "set -o pipefail && curl -fsSL {{ item.value.url | quote }} | {{ item.value.interpreter | default('bash', true) }} -s -- {{ item.value.args | default([]) | map('regex_replace', '^~/', dotfiles_home + '/') | map('quote') | join(' ') }}"
     executable: /bin/bash
     creates: "{{ item.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
   loop: "{{ dotfiles_pkgs_script }}"
