@@ -28,5 +28,11 @@ if [[ ${wallpaper,,} == *.svg ]]; then
   exit 1
 fi
 
-xwallpaper --stretch "$wallpaper"
+# --zoom crops to fill per-output (aspect kept); --stretch smears one
+# 16:9 image across the whole 4480x1440 framebuffer (the bug in #2's photo).
+args=()
+while IFS= read -r out; do
+  args+=(--output "$out" --zoom "$wallpaper")
+done < <(xrandr --query | awk '/ connected/{print $1}')
+xwallpaper "${args[@]}"
 printf '%s\n' "$wallpaper" >"$state_file"

@@ -31,9 +31,16 @@ try_launch blueman-applet
 try_launch xscreensaver --nosplash
 # try_launch mictray
 
-# Wallpaper list may not exist (fresh install); -r runs nothing on empty input.
+# Per-output --zoom (aspect kept); --stretch smears one image across the
+# whole framebuffer. Empty/missing state file runs nothing (-r).
 if [ -s "$HOME/.xwallpaper" ]; then
-  xargs -r xwallpaper --stretch <"$HOME/.xwallpaper" &
+  wallpaper=$(cat "$HOME/.xwallpaper")
+  wp_args=""
+  for out in $(xrandr --query | awk '/ connected/{print $1}'); do
+    wp_args="$wp_args --output $out --zoom $wallpaper"
+  done
+  # shellcheck disable=SC2086
+  xwallpaper $wp_args &
 fi
 
 # Echo-cancel: skip if already loaded (login is not idempotent-safe),
