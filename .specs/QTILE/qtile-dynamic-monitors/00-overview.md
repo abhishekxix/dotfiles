@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Component | QTILE |
 | Created | 2026-09-09 |
 
@@ -105,7 +105,7 @@ Each step maps to exactly one commit, named `QTILE(<NN>): <summary>`.
   confirm single bar with all 10 groups on internal; replug, confirm two
   bars (5+5) without manual sorting
 - **Acceptance:**
-  - [ ] unplug → one Screen, all 10 groups visible on internal; replug → two Screens, 1-5 internal, a-g external; no manual `toscreen()` needed
+  - [x] unplug → one Screen, all 10 groups visible on internal; replug → two Screens, 1-5 internal, a-g external; no manual `toscreen()` needed (confirmed 2026-09-09 live; hook re-shows 1/a after placement)
 
 ### 03 — Replace static xrandr guard in autostart
 
@@ -115,7 +115,7 @@ Each step maps to exactly one commit, named `QTILE(<NN>): <summary>`.
   one code path, not two).
 - **Test:** `bash -n autostart.sh`; logout/login with and without external, confirm layout correct both ways
 - **Acceptance:**
-  - [ ] login-time layout identical to hotplug layout; no duplicated xrandr logic
+  - [x] login-time layout identical to hotplug layout; no duplicated xrandr logic (confirmed 2026-09-09 live: dual login, solo login, disconnect, reconnect, solo→dual — all converge; wallpaper race fixed by foreground monitor layout in 8f255c0)
 
 ### 04 — hotplug hardening: stale framebuffer + hook convergence guards
 
@@ -128,10 +128,22 @@ Each step maps to exactly one commit, named `QTILE(<NN>): <summary>`.
   already solo-sized. `configure_monitors()` returns True only if an xrandr
   command actually succeeded (a rejected `--fb` reports False so the hook
   falls through to group placement instead of early-returning every event).
-  Hook: re-entry lock + 5s cooldown + at most one `reload_config()` per plug
-  state (RandR events cascade; without these configure→event→reload never
-  converges). If our own xrandr change succeeded, return early — placement +
-  reload happen on the follow-up event against qtile's rebuilt screen list.
+  Hook: re-entry lock only — no cooldown (the earlier 5s cooldown ate the
+  follow-up RandR event our own xrandr fires in the same second, so
+  placement + reload never ran after replug) and no per-plug-state reload
+  guard (reload fires only on screen-count change, which already converges).
+  If our own xrandr change succeeded, return early — placement + reload
+  happen on the follow-up event against qtile's rebuilt screen list —
+  except when the screen count already matches (driver applied geometry
+  synchronously), in which case fall through instead of waiting for an
+  event that may never come. Group placement is by geometry, not index:
+  new `current_rects()` helper parses `xrandr --listmonitors` output
+  (CRTC order — panel first on this host — which matches qtile's own
+  screen enumeration; a left-to-right sort would put the external first
+  and swap the bars). The hook maps each rect to its `qtile.screens`
+  index by geometry and sends primary groups to the panel index,
+  secondary groups to the external index. `build_screens` keeps panel
+  first for the same reason (comment-only change in `screens.py`).
   Canned-query `_selfcheck()` (`--selfcheck`): dual/fixed-solo no-op,
   broken-solo → fb-only and never `--off`, rc-aware configure.
 - **Test:** `python3 .config/qtile/config_parts/monitors.py --selfcheck`;
@@ -140,7 +152,7 @@ Each step maps to exactly one commit, named `QTILE(<NN>): <summary>`.
 - **Acceptance:**
   - [x] selfcheck passes (dual/fixed no-op, broken→fb-only, rc-aware);
     no `--off` emitted in any plan
-  - [ ] live unplug → one Screen converges without a reload loop; replug → two Screens
+  - [x] live unplug → one Screen converges without a reload loop; replug → two Screens (confirmed 2026-09-09 live)
 
 ## Risks & Rollback
 
