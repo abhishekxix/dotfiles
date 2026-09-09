@@ -2,7 +2,6 @@
 
 configuration {
   modes: "drun,run,window,ssh";
-  font: "Iosevka Nerd Font 11";
   show-icons: true;
   sidebar-mode: true;
   lines: 12;
