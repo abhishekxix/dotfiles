@@ -51,13 +51,6 @@ return {
       filetypes = { 'bash', 'sh', 'zsh' },
     })
 
-    -- Hide the inline virtual text (one-time global setting, not per-attach).
-    vim.diagnostic.config { virtual_text = false }
-
-    -- Created once: clear = true inside the attach callback would wipe
-    -- handlers registered by earlier attaches.
-    vim.api.nvim_create_augroup('as-lsp-detach', { clear = true })
-
     -- LSP keymaps + document highlight + inlay hints, attached per buffer.
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('as-lsp-attach', { clear = true }),
@@ -78,6 +71,9 @@ return {
         map('<leader>cd', vim.diagnostic.open_float, '[C]ode [d]iagnostic')
         map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
+        -- Hide the inline virtual text
+        vim.diagnostic.config { virtual_text = false }
+
         local client = vim.lsp.get_client_by_id(event.data.client_id)
 
         if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
@@ -93,7 +89,7 @@ return {
             callback = vim.lsp.buf.clear_references,
           })
           vim.api.nvim_create_autocmd('LspDetach', {
-            group = 'as-lsp-detach',
+            group = vim.api.nvim_create_augroup('as-lsp-detach', { clear = true }),
             callback = function(event2)
               vim.lsp.buf.clear_references()
               vim.api.nvim_clear_autocmds { group = 'as-lsp-highlight', buffer = event2.buf }
