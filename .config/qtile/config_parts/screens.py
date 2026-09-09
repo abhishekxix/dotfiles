@@ -144,7 +144,20 @@ def _build_screen(my_config_dict, colors, visible_groups, primary=False):
     )
 
 
+def _has_external():
+    """True when an external output is connected (checked at config load)."""
+    from config_parts.monitors import connected_outputs, external_outputs
+
+    try:
+        return bool(external_outputs(connected_outputs()))
+    except Exception:
+        return True  # fail open: keep the two-screen layout
+
+
 def build_screens(my_config_dict, colors):
+    if not _has_external():
+        # Solo internal panel: one bar showing all 10 groups.
+        return [_build_screen(my_config_dict, colors, list("12345asdfg"), True)]
     return [
         _build_screen(my_config_dict, colors, ["1", "2", "3", "4", "5"], True),
         _build_screen(my_config_dict, colors, ["a", "s", "d", "f", "g"]),

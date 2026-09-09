@@ -8,13 +8,11 @@ SECONDARY_GROUPS = "asdfg"
 
 
 def build_groups():
-    groups = [Group(name, screen_affinity=0) for name in PRIMARY_GROUPS]
-    groups.extend(
-        [
-            Group(name, screen_affinity=1, label=name.lower())
-            for name in SECONDARY_GROUPS
-        ]
-    )
+    # No screen_affinity: the screen_change hook owns placement (screen 1
+    # when an external is connected, screen 0 when solo). Static affinity
+    # would fight single-screen toscreen().
+    groups = [Group(name) for name in PRIMARY_GROUPS]
+    groups.extend([Group(name, label=name.lower()) for name in SECONDARY_GROUPS])
     return groups
 
 
