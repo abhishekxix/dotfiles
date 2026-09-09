@@ -22,10 +22,20 @@ This repo is spec-driven. **Before writing any code:**
    and tick off acceptance criteria as they pass.
 3. If none exists, read `.specs/README.md` and draft a new spec from
    `.specs/TEMPLATE.md` under `.specs/<COMPONENT>/<slug>/`, then get approval
-   **before** implementing.
+   **before** implementing. Flip the spec's Status to `Approved` on sign-off —
+   the spec text is frozen from there; further changes need re-approval.
 
 Do not skip the spec step for multi-file or non-trivial changes. If in doubt,
 write a spec.
+
+**Spec format precedence.** This repo's `.specs/` format (frontmatter table,
+Goal / Context / Non-goals / Steps with Files + Changes + Test + Acceptance,
+Risks & Rollback) is authoritative here. Generic plugin spec/skills formats
+(e.g. superpowers brainstorming's `docs/superpowers/specs/` layout) do NOT
+apply: when a plugin skill prescribes its own spec location or structure,
+follow `.specs/README.md` + `.specs/TEMPLATE.md` instead, and treat the
+plugin's spec-writing step as satisfied by the `.specs/` file. Implementation
+plans still live where the executing skill expects them.
 
 ## Components
 

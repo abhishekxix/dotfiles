@@ -2,9 +2,13 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning | In progress | Done |
+| Status | Planning \| Approved \| In progress \| Done |
 | Component | NVIM \| QTILE \| WEZTERM \| CONFIG \| INSTALLER \| ANSIBLE |
-| Created | YYYY-MM-DD |
+
+> Status lifecycle: `Planning` (draft, may still change) → `Approved`
+> (reviewer signed off; spec text frozen — further changes need re-approval) →
+> `In progress` → `Done`. The writing-plans skill reads the Approved spec and
+> produces the implementation plan from it.
 
 ## Goal
 
@@ -24,17 +28,25 @@ What we explicitly will **NOT** do (keeps scope tight, prevents creep).
 
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
+Describe *what* changes and *why* — files, behavior, rationale. Keep exact
+code out of the spec: for anything over ~3 files, verbatim snippets live in
+the implementation plan (writing-plans demands exact values there), not here.
+When spec and plan disagree on code, the plan wins for code, the spec wins
+for intent.
+
 ### 01 — <topic>
 
 - **Files:** `path/to/file` (CREATE | EDIT | DELETE)
 - **Changes:** what changes and why.
+- **Test:** the command that proves it (e.g. `pytest tests/x -v`, `shellcheck f.sh`)
 - **Acceptance:**
-  - [ ] verifiable assertion (a test command, a `:checkhealth`, a behavior check)
+  - [ ] verifiable assertion (a behavior check that the Test command must show)
 
 ### 02 — <topic>
 
 - **Files:** `path/to/file` (CREATE | EDIT | DELETE)
 - **Changes:** what changes and why.
+- **Test:** the command that proves it
 - **Acceptance:**
   - [ ] verifiable assertion
 

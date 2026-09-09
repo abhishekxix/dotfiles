@@ -26,9 +26,11 @@ Rules:
 ## Lifecycle
 
 1. **Plan** — copy `TEMPLATE.md`, fill in Goal / Context / Non-goals / Steps.
-   Do not write code in this stage.
+   Do not write code in this stage. Keep exact code out of the spec (see
+   TEMPLATE.md); verbatim snippets belong in the implementation plan.
 2. **Approve** — get sign-off on the spec before implementing (a PR comment,
-   a chat confirmation, whatever you normally do).
+   a chat confirmation, whatever you normally do), then flip Status to
+   `Approved`. The text is frozen from here; edits need re-approval.
 3. **Implement** — one commit per step, named `<COMPONENT>(<NN>): <summary>`
    (matching existing history, e.g. `NVIM(03): ...`, `QTILE: ...`).
 4. **Verify** — check off each step's acceptance criteria *before* committing.

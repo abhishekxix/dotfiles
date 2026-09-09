@@ -1,0 +1,28 @@
+---
+# Expects `pkg` ({key, value} for one cargo entry). Pre-hook, install, post-hook.
+- name: Pre-hook for cargo package
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: pre
+
+- name: Install cargo crate
+  community.general.cargo:
+    name: "{{ pkg.value.crate }}"
+    # AI-26: quotes are REQUIRED (bare {{ }} is a YAML parse error);
+    # default(omit, true) also rescues empty-string/falsy values.
+    version: "{{ pkg.value.version | default(omit, true) }}"
+    features: "{{ pkg.value.features | default(omit, true) }}"
+    state: present
+  environment:
+    # 09-18/09-22: resolve cargo via PATH (rustup ~/.cargo/bin first, then
+    # the inherited PATH which covers apt /usr/bin/cargo). Do NOT pin
+    # `executable:` to the rustup path — bootstrap may have been skipped
+    # because cargo already existed elsewhere.
+    PATH: "{{ dotfiles_home }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+
+- name: Post-hook for cargo package
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: post

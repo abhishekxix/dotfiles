@@ -1,0 +1,32 @@
+---
+# -- Package installer hooks (post) -------------------------------------
+# Runs after all installs: every selected apt key's post-hook (the apt
+# transaction is one batch, so its post-hooks run at the end), then
+# global.post.* once. Looping sources get true per-package post-hooks
+# inside their own wrappers. See hooks/README.md.
+- name: Discover post-install hooks
+  ansible.builtin.set_fact:
+    dotfiles_post_hooks: "{{ query('ansible.builtin.fileglob', (test_hooks_dir | default(playbook_dir + '/hooks')) + '/*.post.*') }}"
+    dotfiles_apt_keys: "{{ dotfiles_pkgs_apt | map(attribute='key') | list }}"
+  tags:
+    - packages
+
+- name: Run apt post-install hooks
+  ansible.builtin.script: "{{ item }}"
+  loop: "{{ dotfiles_post_hooks | reject('search', '/global\\.post\\.') | list }}"
+  when: (item | basename).split('.') | first in dotfiles_apt_keys
+  become: "{{ '.root.' in (item | basename) }}"
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  changed_when: false
+  tags:
+    - packages
+
+- name: Run global post-install hook
+  ansible.builtin.script: "{{ item }}"
+  loop: "{{ dotfiles_post_hooks | select('search', '/global\\.post\\.') | list }}"
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  changed_when: false
+  tags:
+    - packages

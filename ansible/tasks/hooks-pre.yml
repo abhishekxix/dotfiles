@@ -1,0 +1,32 @@
+---
+# -- Package installer hooks (pre) --------------------------------------
+# Runs before any install: global.pre.* once, then every selected apt key's
+# pre-hook (the apt transaction is one batch, so its pre-hooks run up front).
+# Looping sources get true per-package pre-hooks inside their own wrappers.
+# See hooks/README.md.
+- name: Discover pre-install hooks
+  ansible.builtin.set_fact:
+    dotfiles_pre_hooks: "{{ query('ansible.builtin.fileglob', (test_hooks_dir | default(playbook_dir + '/hooks')) + '/*.pre.*') }}"
+    dotfiles_apt_keys: "{{ dotfiles_pkgs_apt | map(attribute='key') | list }}"
+  tags:
+    - packages
+
+- name: Run global pre-install hook
+  ansible.builtin.script: "{{ item }}"
+  loop: "{{ dotfiles_pre_hooks | select('search', '/global\\.pre\\.') | list }}"
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  changed_when: false
+  tags:
+    - packages
+
+- name: Run apt pre-install hooks
+  ansible.builtin.script: "{{ item }}"
+  loop: "{{ dotfiles_pre_hooks | reject('search', '/global\\.pre\\.') | list }}"
+  when: (item | basename).split('.') | first in dotfiles_apt_keys
+  become: "{{ '.root.' in (item | basename) }}"
+  environment:
+    DOTFILES_USER: "{{ ansible_user_id }}"
+  changed_when: false
+  tags:
+    - packages

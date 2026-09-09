@@ -1,0 +1,36 @@
+---
+# Expects `pkg` ({key, value} for one git entry) and `git_marker`
+# (matching result from the marker stat above). Pre-hook, clone, build steps, post-hook.
+- name: Pre-hook for git source
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: pre
+
+- name: Clone git source
+  ansible.builtin.git:
+    repo: "{{ pkg.value.repo }}"
+    dest: "{{ (pkg.value.dest | default('~/.local/src/' + pkg.key)) | regex_replace('^~/', dotfiles_home + '/') }}"
+    version: "{{ pkg.value.version | default(omit, true) }}"
+    # 09-15: a pinned version must NOT fetch on every run; only unpinned
+    # (floating) clones track the remote. Ansible coerces to bool.
+    update: "{{ pkg.value.version is not defined }}"
+  when: not (git_marker.stat.exists | default(false))
+
+- name: Run git build steps
+  ansible.builtin.shell: "{{ build_step }}"
+  args:
+    chdir: "{{ (pkg.value.dest | default('~/.local/src/' + pkg.key)) | regex_replace('^~/', dotfiles_home + '/') }}"
+    creates: "{{ (build_item.creates | default(pkg.value.creates, true)) | regex_replace('^~/', dotfiles_home + '/') }}"
+  loop: "{{ pkg.value.build | default([]) }}"
+  loop_control:
+    loop_var: build_item
+    label: "{{ pkg.key }}: {{ build_item.cmd if build_item is mapping else build_item }}"
+  vars:
+    build_step: "{{ build_item.cmd if build_item is mapping else build_item }}"
+
+- name: Post-hook for git source
+  ansible.builtin.include_tasks: tasks/hook-one.yml
+  vars:
+    hook_key: "{{ pkg.key }}"
+    hook_phase: post
