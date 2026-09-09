@@ -45,7 +45,3 @@ WINIT_X11_SCALE_FACTOR = "1"
 
 [general]
 import = ["~/.config/alacritty/themes/catppuccin_mocha.toml"]
-
-[scrolling]
-history = 50000
-multiplier = 3
