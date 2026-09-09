@@ -67,15 +67,14 @@ Key facts informing the plan:
 
 Each step maps to exactly one commit, named `NVIM(<NN>): <summary>`.
 
-### 01 — Core editing keymaps
+### 01 — Core editing keymaps (REVERTED per user: no keymaps.lua changes)
 
 - **Files:** `lua/keymaps.lua` (EDIT)
-- **Changes:** add save (`<leader>w`, `<C-s>` in n/i/v), buffer delete
-  (`<leader>bd`, `<leader>x`), diagnostic jumps (`[d`/`]d`), quickfix nav
-  (`[q`/`]q`). Keep kickstart desc-style (`[W]rite`, `[B]uffer [D]elete`).
-- **Test:** `nvim --headless -c 'verbose map <leader>w' -c 'verbose map [d' -c 'qa!'`
+- **Changes:** ~~add save, buffer delete, diagnostic/quickfix nav~~ — reverted
+  in `c5c5426`; file restored to `main` state.
+- **Test:** n/a (reverted)
 - **Acceptance:**
-  - [ ] each new lhs resolves to the intended rhs, no collisions with existing maps
+  - [x] reverted — no change vs `main`
 
 ### 02 — Fix clangd capabilities wipe
 
@@ -86,24 +85,25 @@ Each step maps to exactly one commit, named `NVIM(<NN>): <summary>`.
 - **Acceptance:**
   - [ ] resolved clangd capabilities contain both cmp defaults and utf-8 offsetEncoding
 
-### 03 — LspAttach/LspDetach cleanup
+### 03 — LspAttach/LspDetach cleanup (REVERTED per user: virtual text stays visible)
 
 - **Files:** `lua/plugins/nvim-lspconfig.lua` (EDIT)
-- **Changes:** hoist `vim.diagnostic.config { virtual_text = false }` to
+- **Changes:** ~~hoist `vim.diagnostic.config { virtual_text = false }` to
   one-time config scope; create the `LspDetach` augroup once outside the
-  attach callback.
-- **Test:** open two LSP buffers, close one, confirm document-highlight cleared on the other; `:autocmd LspDetach` shows a single group
+  attach callback~~ — reverted in `c5c5426`; original per-attach behavior
+  restored. The `LspDetach` augroup fix may be revisited separately.
+- **Test:** n/a (reverted)
 - **Acceptance:**
-  - [ ] no per-attach global side effects; detach handlers survive multiple attaches
+  - [x] reverted — no change vs `main`
 
-### 04 — cmp buffer source + saner confirm
+### 04 — cmp saner confirm (buffer source REVERTED per user)
 
 - **Files:** `lua/plugins/nvim-cmp.lua` (EDIT)
-- **Changes:** add `buffer` source after `nvim_lsp`; confirm uses
-  `select = false`; Tab/S-Tab fall back when menu invisible.
-- **Test:** manual: type partial word in prose buffer, confirm buffer-word suggestion appears; `<CR>` on empty menu inserts newline
+- **Changes:** confirm uses `select = false`; Tab/S-Tab fall back when menu
+  invisible. ~~Add `buffer` source after `nvim_lsp`~~ — reverted in `c5c5426`.
+- **Test:** manual: `<CR>` on empty menu inserts newline
 - **Acceptance:**
-  - [ ] buffer words complete; `<CR>` never inserts an uninvited item
+  - [ ] `<CR>` never inserts an uninvited item; no `buffer` source present
 
 ### 05 — conform scope + format-on-save toggle
 
