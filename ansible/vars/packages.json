@@ -76,6 +76,13 @@
     ],
     "source": "apt"
   },
+  "calf-plugins": {
+    "package": "calf-plugins",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "cava": {
     "package": "cava",
     "profiles": [
@@ -155,6 +162,13 @@
     ],
     "source": "apt"
   },
+  "easyeffects": {
+    "package": "easyeffects",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "fastfetch": {
     "package": "fastfetch",
     "profiles": [
@@ -165,6 +179,13 @@
   },
   "ffmpeg": {
     "package": "ffmpeg",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "file-roller": {
+    "package": "file-roller",
     "profiles": [
       "workstation"
     ],
@@ -350,6 +371,13 @@
   },
   "linux-headers-amd64": {
     "package": "linux-headers-amd64",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "loupe": {
+    "package": "loupe",
     "profiles": [
       "workstation"
     ],
@@ -635,11 +663,25 @@
     ],
     "source": "apt"
   },
+  "seahorse": {
+    "package": "seahorse",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "shellcheck": {
     "package": "shellcheck",
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "shotwell": {
+    "package": "shotwell",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -677,6 +719,20 @@
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "totem": {
+    "package": "totem",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "totem-plugins": {
+    "package": "totem-plugins",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
