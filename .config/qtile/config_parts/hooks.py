@@ -34,6 +34,29 @@ def reconfigure_on_hotplug(event=None):
         _HOTPLUG_BUSY = False
 
 
+def _repaint_wallpaper():
+    """Re-run autostart's per-output --zoom paint (new framebuffer size)."""
+    import shutil
+
+    if shutil.which("xwallpaper") is None:
+        return
+    try:
+        with open(os.path.expanduser("~/.xwallpaper")) as f:
+            wallpaper = f.read().strip()
+        if not wallpaper:
+            return
+        from config_parts.monitors import connected_outputs
+
+        args = []
+        for out in connected_outputs():
+            args += ["--output", out, "--zoom", wallpaper]
+        if args:
+            # Fire-and-forget: never block the hook on painting.
+            subprocess.Popen(["xwallpaper", *args])
+    except Exception:
+        pass
+
+
 def _screen_index_for_rect(x, y, w, h):
     """Index into qtile.screens by geometry (CRTC order is arbitrary)."""
     try:
@@ -72,9 +95,14 @@ def _reconfigure_on_hotplug_inner():
             names = connected_outputs()
             want = 2 if external_outputs(names) else 1
             if len(qtile.screens) != want:
+                # Fresh geometry under a stale pixmap = smear; repaint now
+                # (this event) and again on the follow-up event our own
+                # xrandr fires — cheap, idempotent.
+                _repaint_wallpaper()
                 return
         except Exception:
             return
+        _repaint_wallpaper()
     try:
         names = connected_outputs()
         dual = bool(external_outputs(names))
