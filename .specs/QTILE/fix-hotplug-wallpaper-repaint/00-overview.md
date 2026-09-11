@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress (code in; live plug/unplug check pending) |
 | Component | QTILE |
 | Created | 2026-09-11 |
 
