@@ -48,19 +48,51 @@ This repo is spec-driven for work that takes the Full spec path:
    and tick off acceptance criteria as they pass.
 3. If none exists, read `.specs/README.md` and draft a new spec from
    `.specs/TEMPLATE.md` under `.specs/<COMPONENT>/<slug>/`, then get approval
-   **before** implementing. Flip the spec's Status to `Approved` on sign-off —
-   its scope and requirements are frozen from there; changes to them need
-   re-approval.
+   **before** implementing. Flip the spec's Status to `Approved` on sign-off.
+   The approved body is frozen; implementation may update only lifecycle
+   metadata and acceptance/status checkboxes. Other edits need re-approval.
 
-Commit the newly approved spec before implementation. During implementation,
-automatically check acceptance criteria proven by successful automated tests.
-Leave hardware, visual, and other manual criteria unchecked until the user
-confirms them. Keep subsequent status and checklist bookkeeping uncommitted,
-then ask the user whether to make a final `SPECS` commit after implementation.
+Do not skip the spec step for multi-file or non-trivial changes. If in doubt,
+write a spec.
 
-This repository's `.specs/` format and location override assistant-specific
-spec formats. Do not create a duplicate spec or plan unless an active workflow
-explicitly requires one.
+### Required spec structure
+
+- Apply this structure to new specs and substantively revised `Planning`
+  drafts. Existing approved/in-progress/done legacy specs are grandfathered:
+  follow their recorded structure and do not reorganize frozen text merely for
+  compliance.
+- `00-overview.md` contains the goal, current-state research, decisions,
+  non-goals, risks, and a linked `[ ]` checklist of steps. Do not put the only
+  copy of an implementation step in the overview.
+- Every implementation step has its own numbered file (`01-*.md`, `02-*.md`,
+  ...), and its number must match the overview link, metadata `Step`, and
+  proposed commit prefix.
+- Every step file uses the metadata table from `.specs/TEMPLATE.md` and lists
+  concrete tracked file paths with `CREATE`, `EDIT`, or `DELETE`. Git does not
+  track directories: do not list a directory as a created file. If tests create
+  temporary fixtures, name the exact test file and state that fixtures are
+  generated at runtime.
+- Every `Test` section includes exact executable commands. Label live/manual
+  checks explicitly; do not use vague prose such as "test this". Acceptance
+  criteria must be finite and observable, not claims such as "never breaks".
+- Record user decisions and prior accepted/reverted behavior before defining
+  steps. A new audit is not permission to relitigate an earlier decision.
+- Keep draft and child-step statuses `Planning` until explicit approval. Do not
+  infer approval from a request to edit, commit, or push the draft.
+
+Before committing a spec, perform the author checklist in `.specs/README.md`:
+verify structure, links, numbering, exact paths, executable tests, bounded
+acceptance, prior decisions, and placeholders. For a substantial spec, run a
+fresh-context review and resolve its blockers before presenting the draft.
+
+**Spec format precedence.** This repo's `.specs/` format (frontmatter table,
+Goal / Context / Non-goals / Steps with Files + Changes + Test + Acceptance,
+Risks & Rollback) is authoritative here. Generic plugin spec/skills formats
+(e.g. superpowers brainstorming's `docs/superpowers/specs/` layout) do NOT
+apply: when a plugin skill prescribes its own spec location or structure,
+follow `.specs/README.md` + `.specs/TEMPLATE.md` instead, and treat the
+plugin's spec-writing step as satisfied by the `.specs/` file. Implementation
+plans still live where the executing skill expects them.
 
 ## Components
 
@@ -170,4 +202,4 @@ action is not consent for the next:
   immediately. Relink only after adding/removing an immediate child or when
   repairing links, and preview that operation with
   `ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml`
-  before applying it.
+  before relying on it.

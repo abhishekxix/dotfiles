@@ -1,60 +1,95 @@
+# Spec Templates
+
+Use both templates. A valid spec has one overview and at least one numbered
+step file. Delete instructional comments and unused placeholders before review.
+
+## `00-overview.md`
+
+```markdown
 # <Title>
 
 | Field | Value |
 |---|---|
 | Status | Planning |
-| Component | NVIM \| QTILE \| TMUX \| ALACRITTY \| ROFI \| DUNST \| PICOM \| STARSHIP \| CONFIG \| HOME \| INSTALLER \| ANSIBLE \| SPECS \| REFACTOR \| DOCS |
+| Component | <COMPONENT> |
 | Created | YYYY-MM-DD |
-| Verification notes | None |
-
-> Use exactly one status: `Planning`, `Approved`, `In progress`, or `Done`.
-> After approval, the Goal, Context, Non-goals, step text, acceptance text, and
-> Risks are frozen; changes need re-approval. Status, checkbox state, and
-> Verification notes remain mutable. Keep that implementation bookkeeping
-> uncommitted until the user approves a final `SPECS` commit.
 
 ## Goal
 
-One or two sentences — the outcome this spec delivers, and why now.
+<Outcome and reason for the change.>
 
 ## Context & Research
 
-Upstream changelogs, breaking changes, relevant links, and key facts that
-informed the plan. Capture anything a reviewer (or future-you) would need to
-verify an assumption.
+<Current-state evidence, upstream facts, prior decisions, and user choices.>
 
 ## Non-goals
 
-What we explicitly will **NOT** do (keeps scope tight, prevents creep).
+- <Explicitly excluded behavior.>
 
 ## Steps
 
-Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
-
-Describe *what* changes and *why* — files, behavior, rationale. Keep exact
-code out of the spec; verbatim snippets belong in implementation notes only
-when they are needed.
-When spec and implementation planning disagree, the spec wins for intent and
-scope; resolve any conflict before writing code.
-
-### 01 — <topic>
-
-- **Files:** `path/to/file` (CREATE | EDIT | DELETE)
-- **Changes:** what changes and why.
-- **Test:** the command that proves it (e.g. `pytest tests/x -v`, `shellcheck f.sh`)
-- **Acceptance:**
-  - [ ] verifiable assertion (a behavior check that the Test command must show)
-  - [ ] manual assertion (leave unchecked until the user confirms it)
-
-### 02 — <topic>
-
-- **Files:** `path/to/file` (CREATE | EDIT | DELETE)
-- **Changes:** what changes and why.
-- **Test:** the command that proves it
-- **Acceptance:**
-  - [ ] verifiable assertion
+- [ ] [01 - <First step>](01-first-step.md)
+- [ ] [02 - <Second step>](02-second-step.md)
 
 ## Risks & Rollback
 
-What might break, and how to bisect/revert. Because each step is its own commit,
-`git revert` or `git bisect` should localize any regression.
+<Cross-step risks, ordering constraints, and rollback strategy.>
+```
+
+## `01-first-step.md`
+
+Copy once per step and increment every `01` consistently.
+
+```markdown
+# 01 - <Step title>
+
+| Field | Value |
+|---|---|
+| Status | Planning |
+| Step | 01 |
+| Commit | `<COMPONENT>(01): <summary>` |
+
+## Files
+
+- `exact/path/to/file` (EDIT)
+- `exact/path/to/new-file` (CREATE)
+
+## Changes
+
+<Behavior and rationale. Keep full implementation snippets in the later plan.>
+
+## Test
+
+Automated: `exact-command --with arguments`.
+
+Manual: <Label a live/hardware/reboot check explicitly, or delete this line.>
+
+## Acceptance
+
+- [ ] <Finite observation produced by the test above.>
+
+## Risks & Rollback
+
+<Step-specific failure mode and how its commit can be reverted safely.>
+```
+
+## Mandatory Rules
+
+- Overview checklists link child files; implementation details live in children.
+- Every child number matches its filename, metadata, checklist, and commit.
+- Files lists contain exact tracked paths and operations, never directory-only
+  entries, broad globs, or placeholders.
+- Runtime-generated fixtures are described under Test and owned by an exact
+  test file; they are not listed as created directories.
+- Tests provide exact repository-root commands and label manual checks.
+- Acceptance is finite and bounded; avoid "never", "everything", and other
+  claims a test cannot prove.
+- Record prior user decisions and do not restore reverted behavior without new
+  explicit approval.
+- Keep all statuses `Planning` until explicit approval. A request to commit or
+  push the draft is not approval to implement it.
+- After approval, only lifecycle metadata and status/acceptance checkboxes may
+  change without re-approval; body edits remain frozen.
+- Existing approved/in-progress/done legacy specs are grandfathered and are not
+  rewritten solely to adopt this template.
+- Complete the author checklist in `.specs/README.md` before committing.

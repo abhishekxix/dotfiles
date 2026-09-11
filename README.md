@@ -2,6 +2,15 @@
 
 Ansible-managed workstation configuration for Debian stable.
 
+## Development
+
+This repository uses spec-driven development. Before implementing a multi-file
+or non-trivial change, read `AGENTS.md` and `.specs/README.md`, then draft or
+update the matching spec under `.specs/<COMPONENT>/<slug>/` using
+`.specs/TEMPLATE.md`. An overview links one numbered file per implementation
+step; each step names exact files, executable test commands, and bounded
+acceptance criteria. Drafts remain `Planning` until explicitly approved.
+
 ## Install
 
 Clone the repository, then run:
