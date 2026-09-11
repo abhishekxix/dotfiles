@@ -170,11 +170,39 @@
     ],
     "source": "apt"
   },
+  "firmware-intel-graphics": {
+    "package": "firmware-intel-graphics",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "firmware-iwlwifi": {
+    "package": "firmware-iwlwifi",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "firmware-misc-nonfree": {
     "package": "firmware-misc-nonfree",
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "firmware-realtek": {
+    "package": "firmware-realtek",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "firmware-sof-signed": {
+    "package": "firmware-sof-signed",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -265,6 +293,13 @@
       "workstation"
     ],
     "repo": "google",
+    "source": "apt"
+  },
+  "intel-microcode": {
+    "package": "intel-microcode",
+    "profiles": [
+      "workstation"
+    ],
     "source": "apt"
   },
   "iosevka-nerd-font": {
