@@ -23,6 +23,13 @@
     ],
     "source": "apt"
   },
+  "avahi-daemon": {
+    "package": "avahi-daemon",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "bash-completion": {
     "package": "bash-completion",
     "profiles": [
@@ -87,6 +94,20 @@
   },
   "copyq": {
     "package": "copyq",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "cups": {
+    "package": "cups",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "cups-pk-helper": {
+    "package": "cups-pk-helper",
     "profiles": [
       "workstation"
     ],
@@ -204,6 +225,13 @@
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "gdm3": {
+    "package": "gdm3",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -369,6 +397,13 @@
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "network-manager": {
+    "package": "network-manager",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -587,6 +622,20 @@
     ],
     "source": "script",
     "url": "https://starship.rs/install.sh"
+  },
+  "system-config-printer-common": {
+    "package": "system-config-printer-common",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "system-config-printer-udev": {
+    "package": "system-config-printer-udev",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "tmux": {
     "package": "tmux",
