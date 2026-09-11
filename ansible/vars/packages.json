@@ -7,8 +7,47 @@
     ],
     "source": "apt"
   },
+  "apt-listchanges": {
+    "package": "apt-listchanges",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "apt-utils": {
+    "package": "apt-utils",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "avahi-daemon": {
+    "package": "avahi-daemon",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "bash-completion": {
+    "package": "bash-completion",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "bat": {
     "package": "bat",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "bind9-dnsutils": {
+    "package": "bind9-dnsutils",
     "profiles": [
       "workstation",
       "server"
@@ -37,6 +76,13 @@
     ],
     "source": "apt"
   },
+  "calf-plugins": {
+    "package": "calf-plugins",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "cava": {
     "package": "cava",
     "profiles": [
@@ -55,6 +101,20 @@
   },
   "copyq": {
     "package": "copyq",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "cups": {
+    "package": "cups",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "cups-pk-helper": {
+    "package": "cups-pk-helper",
     "profiles": [
       "workstation"
     ],
@@ -102,6 +162,13 @@
     ],
     "source": "apt"
   },
+  "easyeffects": {
+    "package": "easyeffects",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "fastfetch": {
     "package": "fastfetch",
     "profiles": [
@@ -117,11 +184,46 @@
     ],
     "source": "apt"
   },
+  "file-roller": {
+    "package": "file-roller",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "firmware-intel-graphics": {
+    "package": "firmware-intel-graphics",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "firmware-iwlwifi": {
+    "package": "firmware-iwlwifi",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "firmware-misc-nonfree": {
     "package": "firmware-misc-nonfree",
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "firmware-realtek": {
+    "package": "firmware-realtek",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "firmware-sof-signed": {
+    "package": "firmware-sof-signed",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -175,6 +277,13 @@
     ],
     "source": "apt"
   },
+  "gdm3": {
+    "package": "gdm3",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "gh": {
     "package": "gh",
     "profiles": [
@@ -205,6 +314,13 @@
       "workstation"
     ],
     "repo": "google",
+    "source": "apt"
+  },
+  "intel-microcode": {
+    "package": "intel-microcode",
+    "profiles": [
+      "workstation"
+    ],
     "source": "apt"
   },
   "iosevka-nerd-font": {
@@ -260,6 +376,21 @@
     ],
     "source": "apt"
   },
+  "loupe": {
+    "package": "loupe",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "lsof": {
+    "package": "lsof",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "lxappearance": {
     "package": "lxappearance",
     "profiles": [
@@ -288,6 +419,22 @@
     ],
     "source": "apt"
   },
+  "man-db": {
+    "package": "man-db",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "manpages": {
+    "package": "manpages",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "maven": {
     "package": "maven",
     "profiles": [
@@ -307,6 +454,21 @@
     "strip": 1,
     "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
     "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
+  },
+  "netcat-traditional": {
+    "package": "netcat-traditional",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "network-manager": {
+    "package": "network-manager",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
   },
   "network-manager-applet": {
     "package": "network-manager-applet",
@@ -379,6 +541,14 @@
     "source": "script",
     "url": "https://opencode.ai/install"
   },
+  "openssh-client": {
+    "package": "openssh-client",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "papirus-icon-theme": {
     "package": "papirus-icon-theme",
     "profiles": [
@@ -397,6 +567,14 @@
     "package": "pavucontrol",
     "profiles": [
       "workstation"
+    ],
+    "source": "apt"
+  },
+  "pciutils": {
+    "package": "pciutils",
+    "profiles": [
+      "workstation",
+      "server"
     ],
     "source": "apt"
   },
@@ -485,11 +663,25 @@
     ],
     "source": "apt"
   },
+  "seahorse": {
+    "package": "seahorse",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "shellcheck": {
     "package": "shellcheck",
     "profiles": [
       "workstation",
       "server"
+    ],
+    "source": "apt"
+  },
+  "shotwell": {
+    "package": "shotwell",
+    "profiles": [
+      "workstation"
     ],
     "source": "apt"
   },
@@ -508,8 +700,44 @@
     "source": "script",
     "url": "https://starship.rs/install.sh"
   },
+  "system-config-printer-common": {
+    "package": "system-config-printer-common",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "system-config-printer-udev": {
+    "package": "system-config-printer-udev",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "tmux": {
     "package": "tmux",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "totem": {
+    "package": "totem",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "totem-plugins": {
+    "package": "totem-plugins",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "traceroute": {
+    "package": "traceroute",
     "profiles": [
       "workstation",
       "server"
@@ -541,6 +769,14 @@
   },
   "unzip": {
     "package": "unzip",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "usbutils": {
+    "package": "usbutils",
     "profiles": [
       "workstation",
       "server"
@@ -589,6 +825,14 @@
       "workstation"
     ],
     "repo": "vscode",
+    "source": "apt"
+  },
+  "wget": {
+    "package": "wget",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
     "source": "apt"
   },
   "xbindkeys": {
