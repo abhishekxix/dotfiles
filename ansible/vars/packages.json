@@ -7,8 +7,40 @@
     ],
     "source": "apt"
   },
+  "apt-listchanges": {
+    "package": "apt-listchanges",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "apt-utils": {
+    "package": "apt-utils",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "bash-completion": {
+    "package": "bash-completion",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "bat": {
     "package": "bat",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "bind9-dnsutils": {
+    "package": "bind9-dnsutils",
     "profiles": [
       "workstation",
       "server"
@@ -260,6 +292,14 @@
     ],
     "source": "apt"
   },
+  "lsof": {
+    "package": "lsof",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "lxappearance": {
     "package": "lxappearance",
     "profiles": [
@@ -288,6 +328,22 @@
     ],
     "source": "apt"
   },
+  "man-db": {
+    "package": "man-db",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "manpages": {
+    "package": "manpages",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "maven": {
     "package": "maven",
     "profiles": [
@@ -307,6 +363,14 @@
     "strip": 1,
     "url": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-x86_64.tar.gz",
     "url_arm64": "https://github.com/neovim/neovim/releases/download/v0.12.5/nvim-linux-arm64.tar.gz"
+  },
+  "netcat-traditional": {
+    "package": "netcat-traditional",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
   },
   "network-manager-applet": {
     "package": "network-manager-applet",
@@ -379,6 +443,14 @@
     "source": "script",
     "url": "https://opencode.ai/install"
   },
+  "openssh-client": {
+    "package": "openssh-client",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "papirus-icon-theme": {
     "package": "papirus-icon-theme",
     "profiles": [
@@ -397,6 +469,14 @@
     "package": "pavucontrol",
     "profiles": [
       "workstation"
+    ],
+    "source": "apt"
+  },
+  "pciutils": {
+    "package": "pciutils",
+    "profiles": [
+      "workstation",
+      "server"
     ],
     "source": "apt"
   },
@@ -516,6 +596,14 @@
     ],
     "source": "apt"
   },
+  "traceroute": {
+    "package": "traceroute",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "tree": {
     "package": "tree",
     "profiles": [
@@ -541,6 +629,14 @@
   },
   "unzip": {
     "package": "unzip",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
+  "usbutils": {
+    "package": "usbutils",
     "profiles": [
       "workstation",
       "server"
@@ -589,6 +685,14 @@
       "workstation"
     ],
     "repo": "vscode",
+    "source": "apt"
+  },
+  "wget": {
+    "package": "wget",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
     "source": "apt"
   },
   "xbindkeys": {
