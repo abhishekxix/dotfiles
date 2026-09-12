@@ -122,7 +122,8 @@
         "url": { "$ref": "#/definitions/httpsUrl" },
         "args": {
           "type": "array",
-          "items": { "type": "string" }
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
         },
         "creates": {
           "oneOf": [
@@ -131,8 +132,7 @@
           ]
         },
         "interpreter": {
-          "type": "string",
-          "minLength": 1,
+          "enum": ["sh", "bash"],
           "description": "Shell the downloaded installer is piped into (upstream requirement, e.g. starship refuses bash); default bash."
         },
         "link": {

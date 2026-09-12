@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "./flatpak-remotes.schema.json",
+  "title": "dotfiles flatpak remotes",
+  "description": "Editor hint only; .bin/validate-manifest.py is authoritative. Keys are remote ids referenced by packages.json flatpak entries.",
+  "type": "object",
+  "propertyNames": {
+    "pattern": "^([^$].+)$"
+  },
+  "additionalProperties": {
+    "type": "object",
+    "required": ["url"],
+    "additionalProperties": false,
+    "properties": {
+      "url": {
+        "type": "string",
+        "pattern": "^https://",
+        "description": "Remote .flatpakrepo URL."
+      }
+    }
+  }
+}

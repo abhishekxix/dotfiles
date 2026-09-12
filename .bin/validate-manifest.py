@@ -25,8 +25,42 @@ REQUIRED_FIELDS = {
     "archive": ("url", "dest", "creates"),
     "git": ("repo", "creates"),
 }
-SEQUENCE_FIELDS = {"script": ("args",), "git": ("build",)}
+# Exact per-source field allowlist: the complete contract consumed by
+# Ansible (tasks/*.yml, playbook.yml) plus the schema-hint fields
+# (version/features/sha256/interpreter). Reject anything else.
+ALLOWED_FIELDS = {
+    "apt": {"source", "package", "repo", "profiles"},
+    "cargo": {"source", "crate", "version", "features", "profiles"},
+    "flatpak": {"source", "package", "remote", "profiles"},
+    "npm": {"source", "package", "version", "profiles"},
+    "script": {"source", "url", "creates", "args", "interpreter", "link",
+               "sha256", "profiles"},
+    "deb": {"source", "url", "sha256", "profiles"},
+    "archive": {"source", "url", "url_amd64", "url_arm64", "url_armhf",
+                "url_i386", "dest", "creates", "strip", "link", "sha256",
+                "profiles"},
+    "git": {"source", "repo", "creates", "dest", "version", "build",
+            "profiles"},
+}
+SEQUENCE_FIELDS = {"script": ("args",), "git": ("build",),
+                   "cargo": ("features",)}
 NUMBER_FIELDS = {"archive": ("strip",)}
+STRING_FIELDS = {
+    "apt": ("package", "repo"),
+    "cargo": ("crate", "version"),
+    "flatpak": ("package", "remote"),
+    "npm": ("package", "version"),
+    "script": ("url", "creates", "interpreter", "link", "sha256"),
+    "deb": ("url", "sha256"),
+    "archive": ("url", "url_amd64", "url_arm64", "url_armhf", "url_i386",
+                "dest", "creates", "link", "sha256"),
+    "git": ("repo", "creates", "dest", "version"),
+}
+URL_FIELDS = ("url", "url_amd64", "url_arm64", "url_armhf", "url_i386")
+PATH_TRAVERSAL_RE = re.compile(r"(^|/)\.\.(/|$)")
+SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
+SUPPORTED_INTERPRETERS = {"sh", "bash"}
+HOME_PATH_FIELDS = ("creates", "dest")
 
 
 def load(path):
@@ -67,21 +101,89 @@ def validate_packages(packages, repos, flatpak_remotes, errors):
                 errors.append(
                     f"packages.json: '{name}': source '{source}' requires field '{field}'"
                 )
+        unknown = sorted(set(entry) - ALLOWED_FIELDS[source])
+        if unknown:
+            errors.append(
+                f"packages.json: '{name}': unknown fields for source '{source}': {unknown}"
+            )
+        for field in STRING_FIELDS.get(source, ()):
+            if field in entry:
+                val = entry[field]
+                if not isinstance(val, str) or not val:
+                    errors.append(
+                        f"packages.json: '{name}': field '{field}' must be a non-empty string"
+                    )
         for field in SEQUENCE_FIELDS.get(source, ()):
-            if field in entry and not isinstance(entry[field], list):
-                errors.append(
-                    f"packages.json: '{name}': field '{field}' must be a list"
-                )
+            if field in entry:
+                val = entry[field]
+                if not isinstance(val, list):
+                    errors.append(
+                        f"packages.json: '{name}': field '{field}' must be a list"
+                    )
+                elif field != "build" and not val:
+                    errors.append(
+                        f"packages.json: '{name}': field '{field}' must be a non-empty list"
+                    )
+                elif field == "build":
+                    for step in val:
+                        if isinstance(step, str):
+                            if not step:
+                                errors.append(
+                                    f"packages.json: '{name}': build steps must be non-empty strings"
+                                )
+                        elif isinstance(step, dict):
+                            if set(step) - {"cmd", "creates"}:
+                                errors.append(
+                                    f"packages.json: '{name}': build step allows only 'cmd'/'creates' (got {sorted(step)})"
+                                )
+                            if not isinstance(step.get("cmd"), str) or not step.get("cmd"):
+                                errors.append(
+                                    f"packages.json: '{name}': build step requires non-empty 'cmd'"
+                                )
+                        else:
+                            errors.append(
+                                f"packages.json: '{name}': build steps must be strings or cmd objects"
+                            )
         for field in NUMBER_FIELDS.get(source, ()):
-            if field in entry and not isinstance(entry[field], (int, float)):
+            if field in entry and (isinstance(entry[field], bool) or not isinstance(entry[field], int)):
                 errors.append(
-                    f"packages.json: '{name}': field '{field}' must be a number"
+                    f"packages.json: '{name}': field '{field}' must be an integer"
                 )
+        for field in URL_FIELDS:
+            if field in entry and isinstance(entry[field], str):
+                if not entry[field].startswith("https://"):
+                    errors.append(
+                        f"packages.json: '{name}': field '{field}' must be an https URL"
+                    )
+        if "sha256" in entry and isinstance(entry["sha256"], str):
+            if not SHA256_RE.match(entry["sha256"]):
+                errors.append(
+                    f"packages.json: '{name}': field 'sha256' must be 64 hex chars"
+                )
+        for field in HOME_PATH_FIELDS:
+            if field in entry and isinstance(entry[field], str):
+                if PATH_TRAVERSAL_RE.search(entry[field]):
+                    errors.append(
+                        f"packages.json: '{name}': field '{field}' must not contain path traversal (..)"
+                    )
+        if "interpreter" in entry and entry["interpreter"] not in SUPPORTED_INTERPRETERS:
+            errors.append(
+                f"packages.json: '{name}': unsupported interpreter '{entry['interpreter']}' (choose from {sorted(SUPPORTED_INTERPRETERS)})"
+            )
         if source in ("archive", "script") and "link" in entry:
             link = entry["link"]
             if not isinstance(link, str) or not link or link[0] in "~/":
                 errors.append(
                     f"packages.json: '{name}': field 'link' must be a repo-relative path (not starting with '~' or '/')"
+                )
+            elif PATH_TRAVERSAL_RE.search(link):
+                errors.append(
+                    f"packages.json: '{name}': field 'link' must not contain path traversal (..)"
+                )
+        if "version" in entry and source in ("cargo", "npm", "git"):
+            if not isinstance(entry["version"], str) or not entry["version"]:
+                errors.append(
+                    f"packages.json: '{name}': field 'version' must be a non-empty string"
                 )
         if source == "apt" and "repo" in entry and entry["repo"] not in repo_ids:
             errors.append(
@@ -122,6 +224,10 @@ def validate_deps(deps, packages, errors):
                 f"package-deps.json: '{name}': must be a list of package names"
             )
             continue
+        if not deps_list:
+            errors.append(
+                f"package-deps.json: '{name}': must be a non-empty list"
+            )
         for dep in deps_list:
             if not isinstance(dep, str) or not dep:
                 errors.append(
@@ -134,14 +240,71 @@ def validate_flatpak_remotes(remotes, errors):
         errors.append("flatpak-remotes.json: top level must be an object")
         return
     for name, remote in remotes.items():
+        if name == "$schema":
+            continue
         if not isinstance(remote, dict):
             errors.append(f"flatpak-remotes.json: '{name}': entry must be an object")
             continue
+        if set(remote) - {"url"}:
+            errors.append(
+                f"flatpak-remotes.json: '{name}': unknown fields {sorted(set(remote) - {'url'})} (only 'url' allowed)"
+            )
         url = remote.get("url")
         if not isinstance(url, str) or not url:
             errors.append(
                 f"flatpak-remotes.json: '{name}': missing field 'url' (non-empty string)"
             )
+        elif not url.startswith("https://"):
+            errors.append(
+                f"flatpak-remotes.json: '{name}': field 'url' must be an https URL"
+            )
+
+
+def validate_repos(repos, errors):
+    if not isinstance(repos, dict):
+        errors.append("repos.json: top level must be an object")
+        return
+    for name, repo in repos.items():
+        if name == "$schema":
+            continue
+        if not isinstance(repo, dict):
+            errors.append(f"repos.json: '{name}': entry must be an object")
+            continue
+        if set(repo) - {"key_url", "keyring", "repo"}:
+            errors.append(
+                f"repos.json: '{name}': unknown fields {sorted(set(repo) - {'key_url', 'keyring', 'repo'})}"
+            )
+        for field in ("key_url", "keyring", "repo"):
+            val = repo.get(field)
+            if not isinstance(val, str) or not val:
+                errors.append(
+                    f"repos.json: '{name}': missing field '{field}' (non-empty string)"
+                )
+        key_url = repo.get("key_url")
+        if isinstance(key_url, str) and key_url and not key_url.startswith("https://"):
+            errors.append(
+                f"repos.json: '{name}': field 'key_url' must be an https URL"
+            )
+        keyring = repo.get("keyring")
+        if isinstance(keyring, str) and keyring:
+            if not keyring.startswith("/usr/share/keyrings/") or not keyring.endswith(".gpg"):
+                errors.append(
+                    f"repos.json: '{name}': keyring must live under /usr/share/keyrings/ with a .gpg suffix"
+                )
+            if PATH_TRAVERSAL_RE.search(keyring):
+                errors.append(
+                    f"repos.json: '{name}': keyring must not contain path traversal (..)"
+                )
+        line = repo.get("repo")
+        if isinstance(line, str) and line:
+            if not line.startswith("deb "):
+                errors.append(
+                    f"repos.json: '{name}': repo line must start with 'deb '"
+                )
+            if "signed-by=" not in line:
+                errors.append(
+                    f"repos.json: '{name}': repo line must pin signed-by= to the declared keyring"
+                )
 
 
 def validate_hooks(packages, hooks_dir, errors):
@@ -220,10 +383,45 @@ def main():
     flatpak_remotes = load(args.flatpak_remotes)
 
     errors = []
-    validate_packages(packages, repos, flatpak_remotes, errors)
-    validate_deps(deps, packages, errors)
-    validate_flatpak_remotes(flatpak_remotes, errors)
-    validate_hooks(packages, args.hooks, errors)
+    try:
+        validate_packages(packages, repos, flatpak_remotes, errors)
+    except Exception as exc:
+        errors.append(f"packages.json: validator error ({exc})")
+    try:
+        validate_deps(deps, packages, errors)
+    except Exception as exc:
+        errors.append(f"package-deps.json: validator error ({exc})")
+    try:
+        validate_repos(repos, errors)
+    except Exception as exc:
+        errors.append(f"repos.json: validator error ({exc})")
+    try:
+        validate_flatpak_remotes(flatpak_remotes, errors)
+    except Exception as exc:
+        errors.append(f"flatpak-remotes.json: validator error ({exc})")
+    try:
+        # Duplicate link destinations across script/archive entries would
+        # collide in ~/.local/bin.
+        seen_links = {}
+        if isinstance(packages, dict):
+            for name, entry in packages.items():
+                if name == "$schema" or not isinstance(entry, dict):
+                    continue
+                link = entry.get("link")
+                if isinstance(link, str) and entry.get("source") in ("script", "archive"):
+                    dest = link.split("/")[-1]
+                    if dest in seen_links:
+                        errors.append(
+                            f"packages.json: '{name}': duplicate link destination '{dest}' (also '{seen_links[dest]}')"
+                        )
+                    else:
+                        seen_links[dest] = name
+    except Exception as exc:
+        errors.append(f"packages.json: link check error ({exc})")
+    try:
+        validate_hooks(packages, args.hooks, errors)
+    except Exception as exc:
+        errors.append(f"hooks: validator error ({exc})")
     for err in errors:
         print(err, file=sys.stderr)
     if errors:

@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "./repos.schema.json",
+  "title": "dotfiles third-party apt repositories",
+  "description": "Editor hint only; .bin/validate-manifest.py is authoritative. Keys are repo ids referenced by packages.json apt entries.",
+  "type": "object",
+  "propertyNames": {
+    "pattern": "^([^$].+)$"
+  },
+  "additionalProperties": {
+    "type": "object",
+    "required": ["key_url", "keyring", "repo"],
+    "additionalProperties": false,
+    "properties": {
+      "key_url": {
+        "type": "string",
+        "pattern": "^https://",
+        "description": "Signing-key URL, fetched before APT source mutation."
+      },
+      "keyring": {
+        "type": "string",
+        "pattern": "^/usr/share/keyrings/[^.][^/]*\\.gpg$",
+        "description": "Dearmored keyring path under /usr/share/keyrings/."
+      },
+      "repo": {
+        "type": "string",
+        "pattern": "^deb .*signed-by=.*",
+        "description": "APT source line; @ARCH@/@RELEASE@ are expanded by repos.yml."
+      }
+    }
+  }
+}

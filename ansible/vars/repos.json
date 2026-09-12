@@ -1,4 +1,5 @@
 {
+  "$schema": "./repos.schema.json",
   "corretto": {
     "key_url": "https://apt.corretto.aws/corretto.key",
     "keyring": "/usr/share/keyrings/corretto-keyring.gpg",

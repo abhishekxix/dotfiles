@@ -11,4 +11,5 @@ repos:
         entry: .bin/validate-manifest.py
         language: system
         pass_filenames: false
-        files: ^ansible/vars/(packages|package-deps|repos|flatpak-remotes)\.json$
+        # Validator/hook changes must trigger the gate too, not only JSON.
+        files: ^(ansible/vars/(packages|package-deps|repos|flatpak-remotes)\.json|\.bin/validate-manifest\.py|\.pre-commit-config\.yaml)$

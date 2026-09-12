@@ -1,4 +1,5 @@
 {
+  "$schema": "./flatpak-remotes.schema.json",
   "flathub": {
     "url": "https://dl.flathub.org/repo/flathub.flatpakrepo"
   }
