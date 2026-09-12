@@ -24,6 +24,30 @@
     - packages
     - dotfiles
 
+# Enforce Debian release and declared architecture support before APT
+# mutation: only stable releases this repo targets may proceed, and the
+# kernel arch must map to a known apt arch (AI-27 extends the mapping).
+- name: Enforce supported Debian release
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.distribution == 'Debian'
+      - ansible_facts.distribution_release in ['trixie', 'bookworm']
+    fail_msg: "Unsupported release {{ ansible_facts.distribution }} {{ ansible_facts.distribution_release }}: this repo targets Debian stable (trixie/bookworm)."
+    quiet: true
+  tags:
+    - packages
+    - dotfiles
+
+- name: Enforce declared architecture support
+  ansible.builtin.assert:
+    that:
+      - dotfiles_deb_arch in ['amd64', 'arm64']
+    fail_msg: "Unsupported architecture {{ ansible_facts.architecture }}: declared support is amd64/arm64."
+    quiet: true
+  tags:
+    - packages
+    - dotfiles
+
 # 09-04/09-28: community.general>=10.7.0 is a known-good floor for the
 # cargo/npm modules on the ansible-core Debian stable ships (ansible-core>=2.15
 # is that collection's own floor, per upstream galaxy.yml `requires_ansible`).

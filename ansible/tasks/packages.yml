@@ -88,13 +88,31 @@
   tags:
     - packages
 
+- name: Stat script binary link destinations
+  ansible.builtin.stat:
+    path: "{{ dotfiles_home }}/.local/bin/{{ item.value.link | basename }}"
+    follow: false
+  loop: "{{ dotfiles_pkgs_script | selectattr('value.link', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.key }}"
+    index_var: dotfiles_script_link_idx
+  register: dotfiles_script_link_stat
+  tags:
+    - packages
+
 - name: Link script binaries into ~/.local/bin
   ansible.builtin.file:
-    # force so a reinstalled/retargeted binary relinks instead of failing.
+    # Conflict protection mirrors link.yml: back up a conflicting
+    # destination instead of force-replacing arbitrary files; relink only
+    # managed symlinks or absent paths.
     src: "{{ ((item.value.creates | regex_replace('^~/', dotfiles_home + '/') | ansible.builtin.dirname) ~ '/' ~ item.value.link) }}"
     path: "{{ dotfiles_home }}/.local/bin/{{ item.value.link | basename }}"
     state: link
-    force: true
+    force: "{{ (dotfiles_script_link_stat.results[dotfiles_script_link_idx].stat.islnk | default(false)) or not (dotfiles_script_link_stat.results[dotfiles_script_link_idx].stat.exists | default(false)) }}"
+  loop: "{{ dotfiles_pkgs_script | selectattr('value.link', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.key }}"
+    index_var: dotfiles_script_link_idx
   loop: "{{ dotfiles_pkgs_script | selectattr('value.link', 'defined') | list }}"
   loop_control:
     label: "{{ item.key }}"
@@ -177,16 +195,31 @@
   tags:
     - packages
 
-- name: Link archive binaries into ~/.local/bin
-  ansible.builtin.file:
-    # force so a bumped URL/dest retargets the existing symlink instead of failing.
-    src: "{{ (item.value.dest ~ '/' ~ item.value.link) | regex_replace('^~/', dotfiles_home + '/') }}"
+- name: Stat archive binary link destinations
+  ansible.builtin.stat:
     path: "{{ dotfiles_home }}/.local/bin/{{ item.value.link | basename }}"
-    state: link
-    force: true
+    follow: false
   loop: "{{ dotfiles_pkgs_archive | selectattr('value.link', 'defined') | list }}"
   loop_control:
     label: "{{ item.key }}"
+    index_var: dotfiles_archive_link_idx
+  register: dotfiles_archive_link_stat
+  tags:
+    - packages
+
+- name: Link archive binaries into ~/.local/bin
+  ansible.builtin.file:
+    # Conflict protection mirrors link.yml: a bumped URL/dest retargets the
+    # managed symlink; conflicting regular files fail instead of being
+    # force-replaced.
+    src: "{{ (item.value.dest ~ '/' ~ item.value.link) | regex_replace('^~/', dotfiles_home + '/') }}"
+    path: "{{ dotfiles_home }}/.local/bin/{{ item.value.link | basename }}"
+    state: link
+    force: "{{ (dotfiles_archive_link_stat.results[dotfiles_archive_link_idx].stat.islnk | default(false)) or not (dotfiles_archive_link_stat.results[dotfiles_archive_link_idx].stat.exists | default(false)) }}"
+  loop: "{{ dotfiles_pkgs_archive | selectattr('value.link', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.key }}"
+    index_var: dotfiles_archive_link_idx
   tags:
     - packages
 

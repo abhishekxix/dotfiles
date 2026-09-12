@@ -82,3 +82,14 @@
     # -- Dotfile linking (identical for all profiles) -----------------------
     - name: Link dotfiles into home and .config
       ansible.builtin.import_tasks: tasks/dotfiles.yml
+
+    # -- Post-run report (once) ------------------------------------------------
+    - name: Report required relogins and manual actions
+      ansible.builtin.debug:
+        msg: >-
+          Install complete. Relogin or run `newgrp docker` if docker-ce
+          changed group membership; restart your shell for PATH/zoxide/direnv
+          changes; `direnv allow` remains mandatory per project directory.
+      tags:
+        - packages
+        - dotfiles

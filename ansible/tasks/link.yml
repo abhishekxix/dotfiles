@@ -82,3 +82,24 @@
   # still in place and force=false would fail instead of predicting. Skip the
   # real link in that case; the predict task above reports the change.
   when: not (ansible_check_mode and (dotfiles_link_conflict | bool))
+  register: dotfiles_link_result
+  failed_when: false
+
+- name: Restore backup after failed link of {{ link_destination }}
+  ansible.builtin.command:
+      argv:
+          - mv
+          - -n
+          - '{{ dotfiles_backup_root }}/{{ link_backup_group }}/{{ link_destination | basename }}'
+          - '{{ link_destination }}'
+  when:
+      - dotfiles_link_conflict | bool
+      - not ansible_check_mode
+      - dotfiles_link_result is failed
+
+- name: Fail when link of {{ link_destination }} failed
+  ansible.builtin.fail:
+      msg: "Linking {{ link_destination }} failed; backup restored when present (mv -n never overwrites a new file)."
+  when:
+      - not ansible_check_mode
+      - dotfiles_link_result is failed

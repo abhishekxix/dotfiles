@@ -196,6 +196,24 @@ def main():
     argv = sys.argv[1:]
     profile, passthrough, saw_profile_e, saw_become = parse(argv)
 
+    # Fail before any wrapper-side collection changes when running as root:
+    # linking and toolchains would land in /root instead of the user's home.
+    if os.geteuid() == 0:
+        print(
+            "Refusing to run as root: re-run as your normal user "
+            "(become handles privilege escalation).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    # Fail clearly when sudo is required but unavailable: ansible may still
+    # need privilege escalation for APT even if ansible-playbook exists.
+    if not shutil.which("sudo"):
+        print(
+            "Warning: sudo not found; APT steps requiring privilege "
+            "escalation will fail. Install sudo or run with access.",
+            file=sys.stderr,
+        )
+
     if not shutil.which("ansible-playbook"):
         install_ansible()
 
