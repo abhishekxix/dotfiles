@@ -129,6 +129,15 @@ lifecycle changes.
 - `lazy-lock.json` is generated; regenerate with `:Lazy sync` after plugin
   changes and commit the result.
 
+## Pull requests
+
+- Title pull requests `<COMPONENT>: <imperative summary>`, using the component
+  rules above and omitting spec step numbers.
+- Complete `.github/pull_request_template.md`; use `N/A` rather than removing a
+  section that does not apply.
+- Creating a pull request requires explicit approval, separate from approval to
+  commit or push. Preparing the branch and template is not approval to open it.
+
 ## Approval-gated actions
 
 Each of the following requires explicit, per-action approval. Approval for one
