@@ -2,13 +2,16 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning \| Approved \| In progress \| Done |
-| Component | NVIM \| QTILE \| WEZTERM \| CONFIG \| INSTALLER \| ANSIBLE |
+| Status | Planning |
+| Component | NVIM \| QTILE \| TMUX \| ALACRITTY \| ROFI \| DUNST \| PICOM \| STARSHIP \| CONFIG \| HOME \| INSTALLER \| ANSIBLE \| SPECS \| REFACTOR \| DOCS |
+| Created | YYYY-MM-DD |
+| Verification notes | None |
 
-> Status lifecycle: `Planning` (draft, may still change) → `Approved`
-> (reviewer signed off; spec text frozen — further changes need re-approval) →
-> `In progress` → `Done`. The writing-plans skill reads the Approved spec and
-> produces the implementation plan from it.
+> Use exactly one status: `Planning`, `Approved`, `In progress`, or `Done`.
+> After approval, the Goal, Context, Non-goals, step text, acceptance text, and
+> Risks are frozen; changes need re-approval. Status, checkbox state, and
+> Verification notes remain mutable. Keep that implementation bookkeeping
+> uncommitted until the user approves a final `SPECS` commit.
 
 ## Goal
 
@@ -29,10 +32,10 @@ What we explicitly will **NOT** do (keeps scope tight, prevents creep).
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
 Describe *what* changes and *why* — files, behavior, rationale. Keep exact
-code out of the spec: for anything over ~3 files, verbatim snippets live in
-the implementation plan (writing-plans demands exact values there), not here.
-When spec and plan disagree on code, the plan wins for code, the spec wins
-for intent.
+code out of the spec; verbatim snippets belong in implementation notes only
+when they are needed.
+When spec and implementation planning disagree, the spec wins for intent and
+scope; resolve any conflict before writing code.
 
 ### 01 — <topic>
 
@@ -41,6 +44,7 @@ for intent.
 - **Test:** the command that proves it (e.g. `pytest tests/x -v`, `shellcheck f.sh`)
 - **Acceptance:**
   - [ ] verifiable assertion (a behavior check that the Test command must show)
+  - [ ] manual assertion (leave unchecked until the user confirms it)
 
 ### 02 — <topic>
 
