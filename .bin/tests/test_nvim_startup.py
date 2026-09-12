@@ -80,10 +80,14 @@ class NvimStartupTest(unittest.TestCase):
             self.assertIn(alias, AUTOCMDS)
 
     def test_lsp_highlight_single_install(self):
-        # Handlers install once per buffer; the detach hook clears only
-        # after checking remaining clients (see step 07) or clears the
-        # buffer-local group.
-        self.assertIn("as-lsp-highlight", LSPCONFIG)
+        # Handlers install once per buffer (guarded by existing-autocmd
+        # check); the detach hook clears only after the last capable
+        # client detaches.
+        self.assertIn("nvim_get_autocmds", LSPCONFIG)
+        self.assertIn("remaining", LSPCONFIG)
+
+    def test_clangd_offset_encoding_shape(self):
+        self.assertIn("offsetEncoding = { 'utf-8', 'utf-16' }", LSPCONFIG)
 
     def test_telescope_deferred(self):
         self.assertNotIn("require('telescope.builtin').lsp_definitions",

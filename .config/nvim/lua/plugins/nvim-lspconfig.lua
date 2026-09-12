@@ -39,11 +39,13 @@ return {
 
     -- NB: merge over the '*' cmp defaults above; a bare table here would
     -- replace them and silently degrade clangd completions/snippets.
+    -- offsetEncoding uses the plural list shape the bundled clangd config
+    -- negotiates (utf-8 preferred, utf-16 fallback).
     vim.lsp.config('clangd', {
       capabilities = vim.tbl_deep_extend(
         'force',
         require('cmp_nvim_lsp').default_capabilities(),
-        { offsetEncoding = 'utf-8' }
+        { offsetEncoding = { 'utf-8', 'utf-16' } }
       ),
     })
 
@@ -79,24 +81,41 @@ return {
         local client = vim.lsp.get_client_by_id(event.data.client_id)
 
         if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
-          local highlight_augroup = vim.api.nvim_create_augroup('as-lsp-highlight', { clear = false })
-          vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-            buffer = event.buf,
-            group = highlight_augroup,
-            callback = vim.lsp.buf.document_highlight,
-          })
-          vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-            buffer = event.buf,
-            group = highlight_augroup,
-            callback = vim.lsp.buf.clear_references,
-          })
-          vim.api.nvim_create_autocmd('LspDetach', {
-            group = vim.api.nvim_create_augroup('as-lsp-detach', { clear = true }),
-            callback = function(event2)
-              vim.lsp.buf.clear_references()
-              vim.api.nvim_clear_autocmds { group = 'as-lsp-highlight', buffer = event2.buf }
-            end,
-          })
+          -- Installed once per buffer: an existing buffer-local group means
+          -- an earlier client already set this up.
+          local existing = vim.api.nvim_get_autocmds { group = 'as-lsp-highlight', buffer = event.buf }
+          if #existing == 0 then
+            local highlight_augroup = vim.api.nvim_create_augroup('as-lsp-highlight', { clear = false })
+            vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+              buffer = event.buf,
+              group = highlight_augroup,
+              callback = vim.lsp.buf.document_highlight,
+            })
+            vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+              buffer = event.buf,
+              group = highlight_augroup,
+              callback = vim.lsp.buf.clear_references,
+            })
+            vim.api.nvim_create_autocmd('LspDetach', {
+              group = vim.api.nvim_create_augroup('as-lsp-detach', { clear = true }),
+              callback = function(event2)
+                vim.lsp.buf.clear_references()
+                -- Remove handlers only after the last capable client
+                -- detaches so highlights survive multi-client buffers.
+                local remaining = vim.tbl_filter(function(c)
+                  return c.id ~= event2.data.client_id
+                    and vim.tbl_contains(c.attached_buffers or {}, event2.buf)
+                    and c:supports_method(
+                      vim.lsp.protocol.Methods.textDocument_documentHighlight,
+                      event2.buf
+                    )
+                end, vim.lsp.get_clients())
+                if #remaining == 0 then
+                  vim.api.nvim_clear_autocmds { group = 'as-lsp-highlight', buffer = event2.buf }
+                end
+              end,
+            })
+          end
         end
 
         if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
