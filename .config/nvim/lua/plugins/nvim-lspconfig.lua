@@ -60,12 +60,14 @@ return {
           vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
         end
 
-        map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-        map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-        map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-        map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-        map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-        map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+        -- Telescope requires are deferred until a picker mapping fires so
+        -- plain LSP attach never loads the picker.
+        map('gd', function() return require('telescope.builtin').lsp_definitions() end, '[G]oto [D]efinition')
+        map('gr', function() return require('telescope.builtin').lsp_references() end, '[G]oto [R]eferences')
+        map('gI', function() return require('telescope.builtin').lsp_implementations() end, '[G]oto [I]mplementation')
+        map('<leader>D', function() return require('telescope.builtin').lsp_type_definitions() end, 'Type [D]efinition')
+        map('<leader>ds', function() return require('telescope.builtin').lsp_document_symbols() end, '[D]ocument [S]ymbols')
+        map('<leader>ws', function() return require('telescope.builtin').lsp_dynamic_workspace_symbols() end, '[W]orkspace [S]ymbols')
         map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
         map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
         map('<leader>cd', vim.diagnostic.open_float, '[C]ode [d]iagnostic')
@@ -105,6 +107,7 @@ return {
       end,
     })
 
+    -- Mason initializes exactly once here; do not add another setup call.
     require('mason').setup()
 
     -- Servers + formatters + linters, all defined in lua/langs.lua.
@@ -113,7 +116,16 @@ return {
       vim.list_extend(vim.deepcopy(langs.get_servers()), langs.get_formatters()),
       langs.get_linters()
     )
-    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+    -- Noisy automatic reconciliation is debounced to the plugin default;
+    -- use :MasonToolsInstall for an immediate manual run.
+    require('mason-tool-installer').setup {
+      ensure_installed = ensure_installed,
+      run_on_start = true,
+      debounce_hours = 24,
+    }
+    vim.api.nvim_create_user_command('MasonToolsInstallNow', function()
+      require('mason-tool-installer').check_install(false)
+    end, { desc = 'Install missing Mason tools immediately' })
 
     -- Auto-enables installed servers via vim.lsp.enable().
     require('mason-lspconfig').setup()

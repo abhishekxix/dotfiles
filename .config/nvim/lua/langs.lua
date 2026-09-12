@@ -99,8 +99,8 @@ M.language_config = {
     servers = { 'yamlls' },
     formatters = { 'prettier' },
   },
-  -- JSX filetype. No `parser` because the `javascriptreact` filetype
-  -- is handled by the `javascript` parser (installed by the entry above).
+  -- JSX filetype shares the `javascript` parser (installed by the entry
+  -- above); see parser_aliases in autocommands.lua.
   {
     ft = 'javascriptreact',
     servers = { 'ts_ls' },
@@ -127,8 +127,8 @@ M.language_config = {
   { servers = { 'emmet_ls' } },
   { servers = { 'tailwindcss' } },
   -- Dockerfile / Docker Compose. Only `dockerfile` has a treesitter
-  -- parser; `yaml.docker-compose` needs `yaml` installed first (not yet
-  -- listed in a parser entry), so omit its ft to avoid an autocmd error.
+  -- parser; `yaml.docker-compose` shares the `yaml` parser via
+  -- parser_aliases in autocommands.lua.
   {
     ft = 'dockerfile',
     parser = 'dockerfile',
