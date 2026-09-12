@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | In progress |
 | Component | ANSIBLE |
 | Created | 2026-09-13 |
-| Verification notes | None |
+| Verification notes | Automated checks pass (validator, syntax-check, malformed-debsig rejection). Pending: real playbook run on x86_64 (repo/keyring/debsig files, apt install 1password, idempotent re-run). |
 
 ## Goal
 
@@ -43,8 +43,8 @@ required debsig-verify policy.
 
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
-- [ ] 01 — 1Password repo + package manifest entries (01-repo-package-entry.md)
-- [ ] 02 — debsig-verify policy support in repos pipeline (02-debsig-policy.md)
+- [x] 01 — 1Password repo + package manifest entries (01-repo-package-entry.md)
+- [x] 02 — debsig-verify policy support in repos pipeline (02-debsig-policy.md)
 
 ## Risks & Rollback
 
