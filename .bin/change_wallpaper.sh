@@ -28,6 +28,10 @@ if [[ ${wallpaper,,} == *.svg ]]; then
   exit 1
 fi
 
+# Canonicalize before persistence so the state file holds an absolute path
+# that survives spaces and directory changes across login/hotplug.
+wallpaper=$(realpath -m "$wallpaper")
+
 # --zoom crops to fill per-output (aspect kept); --stretch smears one
 # 16:9 image across the whole 4480x1440 framebuffer (the bug in #2's photo).
 args=()

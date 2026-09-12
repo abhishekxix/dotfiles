@@ -843,6 +843,13 @@
     ],
     "source": "apt"
   },
+  "x11-xserver-utils": {
+    "package": "x11-xserver-utils",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "xbindkeys": {
     "package": "xbindkeys",
     "profiles": [

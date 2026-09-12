@@ -45,15 +45,15 @@ try_launch xscreensaver --nosplash
 # try_launch mictray
 
 # Per-output --zoom (aspect kept); --stretch smears one image across the
-# whole framebuffer. Empty/missing state file runs nothing (-r).
+# whole framebuffer. Empty/missing state file runs nothing (-r). Arrays
+# keep wallpapers with spaces intact across login/hotplug.
 if [ -s "$HOME/.xwallpaper" ]; then
-  wallpaper=$(cat "$HOME/.xwallpaper")
-  wp_args=""
-  for out in $(xrandr --query | awk '/ connected/{print $1}'); do
-    wp_args="$wp_args --output $out --zoom $wallpaper"
-  done
-  # shellcheck disable=SC2086
-  xwallpaper $wp_args &
+  IFS= read -r wallpaper <"$HOME/.xwallpaper"
+  wp_args=()
+  while IFS= read -r out; do
+    wp_args+=(--output "$out" --zoom "$wallpaper")
+  done < <(xrandr --query | awk '/ connected/{print $1}')
+  xwallpaper "${wp_args[@]}" &
 fi
 
 # Echo-cancel: skip if already loaded (login is not idempotent-safe),
