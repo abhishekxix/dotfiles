@@ -89,3 +89,14 @@ ansible-playbook --check --diff --skip-tags packages ansible/playbook.yml
 
 `xorg.conf` is intentionally not installed because it is system- and
 hardware-specific.
+
+## Doctor
+
+`.bin/doctor` prints a read-only health report (missing tools grouped by
+owning config, installed-vs-manifest Neovim version, broken managed
+symlinks). It never installs or changes anything and exits nonzero only
+for required gaps:
+
+```bash
+.bin/doctor
+```

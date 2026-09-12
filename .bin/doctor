@@ -1,0 +1,138 @@
+#!/usr/bin/python3
+"""Read-only environment health report. Never installs or alters anything.
+
+Groups missing tools by owning config with actionable remediation, compares
+the installed Neovim version against the manifest declaration, and exits
+nonzero only for required gaps (optional/profile-inapplicable gaps do not
+fail). Safe to run on non-Debian hosts to explain drift.
+"""
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+
+REQUIRED_COMMANDS = {
+    # command: (owning config, remediation, required?)
+    "git": ("Git", "install git via the package manifest", True),
+    "nvim": ("Neovim", "./install --tags packages", True),
+    "tmux": ("tmux", "./install --tags packages", True),
+    "zsh": ("shell", "./install --tags packages", True),
+    "bash": ("shell", "install bash via your OS package manager", True),
+    "fzf": ("shell/fzf", "./install --tags packages", True),
+    "zoxide": ("shell/navigation", "apt install zoxide, then restart shell", True),
+    "direnv": ("shell/environments", "apt install direnv, then `direnv allow` per project", True),
+    "starship": ("shell/prompt", "re-run the installer or starship install script", True),
+    "tree-sitter": ("Neovim/treesitter", "apt install tree-sitter-cli", True),
+    "black": ("Neovim/python", "install via Mason (:MasonToolsInstall)", True),
+    "rofi": ("Rofi launcher", "./install --tags packages (workstation only)", False),
+    "dunst": ("Dunst notifications", "./install --tags packages (workstation only)", False),
+    "xrandr": ("display/monitors", "apt install x11-xserver-utils", False),
+    "fc-match": ("fonts", "install fontconfig", False),
+}
+
+SHELL_PLUGIN_FILES = [
+    ("~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
+     "shell/plugins", "re-run installer (zsh-syntax-highlighting git source)"),
+    ("~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh",
+     "shell/plugins", "re-run installer (zsh-autosuggestions git source)"),
+]
+
+
+def manifest_nvim_version():
+    try:
+        manifest = json.loads((REPO / "ansible/vars/packages.json").read_text())
+        url = manifest.get("neovim", {}).get("url", "")
+        m = re.search(r"/v([\d.]+)/", url)
+        return m.group(1) if m else None
+    except (OSError, ValueError):
+        return None
+
+
+def installed_nvim_version():
+    nvim = shutil.which("nvim")
+    if not nvim:
+        return None
+    try:
+        out = subprocess.run([nvim, "--version"], capture_output=True,
+                             text=True, timeout=10)
+        m = re.search(r"NVIM v([\d.]+)", out.stdout)
+        return m.group(1) if m else None
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def check_symlinks(home):
+    """Report managed symlinks whose target is broken."""
+    broken = []
+    for base in ("", ".config"):
+        src_dir = REPO / base if base else REPO / "home"
+        dst_dir = Path(home) / base if base else Path(home)
+        if not src_dir.is_dir():
+            continue
+        for child in src_dir.iterdir():
+            if child.name.startswith(".") and child.name not in (".", ".."):
+                pass
+            link = dst_dir / child.name
+            if link.is_symlink() and not link.exists():
+                broken.append(str(link))
+    return broken
+
+
+def main():
+    home = os.path.expanduser("~")
+    required_gaps = []
+    optional_gaps = []
+
+    for cmd, (owner, remedy, required) in sorted(REQUIRED_COMMANDS.items()):
+        if shutil.which(cmd) is None:
+            entry = f"{cmd} (owner: {owner}; fix: {remedy})"
+            (required_gaps if required else optional_gaps).append(entry)
+
+    for rel, owner, remedy in SHELL_PLUGIN_FILES:
+        if not Path(os.path.expanduser(rel)).exists():
+            optional_gaps.append(f"{rel} (owner: {owner}; fix: {remedy})")
+
+    declared = manifest_nvim_version()
+    installed = installed_nvim_version()
+    version_gap = None
+    if declared and installed and declared != installed:
+        version_gap = (
+            f"neovim {installed} installed but manifest declares {declared}"
+        )
+        required_gaps.append(version_gap + "; fix: re-run installer")
+    elif declared and not installed:
+        pass  # already covered by the nvim missing-command gap
+
+    broken = check_symlinks(home)
+
+    print("== environment doctor (read-only) ==")
+    if required_gaps:
+        print("\nRequired gaps:")
+        for g in required_gaps:
+            print(f"  MISSING: {g}")
+    else:
+        print("\nRequired gaps: none")
+    if optional_gaps:
+        print("\nOptional/profile-inapplicable gaps:")
+        for g in optional_gaps:
+            print(f"  missing: {g}")
+    if version_gap:
+        print(f"\nVersion drift: {version_gap}")
+    elif declared:
+        print(f"\nNeovim: installed={installed} declared={declared}")
+    if broken:
+        print("\nBroken managed symlinks:")
+        for b in broken:
+            print(f"  broken: {b}")
+
+    return 1 if required_gaps else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
