@@ -1,0 +1,14 @@
+# Debian Xsession sources this before the window manager starts, so the
+# session identity reaches Qtile itself — not only autostart children.
+export XDG_CURRENT_DESKTOP=qtile
+export XDG_SESSION_DESKTOP=qtile
+export XDG_SESSION_TYPE=x11
+export WINIT_X11_SCALE_FACTOR=1
+
+# GNOME Keyring (PAM/Xsession path) owns SSH keys and secrets; LXSession's
+# separate ssh-agent owner is disabled in desktop.conf. The keyring
+# environment must reach Qtile-launched terminals.
+if command -v gnome-keyring-daemon >/dev/null 2>&1; then
+  eval "$(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh)"
+  export SSH_AUTH_SOCK GNOME_KEYRING_CONTROL GNOME_KEYRING_PID
+fi

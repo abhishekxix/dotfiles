@@ -1,20 +1,25 @@
 #! /usr/bin/env bash
 
-export XDG_CURRENT_DESKTOP=qtile
-export XDG_SESSION_DESKTOP=qtile
-export XDG_SESSION_TYPE=x11
+# Session identity (XDG_*/WINIT) and keyring ownership live in ~/.xsessionrc,
+# sourced by Debian Xsession before Qtile starts. Fall back here only when
+# that file was not sourced (e.g. a display manager that skips Xsession).
+if [ -z "$XDG_SESSION_DESKTOP" ]; then
+  export XDG_CURRENT_DESKTOP=qtile
+  export XDG_SESSION_DESKTOP=qtile
+  export XDG_SESSION_TYPE=x11
+  export WINIT_X11_SCALE_FACTOR=1
+fi
 
+# Qtile's guarded script is the single owner of desktop daemons. LXSession
+# application autostart is disabled in desktop.conf; Flameshot's own
+# startup-launch setting stays disabled so exactly one instance runs.
 lxsession --session=qtile &
-
-gnome-keyring-daemon --start --login --components=pkcs11,secrets,ssh &
 
 # Monitor layout via the step-01 helper: same generic logic as the hotplug
 # hook (internal primary @ max rate, externals left of it, --auto fallback).
 # Foreground: xwallpaper below must paint after the framebuffer settles,
 # or the image lands on stale geometry (smeared panel).
 python3 "$HOME/.config/qtile/config_parts/monitors.py"
-
-export WINIT_X11_SCALE_FACTOR=1
 
 # Launch only if installed — keeps fresh machines boot-noise-free.
 try_launch() {
