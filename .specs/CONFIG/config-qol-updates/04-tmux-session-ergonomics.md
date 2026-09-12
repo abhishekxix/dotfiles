@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Step | 04 |
 | Commit | `CONFIG(04): refine tmux session ergonomics` |
 

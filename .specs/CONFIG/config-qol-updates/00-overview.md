@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Component | CONFIG |
 | Created | 2026-09-12 |
 
@@ -109,23 +109,23 @@ Each step has a numbered file and maps to one commit named
 `CONFIG(<NN>): <summary>`. Implementation begins only after this revised spec
 is explicitly approved.
 
-- [ ] [01 - Harden shell startup and history](01-shell-startup-history.md)
-- [ ] [02 - Scope fzf and add zoxide/direnv](02-fzf-zoxide-direnv.md)
-- [ ] [03 - Improve Git conflict/tool ergonomics](03-git-conflict-tools.md)
-- [ ] [04 - Refine tmux session ergonomics](04-tmux-session-ergonomics.md)
-- [ ] [05 - Add safe Neovim exit confirmation](05-nvim-confirm.md)
-- [ ] [06 - Make Neovim tool installation diagnosable](06-nvim-tool-install.md)
-- [ ] [07 - Correct Neovim LSP lifecycle](07-nvim-lsp-lifecycle.md)
-- [ ] [08 - Reconcile Rofi and Dunst](08-rofi-dunst.md)
-- [ ] [09 - Make hardware keys reliable](09-hardware-keys.md)
-- [ ] [10 - Establish one session/autostart owner](10-session-autostart.md)
-- [ ] [11 - Make wallpaper/screenshots portable](11-wallpaper-screenshots.md)
-- [ ] [12 - Unify desktop visual defaults](12-desktop-visuals.md)
-- [ ] [13 - Add non-mutating environment diagnostics](13-environment-doctor.md)
-- [ ] [14 - Strengthen installer preflight/link safety](14-installer-preflight-links.md)
-- [ ] [15 - Make manifest validation strict](15-manifest-validation.md)
-- [ ] [16 - Define package lifecycle/integrity](16-package-lifecycle.md)
-- [ ] [17 - Expand CI and operator documentation](17-ci-docs.md)
+- [x] [01 - Harden shell startup and history](01-shell-startup-history.md)
+- [x] [02 - Scope fzf and add zoxide/direnv](02-fzf-zoxide-direnv.md)
+- [x] [03 - Improve Git conflict/tool ergonomics](03-git-conflict-tools.md)
+- [x] [04 - Refine tmux session ergonomics](04-tmux-session-ergonomics.md)
+- [x] [05 - Add safe Neovim exit confirmation](05-nvim-confirm.md)
+- [x] [06 - Make Neovim tool installation diagnosable](06-nvim-tool-install.md)
+- [x] [07 - Correct Neovim LSP lifecycle](07-nvim-lsp-lifecycle.md)
+- [x] [08 - Reconcile Rofi and Dunst](08-rofi-dunst.md)
+- [x] [09 - Make hardware keys reliable](09-hardware-keys.md)
+- [x] [10 - Establish one session/autostart owner](10-session-autostart.md)
+- [x] [11 - Make wallpaper/screenshots portable](11-wallpaper-screenshots.md)
+- [x] [12 - Unify desktop visual defaults](12-desktop-visuals.md)
+- [x] [13 - Add non-mutating environment diagnostics](13-environment-doctor.md)
+- [x] [14 - Strengthen installer preflight/link safety](14-installer-preflight-links.md)
+- [x] [15 - Make manifest validation strict](15-manifest-validation.md)
+- [x] [16 - Define package lifecycle/integrity](16-package-lifecycle.md)
+- [x] [17 - Expand CI and operator documentation](17-ci-docs.md)
 
 ## Deferred Follow-ups
 

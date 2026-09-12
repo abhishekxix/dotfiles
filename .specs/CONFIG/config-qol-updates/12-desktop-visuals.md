@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Step | 12 |
 | Commit | `CONFIG(12): unify desktop visual defaults` |
 

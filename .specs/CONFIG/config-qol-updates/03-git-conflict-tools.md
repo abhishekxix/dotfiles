@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Step | 03 |
 | Commit | `CONFIG(03): improve Git conflict and tool ergonomics` |
 

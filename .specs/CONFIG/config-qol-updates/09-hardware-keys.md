@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Step | 09 |
 | Commit | `CONFIG(09): make hardware keys reliable` |
 

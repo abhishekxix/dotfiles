@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Step | 11 |
 | Commit | `CONFIG(11): make wallpaper and screenshots portable` |
 
