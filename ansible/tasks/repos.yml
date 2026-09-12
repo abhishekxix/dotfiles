@@ -97,6 +97,69 @@
   tags:
     - packages
 
+# Optional per-repo debsig-verify support (e.g. 1password signs its debs;
+# dpkg rejects them without the .pol policy and dearmored key). `debsig`
+# carries the policy id, policy URL, and reuses the repo key_url download.
+- name: Ensure debsig-verify is installed
+  become: true
+  ansible.builtin.apt:
+    name: debsig-verify
+    state: present
+  when: (dotfiles_repos_selected | select('in', dotfiles_repos_manifest) | select('extract', dotfiles_repos_manifest) | selectattr('debsig', 'defined') | list | length) > 0
+  tags:
+    - packages
+
+- name: Create debsig policy directories
+  become: true
+  ansible.builtin.file:
+    path: "/etc/debsig/policies/{{ dotfiles_repos_manifest[item].debsig.policy_id }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ dotfiles_repos_selected }}"
+  when: dotfiles_repos_manifest[item].debsig is defined
+  tags:
+    - packages
+
+- name: Create debsig keyring directories
+  become: true
+  ansible.builtin.file:
+    path: "/usr/share/debsig/keyrings/{{ dotfiles_repos_manifest[item].debsig.policy_id }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ dotfiles_repos_selected }}"
+  when: dotfiles_repos_manifest[item].debsig is defined
+  tags:
+    - packages
+
+- name: Install debsig-verify policies
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ dotfiles_repos_manifest[item].debsig.policy_url }}"
+    dest: "/etc/debsig/policies/{{ dotfiles_repos_manifest[item].debsig.policy_id }}/{{ dotfiles_repos_manifest[item].debsig.policy_url | ansible.builtin.urlsplit('path') | basename }}"
+    mode: "0644"
+  loop: "{{ dotfiles_repos_selected }}"
+  when: dotfiles_repos_manifest[item].debsig is defined
+  tags:
+    - packages
+
+- name: Dearmor debsig signing keys
+  become: true
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --batch
+      - --yes
+      - --dearmor
+      - -o
+      - "/usr/share/debsig/keyrings/{{ dotfiles_repos_manifest[item].debsig.policy_id }}/debsig.gpg"
+      - "{{ dotfiles_repos_manifest[item].keyring }}.asc"
+  args:
+    creates: "/usr/share/debsig/keyrings/{{ dotfiles_repos_manifest[item].debsig.policy_id }}/debsig.gpg"
+  loop: "{{ dotfiles_repos_selected }}"
+  when: dotfiles_repos_manifest[item].debsig is defined
+  tags:
+    - packages
+
 - name: Update APT metadata after adding third-party repos
   become: true
   ansible.builtin.apt:

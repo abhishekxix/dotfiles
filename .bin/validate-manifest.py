@@ -106,6 +106,33 @@ def validate_packages(packages, repos, flatpak_remotes, errors):
                 )
 
 
+def validate_repos(repos, errors):
+    if not isinstance(repos, dict):
+        errors.append("repos.json: top level must be an object")
+        return
+    for name, entry in repos.items():
+        if not isinstance(entry, dict):
+            errors.append(f"repos.json: '{name}': entry must be an object")
+            continue
+        for field in ("key_url", "keyring", "repo"):
+            value = entry.get(field)
+            if not isinstance(value, str) or not value:
+                errors.append(
+                    f"repos.json: '{name}': missing field '{field}' (non-empty string)"
+                )
+        debsig = entry.get("debsig")
+        if debsig is not None:
+            if not isinstance(debsig, dict):
+                errors.append(f"repos.json: '{name}': field 'debsig' must be an object")
+            else:
+                for field in ("policy_id", "policy_url"):
+                    value = debsig.get(field)
+                    if not isinstance(value, str) or not value:
+                        errors.append(
+                            f"repos.json: '{name}': debsig missing field '{field}' (non-empty string)"
+                        )
+
+
 def validate_deps(deps, packages, errors):
     if not isinstance(deps, dict):
         errors.append("package-deps.json: top level must be an object")
@@ -221,6 +248,7 @@ def main():
 
     errors = []
     validate_packages(packages, repos, flatpak_remotes, errors)
+    validate_repos(repos, errors)
     validate_deps(deps, packages, errors)
     validate_flatpak_remotes(flatpak_remotes, errors)
     validate_hooks(packages, args.hooks, errors)
