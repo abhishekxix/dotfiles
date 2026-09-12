@@ -49,7 +49,8 @@ This repo is spec-driven for work that takes the Full spec path:
 3. If none exists, read `.specs/README.md` and draft a new spec from
    `.specs/TEMPLATE.md` under `.specs/<COMPONENT>/<slug>/`, then get approval
    **before** implementing. Flip the spec's Status to `Approved` on sign-off —
-   the spec text is frozen from there; further changes need re-approval.
+   its scope and requirements are frozen from there; changes to them need
+   re-approval.
 
 Commit the newly approved spec before implementation. During implementation,
 automatically check acceptance criteria proven by successful automated tests.
