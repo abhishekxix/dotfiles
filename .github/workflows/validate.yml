@@ -4,18 +4,50 @@ on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: "23 4 * * 0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  validate:
+  lint-unit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5.3.0
         with:
           python-version: "3.12"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v4.2.1
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
-      - run: pip install pre-commit
+      - run: pip install pre-commit==4.0.1
       - run: pre-commit run --all-files
+      - run: python3 -m unittest discover -s .bin/tests -p 'test_*.py'
+      - run: ansible-playbook --syntax-check ansible/playbook.yml
+
+  shellcheck-ansible:
+    runs-on: debian-stable
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - run: sudo apt-get update && sudo apt-get install --yes shellcheck ansible
+      - run: shellcheck .bin/change_wallpaper.sh .bin/screens.sh .config/qtile/autostart.sh home/.bashrc
+      - run: ansible-playbook --syntax-check ansible/playbook.yml
+
+  debian-integration:
+    # Disposable Debian harness for both profiles + second-run idempotency.
+    # Scheduled (slower than PR linting) but locally runnable via
+    # .bin/tests/run-debian-integration.
+    if: github.event_name == 'schedule' || contains(github.event.pull_request.labels.*.name, 'full-integration')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - run: .bin/tests/run-debian-integration --profiles workstation,server --runs 2

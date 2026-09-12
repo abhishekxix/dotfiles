@@ -1,0 +1,64 @@
+#!/bin/sh
+# Disposable Debian integration harness (locally runnable; CI scheduled job
+# invokes the same command). Builds a Debian container, runs the installer
+# for each requested profile, and verifies second-run idempotency.
+#
+# Usage:
+#   .bin/tests/run-debian-integration --profiles workstation,server --runs 2
+#
+# Requires: docker (or podman aliased). Network-dependent.
+set -eu
+
+PROFILES="workstation,server"
+RUNS="2"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --profiles) PROFILES="$2"; shift 2 ;;
+    --runs) RUNS="$2"; shift 2 ;;
+    *) echo "Unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+
+RUNTIME=""
+if command -v docker >/dev/null 2>&1; then
+  RUNTIME="docker"
+elif command -v podman >/dev/null 2>&1; then
+  RUNTIME="podman"
+else
+  echo "No container runtime (docker/podman) found; cannot run Debian integration." >&2
+  exit 1
+fi
+
+REPO_ROOT="$(dirname "$(dirname "$(dirname "$(realpath "$0")")")")"
+IMAGE="debian:trixie-slim"
+
+echo "== Debian integration: profiles=$PROFILES runs=$RUNS =="
+# shellcheck disable=SC2086
+echo "$PROFILES" | tr ',' ' ' | while read -r _p; do :; done
+OLD_IFS="$IFS"
+IFS=","
+# shellcheck disable=SC2162
+for profile in $PROFILES; do
+  IFS="$OLD_IFS"
+  echo "--- profile: $profile ---"
+  # shellcheck disable=SC2018
+  name="dotfiles-int-$(echo "$profile" | tr -cd 'a-z')-$$"
+  $RUNTIME run --rm -d --name "$name" "$IMAGE" sleep infinity >/dev/null
+  cleanup() { $RUNTIME rm -f "$name" >/dev/null 2>&1 || true; }
+  trap cleanup EXIT INT TERM
+  $RUNTIME cp "$REPO_ROOT" "$name:/dotfiles"
+  i=1
+  while [ "$i" -le "$RUNS" ]; do
+    echo "run $i/$RUNS (profile $profile)"
+    $RUNTIME exec "$name" sh -c "cd /dotfiles && ./install --profile $profile" 2>&1 | tail -5
+    i=$((i + 1))
+  done
+  echo "second-run idempotency: run 2 must report changed=0 (or the documented allowlist)"
+  $RUNTIME exec "$name" sh -c "cd /dotfiles && ansible-playbook ansible/playbook.yml -e dotfiles_profile=$profile" 2>&1 | tail -3
+  $RUNTIME rm -f "$name" >/dev/null
+  trap - EXIT INT TERM
+  IFS=","
+done
+IFS="$OLD_IFS"
+echo "== Debian integration complete =="
