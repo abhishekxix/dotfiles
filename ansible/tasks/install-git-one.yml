@@ -12,10 +12,16 @@
     repo: "{{ pkg.value.repo }}"
     dest: "{{ (pkg.value.dest | default('~/.local/src/' + pkg.key)) | regex_replace('^~/', dotfiles_home + '/') }}"
     version: "{{ pkg.value.version | default(omit, true) }}"
-    # 09-15: a pinned version must NOT fetch on every run; only unpinned
-    # (floating) clones track the remote. Ansible coerces to bool.
-    update: "{{ pkg.value.version is not defined }}"
-  when: not (git_marker.stat.exists | default(false))
+    # Lifecycle: pinned versions converge to the declared version in
+    # --upgrade; floating clones update only in --upgrade, never on a
+    # default existing-install run.
+    update: "{{ (dotfiles_upgrade | bool) and (pkg.value.version is not defined or true) }}"
+    force: "{{ dotfiles_upgrade | bool }}"
+  when: not (git_marker.stat.exists | default(false)) or (dotfiles_upgrade | bool)
+  register: dotfiles_git_clone
+  until: dotfiles_git_clone is succeeded
+  retries: 3
+  delay: 5
 
 - name: Run git build steps
   ansible.builtin.shell: "{{ build_step }}"

@@ -34,7 +34,7 @@ ALLOWED_FIELDS = {
     "flatpak": {"source", "package", "remote", "profiles"},
     "npm": {"source", "package", "version", "profiles"},
     "script": {"source", "url", "creates", "args", "interpreter", "link",
-               "sha256", "profiles"},
+               "sha256", "floating_ok", "profiles"},
     "deb": {"source", "url", "sha256", "profiles"},
     "archive": {"source", "url", "url_amd64", "url_arm64", "url_armhf",
                 "url_i386", "dest", "creates", "strip", "link", "sha256",
@@ -180,6 +180,10 @@ def validate_packages(packages, repos, flatpak_remotes, errors):
                 errors.append(
                     f"packages.json: '{name}': field 'link' must not contain path traversal (..)"
                 )
+        if source == "script" and "sha256" not in entry and entry.get("floating_ok") is not True:
+            errors.append(
+                f"packages.json: '{name}': floating script without sha256 must set 'floating_ok: true' (explicit integrity exception)"
+            )
         if "version" in entry and source in ("cargo", "npm", "git"):
             if not isinstance(entry["version"], str) or not entry["version"]:
                 errors.append(
@@ -270,9 +274,9 @@ def validate_repos(repos, errors):
         if not isinstance(repo, dict):
             errors.append(f"repos.json: '{name}': entry must be an object")
             continue
-        if set(repo) - {"key_url", "keyring", "repo"}:
+        if set(repo) - {"key_url", "keyring", "repo", "key_sha256", "key_fingerprint"}:
             errors.append(
-                f"repos.json: '{name}': unknown fields {sorted(set(repo) - {'key_url', 'keyring', 'repo'})}"
+                f"repos.json: '{name}': unknown fields {sorted(set(repo) - {'key_url', 'keyring', 'repo', 'key_sha256', 'key_fingerprint'})}"
             )
         for field in ("key_url", "keyring", "repo"):
             val = repo.get(field)

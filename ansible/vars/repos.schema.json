@@ -9,7 +9,11 @@
   },
   "additionalProperties": {
     "type": "object",
-    "required": ["key_url", "keyring", "repo"],
+    "required": [
+      "key_url",
+      "keyring",
+      "repo"
+    ],
     "additionalProperties": false,
     "properties": {
       "key_url": {
@@ -26,6 +30,16 @@
         "type": "string",
         "pattern": "^deb .*signed-by=.*",
         "description": "APT source line; @ARCH@/@RELEASE@ are expanded by repos.yml."
+      },
+      "key_sha256": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{64}$",
+        "description": "Optional pinned checksum for the downloaded signing key."
+      },
+      "key_fingerprint": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Expected OpenPGP fingerprint; key rotation requires a match before replacing the keyring."
       }
     }
   }

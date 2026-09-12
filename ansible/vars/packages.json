@@ -97,7 +97,8 @@
       "server"
     ],
     "source": "script",
-    "url": "https://claude.ai/install.sh"
+    "url": "https://claude.ai/install.sh",
+    "floating_ok": true
   },
   "copyq": {
     "package": "copyq",
@@ -547,7 +548,8 @@
       "server"
     ],
     "source": "script",
-    "url": "https://opencode.ai/install"
+    "url": "https://opencode.ai/install",
+    "floating_ok": true
   },
   "openssh-client": {
     "package": "openssh-client",
@@ -706,7 +708,8 @@
       "server"
     ],
     "source": "script",
-    "url": "https://starship.rs/install.sh"
+    "url": "https://starship.rs/install.sh",
+    "floating_ok": true
   },
   "system-config-printer-common": {
     "package": "system-config-printer-common",

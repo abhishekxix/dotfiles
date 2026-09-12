@@ -38,6 +38,13 @@ Wrapper behavior:
     ~/.local/state/dotfiles/backups/<timestamp>/ before linking.
     Re-runs are idempotent.
 
+Package lifecycle (see README.md):
+  - Default run: missing packages are installed; existing installs are
+    left alone (floating Git/script sources do NOT update).
+  - --audit: non-mutating drift report (check mode + diff).
+  - --upgrade: converge floating sources and declared archive/Git
+    versions to the manifest; floating scripts reinstall.
+
 Examples:
   ./install
   ./install --profile server
@@ -80,6 +87,18 @@ def parse(argv):
         default=[],
         metavar="KEY=VALUE",
         help="extra Ansible variables; a value containing dotfiles_profile overrides --profile",
+    )
+    parser.add_argument(
+        "--audit",
+        dest="audit",
+        action="store_true",
+        help="non-mutating drift report (runs ansible in check+diff mode)",
+    )
+    parser.add_argument(
+        "--upgrade",
+        dest="upgrade",
+        action="store_true",
+        help="converge floating sources and declared versions to the manifest",
     )
     parser.add_argument(
         "-K",
@@ -236,15 +255,47 @@ def main():
             os.path.join(REPO_ROOT, "ansible", "requirements.yml"),
         ])
 
+    # Concurrent-run lock: one installer mutates at a time; the second
+    # exits with the documented diagnostic instead of interleaving APT.
+    lock_dir = os.path.expanduser("~/.cache/dotfiles-install.lock")
+    try:
+        os.mkdir(lock_dir)
+    except FileExistsError:
+        print(
+            "Another installer run holds ~/.cache/dotfiles-install.lock; "
+            "wait for it or remove the stale lock, then retry.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    except OSError as exc:
+        print(f"Cannot create installer lock: {exc}", file=sys.stderr)
+        sys.exit(1)
+
     os.chdir(REPO_ROOT)
+    if ns.audit and ns.upgrade:
+        shutil.rmtree(lock_dir, ignore_errors=True)
+        print("--audit and --upgrade are mutually exclusive.", file=sys.stderr)
+        sys.exit(2)
     cmd = ["ansible-playbook"]
+    if ns.audit:
+        cmd.extend(["--check", "--diff"])
+    extra = [f"dotfiles_upgrade={'true' if ns.upgrade else 'false'}",
+             f"dotfiles_audit={'true' if ns.audit else 'false'}"]
+    cmd.extend(["-e", " ".join(extra)])
     if not saw_become:
         cmd.append("--ask-become-pass")
     cmd.append("ansible/playbook.yml")
     if not saw_profile_e:
         cmd.extend(["-e", f"dotfiles_profile={profile}"])
     cmd.extend(passthrough)
-    os.execvp(cmd[0], cmd)
+    # exec replaces this process, so atexit would never fire: wrap the
+    # playbook call so the lock releases on completion.
+    import shlex
+    wrapped = (
+        f"{shlex.join(cmd)}; rc=$?; "
+        f"rmdir {shlex.quote(lock_dir)} 2>/dev/null; exit $rc"
+    )
+    os.execvp("/bin/sh", ["/bin/sh", "-c", wrapped])
 
 
 if __name__ == "__main__":

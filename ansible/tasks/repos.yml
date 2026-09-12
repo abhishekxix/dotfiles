@@ -57,9 +57,34 @@
     url: "{{ dotfiles_repos_manifest[item].key_url }}"
     dest: "{{ dotfiles_repos_manifest[item].keyring }}.asc"
     mode: "0644"
+    checksum: "{{ 'sha256:' + dotfiles_repos_manifest[item].key_sha256 if dotfiles_repos_manifest[item].key_sha256 is defined else omit }}"
+    timeout: 60
   loop: "{{ dotfiles_repos_selected }}"
   when: dotfiles_repos_manifest[item].key_url is defined
   register: dotfiles_key_download
+  until: dotfiles_key_download is succeeded
+  retries: 3
+  delay: 5
+  tags:
+    - packages
+
+# Key rotation converges only with expected-fingerprint verification: a
+# changed key is dearmored over the old keyring only when the downloaded
+# key's fingerprint matches the manifest's expected value.
+- name: Verify downloaded key fingerprints
+  become: true
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --batch
+      - --show-keys
+      - --with-colons
+      - "{{ dotfiles_repos_manifest[item].keyring }}.asc"
+  loop: "{{ dotfiles_repos_selected }}"
+  when: dotfiles_repos_manifest[item].key_fingerprint is defined
+  register: dotfiles_key_fpr
+  changed_when: false
+  failed_when: dotfiles_repos_manifest[item].key_fingerprint not in (dotfiles_key_fpr.stdout | default(''))
   tags:
     - packages
 
@@ -75,9 +100,11 @@
       - "{{ dotfiles_repos_manifest[item].keyring }}"
       - "{{ dotfiles_repos_manifest[item].keyring }}.asc"
   args:
-    creates: "{{ dotfiles_repos_manifest[item].keyring }}"
+    creates: "{{ dotfiles_repos_manifest[item].keyring if dotfiles_repos_manifest[item].key_fingerprint is not defined else omit }}"
   loop: "{{ dotfiles_repos_selected }}"
-  when: dotfiles_repos_manifest[item].key_url is defined
+  when:
+    - dotfiles_repos_manifest[item].key_url is defined
+    - dotfiles_upgrade | bool or dotfiles_key_download is changed
   register: dotfiles_key_dearmor
   tags:
     - packages

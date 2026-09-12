@@ -140,6 +140,10 @@
           "description": "Binary (relative to the creates file's directory) to expose as ~/.local/bin/<basename>."
         },
         "sha256": { "$ref": "#/definitions/optSha256" },
+        "floating_ok": {
+          "const": true,
+          "description": "Explicit exception for floating scripts without an upstream verifiable payload; produces a visible integrity warning."
+        },
         "profiles": { "$ref": "#/definitions/profiles" }
       }
     },

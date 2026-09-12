@@ -11,6 +11,12 @@
     url: "{{ pkg.value.url }}"
     dest: "{{ dotfiles_home }}/.cache/dotfiles-debs/{{ pkg.key }}.deb"
     mode: "0644"
+    checksum: "{{ 'sha256:' + pkg.value.sha256 if pkg.value.sha256 is defined else omit }}"
+    timeout: 120
+  register: dotfiles_deb_download
+  until: dotfiles_deb_download is succeeded
+  retries: 3
+  delay: 5
 
 - name: Install deb package
   become: true

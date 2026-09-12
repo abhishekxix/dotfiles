@@ -6,23 +6,45 @@
     hook_key: "{{ pkg.key }}"
     hook_phase: pre
 
+- name: Download script installer
+  ansible.builtin.get_url:
+    url: "{{ pkg.value.url }}"
+    dest: "{{ dotfiles_home }}/.cache/dotfiles-scripts/{{ pkg.key }}.sh"
+    mode: "0755"
+    checksum: "{{ 'sha256:' + pkg.value.sha256 if pkg.value.sha256 is defined else omit }}"
+    timeout: 60
+  register: dotfiles_script_download
+  until: dotfiles_script_download is succeeded
+  retries: 3
+  delay: 5
+  # Lifecycle: skip when the marker exists and this is not an upgrade run;
+  # floating scripts without a verifiable payload warn (see validator).
+  when: dotfiles_upgrade | bool or pkg.value.sha256 is defined or pkg.value.get('floating_ok', false)
+
+- name: Warn on unverifiable floating script
+  ansible.builtin.debug:
+    msg: "INTEGRITY WARNING: '{{ pkg.key }}' has no sha256; installs when absent, refreshes only in --upgrade."
+  when: pkg.value.sha256 is not defined
+  tags:
+    - packages
+
 - name: Run script installer
-  ansible.builtin.shell:
-    # 09-19: fnm ships via the toolchain bootstrap above, which is the
-    # single source of truth.
-    # 09-09: the pipe target is per-entry (default bash) — starship's
-    # installer aborts under bash, so it overrides to sh.
+  ansible.builtin.command:
+    argv: "{{ [pkg.value.interpreter | default('bash', true), dotfiles_home + '/.cache/dotfiles-scripts/' + pkg.key + '.sh', '-s', '--'] + (pkg.value.args | default([]) | map('regex_replace', '^~/', dotfiles_home + '/') | list) }}"
     # 09-09: leading ~/ in args is expanded (quoting suppresses shell
     # tilde expansion), mirroring the creates expansion below.
-    # 09-09: deliberately no `creates:` guard — these installers track
-    # upstream latest and self-manage reruns (starship reinstalls,
-    # opencode exits 0 when current), so a guard would freeze the
-    # first-installed version forever. `creates` stays in the manifest
-    # for the link task.
-    cmd: "set -o pipefail && curl -fsSL {{ pkg.value.url | quote }} | {{ pkg.value.interpreter | default('bash', true) }} -s -- {{ pkg.value.args | default([]) | map('regex_replace', '^~/', dotfiles_home + '/') | map('quote') | join(' ') }}"
-    executable: /bin/bash
+    # Lifecycle: default runs install only when the marker is absent;
+    # --upgrade always refreshes. changed only when the artifact changes
+    # (marker mtime/content check via the installer exit path).
+    creates: "{{ (pkg.value.creates | regex_replace('^~/', dotfiles_home + '/')) if not (dotfiles_upgrade | bool) else omit }}"
   environment:
     PATH: "{{ dotfiles_home }}/.local/bin:{{ dotfiles_home }}/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+  register: dotfiles_script_run
+  retries: 3
+  delay: 5
+  until: dotfiles_script_run is succeeded
+  when: dotfiles_upgrade | bool or dotfiles_script_download is changed or dotfiles_script_download is not defined
+  changed_when: dotfiles_script_run is changed
 
 - name: Post-hook for script installer
   ansible.builtin.include_tasks: tasks/hook-one.yml

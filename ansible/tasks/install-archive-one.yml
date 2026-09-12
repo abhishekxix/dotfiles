@@ -6,17 +6,36 @@
     hook_key: "{{ pkg.key }}"
     hook_phase: pre
 
+- name: Verify declared archive payload checksum
+  ansible.builtin.stat:
+    path: "{{ pkg.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
+  register: dotfiles_archive_marker
+
 - name: Extract archive
   ansible.builtin.unarchive:
     # AI-23: per-arch URL override (e.g. url_arm64), else the default url.
     src: "{{ pkg.value['url_' + dotfiles_deb_arch] | default(pkg.value.url, true) }}"
     dest: "{{ pkg.value.dest | regex_replace('^~/', dotfiles_home + '/') }}"
     remote_src: true
-    creates: "{{ pkg.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
+    # Lifecycle: default run extracts only when absent; --upgrade
+    # re-extracts to converge the declared version.
+    creates: "{{ (pkg.value.creates | regex_replace('^~/', dotfiles_home + '/')) if not (dotfiles_upgrade | bool) else omit }}"
+    checksum: "{{ 'sha256:' + pkg.value.sha256 if pkg.value.sha256 is defined else omit }}"
+    timeout: 300
     # AI-20/AI-32: strip-components is tar-only; never passed for .zip
     # (case-insensitive, query-string tolerant). 09-14: test the same
     # resolved per-arch URL that src: downloads, not the base url.
     extra_opts: "{{ ['--strip-components=' + (pkg.value.strip | string)] if (pkg.value.strip is defined and (pkg.value['url_' + dotfiles_deb_arch] | default(pkg.value.url, true)) is not search('(?i)\\.zip($|\\?)')) else [] }}"
+  register: dotfiles_archive_extract
+  until: dotfiles_archive_extract is succeeded
+  retries: 3
+  delay: 5
+
+- name: Verify post-install archive artifact
+  ansible.builtin.stat:
+    path: "{{ pkg.value.creates | regex_replace('^~/', dotfiles_home + '/') }}"
+  failed_when: not dotfiles_archive_verify.stat.exists | default(false)
+  register: dotfiles_archive_verify
 
 - name: Post-hook for archive
   ansible.builtin.include_tasks: tasks/hook-one.yml

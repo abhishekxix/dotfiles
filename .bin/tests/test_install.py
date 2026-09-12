@@ -98,6 +98,42 @@ class InstallTest(unittest.TestCase):
         playbook = (REPO / "ansible/playbook.yml").read_text()
         self.assertIn("Report required relogins", playbook)
 
+    def test_no_network_to_shell_pipe(self):
+        script_one = (REPO / "ansible/tasks/install-script-one.yml").read_text()
+        self.assertNotIn("curl -fsSL", script_one)
+        self.assertNotIn("| {{", script_one)
+        self.assertIn("get_url", script_one)
+
+    def test_lifecycle_modes_declared(self):
+        install_src = (REPO / "install").read_text()
+        self.assertIn("--audit", install_src)
+        self.assertIn("--upgrade", install_src)
+        self.assertIn("dotfiles-install.lock", install_src)
+        playbook = (REPO / "ansible/playbook.yml").read_text()
+        self.assertIn("dotfiles_upgrade", playbook)
+        git_one = (REPO / "ansible/tasks/install-git-one.yml").read_text()
+        self.assertIn("dotfiles_upgrade", git_one)
+        script_one = (REPO / "ansible/tasks/install-script-one.yml").read_text()
+        self.assertIn("dotfiles_upgrade", script_one)
+
+    def test_retries_and_lock(self):
+        for name in ("install-script-one.yml", "install-git-one.yml",
+                     "install-archive-one.yml", "install-deb-one.yml",
+                     "repos.yml"):
+            text = (REPO / f"ansible/tasks/{name}").read_text()
+            self.assertIn("retries", text, f"{name} needs finite retries")
+        install_src = (REPO / "install").read_text()
+        self.assertIn("holds ~/.cache/dotfiles-install.lock", install_src)
+
+    def test_key_rotation_guarded(self):
+        repos = (REPO / "ansible/tasks/repos.yml").read_text()
+        self.assertIn("key_fingerprint", repos)
+        self.assertIn("fingerprint", repos.lower())
+
+    def test_doctor_audit_upgrade_documented(self):
+        readme = (REPO / "README.md").read_text()
+        self.assertIn(".bin/doctor", readme)
+
     def test_syntax_check(self):
         out = subprocess.run(
             ["ansible-playbook", "--syntax-check", "ansible/playbook.yml"],

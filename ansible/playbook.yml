@@ -5,6 +5,11 @@
 
   vars:
     dotfiles_profile: workstation
+    # Lifecycle modes (see README.md): default installs only missing
+    # packages; audit reports drift without mutation; upgrade converges
+    # floating sources and declared versions.
+    dotfiles_upgrade: false
+    dotfiles_audit: false
     dotfiles_backup_conflicts: true
     dotfiles_config_excludes:
       - README.md

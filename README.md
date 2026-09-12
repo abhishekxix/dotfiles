@@ -100,3 +100,32 @@ for required gaps:
 ```bash
 .bin/doctor
 ```
+
+## Package lifecycle
+
+Each manifest entry declares its `source`:
+
+- `apt`: converged to present by the package manager.
+- `deb`/`archive`: pinned payloads, SHA-256 verified when `sha256` is
+  set; re-extracted only when absent (default) or always in upgrade mode.
+- `git`: pinned `version` entries converge in upgrade mode; floating
+  (unversioned) clones update only in upgrade mode, never on a default
+  existing-install run.
+- `script`: installers download to a temporary file before execution
+  (never piped from the network to a shell). Entries without an
+  upstream-verifiable payload carry an explicit `floating_ok: true`
+  exception, install when absent, refresh only in upgrade mode, and
+  print a visible integrity warning.
+
+Modes:
+
+```bash
+./install            # fresh installs; existing installs left alone
+./install --audit    # non-mutating drift report (check + diff)
+./install --upgrade  # converge floating sources and declared versions
+```
+
+One installer run holds `~/.cache/dotfiles-install.lock`; a second
+concurrent run exits with the lock diagnostic instead of interleaving
+APT transactions. Repository key rotation requires the manifest's
+expected fingerprint to match before the dearmored keyring is replaced.
