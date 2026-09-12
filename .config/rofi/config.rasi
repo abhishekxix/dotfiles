@@ -1,11 +1,11 @@
 @theme "./themes/catppuccin-mocha.rasi"
 
 configuration {
-  modes: "drun,run,window,ssh";
+  modes: "combi,drun,run,window,ssh";
+  combi-modes: "window,drun,ssh";
   show-icons: true;
   sidebar-mode: true;
   lines: 12;
   columns: 1;
   fixed-num-lines: true;
-  scrollbar-width: 8px;
 }

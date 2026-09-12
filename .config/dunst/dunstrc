@@ -124,12 +124,9 @@
     #  * update: sort by update (most recent always at the top)
     sort = urgency_descending
 
-    # Don't remove messages, if the user is idle (no mouse or keyboard input)
-    # for longer than idle_threshold seconds.
-    # Set to 0 to disable.
-    # A client can set the 'transient' hint to bypass this. See the rules
-    # section for how to disable this if necessary
-    # idle_threshold = 120
+    # Keep notifications available while idle; the user reviews them on
+    # return instead of losing them to timeout.
+    idle_threshold = 0
 
     ### Text ###
 
@@ -240,8 +237,9 @@
 
     ### Misc/Advanced ###
 
-    # dmenu path.
-    dmenu = /usr/bin/dmenu -p dunst:
+    # Rofi in dmenu-compatible mode renders action menus; dmenu is not
+    # installed on this system.
+    dmenu = rofi -dmenu -p dunst:
 
     # Browser for opening urls in context menu.
     browser = /usr/bin/xdg-open
@@ -421,11 +419,11 @@ timeout = 0
 #        If the notification is already drawn, it won't get undrawn.
 # pushback: same as delay, but when switching into fullscreen, the notification will get
 #           withdrawn from screen again and will get delayed like a new notification
-#[fullscreen_delay_everything]
-#    fullscreen = delay
-#[fullscreen_show_critical]
-#    msg_urgency = critical
-#    fullscreen = show
+[fullscreen_delay_everything]
+    fullscreen = delay
+[fullscreen_show_critical]
+    msg_urgency = critical
+    fullscreen = show
 
 #[espeak]
 #    summary = "*"

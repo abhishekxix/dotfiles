@@ -134,9 +134,12 @@ listview {
     spacing:      2px ;
     fixed-height: 0;
     border:       2px dash 0px 0px ;
+    lines: 12;
+    columns: 1;
+    fixed-height: true;
 }
 scrollbar {
-    width:        4px ;
+    width:        8px ;
     padding:      0;
     handle-width: 8px ;
     border:       0;
