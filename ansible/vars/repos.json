@@ -1,4 +1,13 @@
 {
+  "1password": {
+    "debsig": {
+      "policy_id": "AC2D62742012EA22",
+      "policy_url": "https://downloads.1password.com/linux/debian/debsig/1password.pol"
+    },
+    "key_url": "https://downloads.1password.com/linux/keys/1password.asc",
+    "keyring": "/usr/share/keyrings/1password-archive-keyring.gpg",
+    "repo": "deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main"
+  },
   "corretto": {
     "key_url": "https://apt.corretto.aws/corretto.key",
     "keyring": "/usr/share/keyrings/corretto-keyring.gpg",

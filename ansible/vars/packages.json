@@ -1,5 +1,13 @@
 {
   "$schema": "./packages.schema.json",
+  "1password": {
+    "package": "1password",
+    "profiles": [
+      "workstation"
+    ],
+    "repo": "1password",
+    "source": "apt"
+  },
   "alacritty": {
     "package": "alacritty",
     "profiles": [
