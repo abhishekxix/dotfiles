@@ -1,7 +1,14 @@
 # Specs
 
-Spec-driven development for this dotfiles repo. A **spec** is a scoped, planned
-change: a goal, numbered steps, and acceptance criteria — written *before* code.
+Spec-driven development for non-trivial work in this dotfiles repo. A **spec**
+is a scoped, planned change: a goal, numbered steps, and acceptance criteria —
+written *before* code.
+
+Before behavioral code or configuration changes, `AGENTS.md` requires the user
+to choose Full spec, Quick change, or Cancel. The Quick change path skips this
+spec lifecycle but still requires a feature branch, targeted verification, and
+a focused commit. Read-only work and typo-only documentation changes do not
+require a spec.
 
 ## Layout
 
@@ -9,7 +16,7 @@ change: a goal, numbered steps, and acceptance criteria — written *before* cod
 .specs/
   README.md          # this file
   TEMPLATE.md        # canonical spec template (copy to start a new spec)
-  <COMPONENT>/       # e.g. NVIM/, QTILE/, WEZTERM/, CONFIG/, INSTALLER/
+  <COMPONENT>/       # e.g. NVIM/, QTILE/, ALACRITTY/, CONFIG/, INSTALLER/
     <slug>/          # one folder per spec, e.g. migrate-0.11.3-to-0.12.5/
       00-overview.md # spec summary + status checklist
       01-<topic>.md  # one file per step (in execution order)
@@ -26,15 +33,25 @@ Rules:
 ## Lifecycle
 
 1. **Plan** — copy `TEMPLATE.md`, fill in Goal / Context / Non-goals / Steps.
-   Do not write code in this stage. Keep exact code out of the spec (see
-   TEMPLATE.md); verbatim snippets belong in the implementation plan.
-2. **Approve** — get sign-off on the spec before implementing (a PR comment,
-   a chat confirmation, whatever you normally do), then flip Status to
-   `Approved`. The text is frozen from here; edits need re-approval.
-3. **Implement** — one commit per step, named `<COMPONENT>(<NN>): <summary>`
+   Do not write code in this stage. Keep exact code out of the spec; use
+   implementation notes only when exact details are needed.
+2. **Approve** — get sign-off on the spec before implementing, set Status to
+   exactly `Approved`, and commit the approved spec. Scope and requirements are
+   frozen from here; edits need re-approval. Status, checklist state, and
+   verification notes remain mutable lifecycle bookkeeping.
+3. **Implement** — set Status to exactly `In progress` and make one commit per
+   step, named `<COMPONENT>(<NN>): <summary>`
    (matching existing history, e.g. `NVIM(03): ...`, `QTILE: ...`).
-4. **Verify** — check off each step's acceptance criteria *before* committing.
-5. **Close** — flip the spec Status to `Done`.
+4. **Verify** — automatically check criteria proven by successful automated
+   tests. Leave hardware, visual, and other manual criteria unchecked until the
+   user confirms them.
+5. **Close** — set Status to exactly `Done` after all criteria pass. Keep status,
+   checklist, and verification-note changes uncommitted during implementation;
+   ask the user whether to create a final `SPECS` bookkeeping commit.
+
+Use only `Planning`, `Approved`, `In progress`, or `Done` in the Status field.
+Put explanations such as pending manual checks in Verification notes instead of
+creating custom status values.
 
 ## Commit conventions
 
@@ -47,6 +64,6 @@ The key constraint for specs:
 
 ## For agents & automation
 
-`AGENTS.md` at the repo root is the canonical, tool-agnostic entry point. In
-short: check `.specs/` for an existing spec, and if none matches, draft one from
-`TEMPLATE.md` and get approval before implementing.
+`AGENTS.md` at the repo root is the canonical, tool-agnostic entry point. For
+the Full spec path, check `.specs/` for an existing spec and, if none matches,
+draft one from `TEMPLATE.md` and get approval before implementing.
