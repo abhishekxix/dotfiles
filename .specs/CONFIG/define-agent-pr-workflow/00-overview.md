@@ -2,9 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Component | CONFIG |
 | Created | 2026-09-12 |
+| Verification notes | All automated checks passed; no manual checks required. |
 
 ## Goal
 
@@ -40,9 +41,9 @@ the instructions concise enough to avoid unnecessary context use.
 
 ## Steps
 
-- [ ] 01 - define agent approval, branch, commit, safety, and efficiency rules
-- [ ] 02 - align the spec lifecycle and template with those rules
-- [ ] 03 - add the pull-request template and title convention
+- [x] 01 - define agent approval, branch, commit, safety, and efficiency rules
+- [x] 02 - align the spec lifecycle and template with those rules
+- [x] 03 - add the pull-request template and title convention
 
 ## Risks & Rollback
 

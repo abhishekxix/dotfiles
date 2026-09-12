@@ -8,9 +8,9 @@
   creation.
 - **Test:** `git diff --check -- .github/pull_request_template.md AGENTS.md`
 - **Acceptance:**
-  - [ ] New pull requests receive a concise, useful default body.
-  - [ ] The template records the governing spec or approved quick-change path.
-  - [ ] Validation, pending manual checks, and material risks are visible.
-  - [ ] PR titles follow `<COMPONENT>: <imperative summary>` with no step number.
-  - [ ] Creating a PR still requires explicit user approval and is not performed
+  - [x] New pull requests receive a concise, useful default body.
+  - [x] The template records the governing spec or approved quick-change path.
+  - [x] Validation, pending manual checks, and material risks are visible.
+  - [x] PR titles follow `<COMPONENT>: <imperative summary>` with no step number.
+  - [x] Creating a PR still requires explicit user approval and is not performed
     by this step.

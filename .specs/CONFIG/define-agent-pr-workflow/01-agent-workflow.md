@@ -12,18 +12,18 @@
   verification, host-target, and completion-report rules.
 - **Test:** `git diff --check -- AGENTS.md`
 - **Acceptance:**
-  - [ ] Behavioral code/config changes cannot start without quiz-based user
+  - [x] Behavioral code/config changes cannot start without quiz-based user
     approval, including one-line changes.
-  - [ ] Agents automatically create a conventionally named feature branch from
+  - [x] Agents automatically create a conventionally named feature branch from
     `main` and never commit on `main`.
-  - [ ] Approved work may be committed automatically on a non-`main` branch,
+  - [x] Approved work may be committed automatically on a non-`main` branch,
     one commit per logical change or spec step.
-  - [ ] `sudo`, package mutations, service/session changes, non-check Ansible,
+  - [x] `sudo`, package mutations, service/session changes, non-check Ansible,
     live symlink recreation, and PR creation have explicit approval gates.
-  - [ ] Automated acceptance criteria are checked after passing validation;
+  - [x] Automated acceptance criteria are checked after passing validation;
     manual/hardware criteria remain unchecked until user confirmation.
-  - [ ] Spec lifecycle bookkeeping stays uncommitted until the user approves a
+  - [x] Spec lifecycle bookkeeping stays uncommitted until the user approves a
     final commit.
-  - [ ] Dirty-worktree, secret, live-symlink, target-platform, targeted-test,
+  - [x] Dirty-worktree, secret, live-symlink, target-platform, targeted-test,
     concise-reporting, and relevant-files-only guidance is present.
-  - [ ] Unlisted and multi-config changes use `CONFIG`.
+  - [x] Unlisted and multi-config changes use `CONFIG`.
