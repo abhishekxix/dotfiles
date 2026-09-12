@@ -29,7 +29,9 @@ keys = build_keys(
 extend_group_keys(keys, groups, MODKEY, SHIFTKEY)
 
 widget_defaults = dict(
-    font="Ubuntu Bold",
+    # Explicit Nerd Font fallback renders private-use bar glyphs even when
+    # the primary font lacks them.
+    font="Ubuntu Bold, Iosevka Nerd Font",
     fontsize=14,
     background=colors["background"],
     foreground=colors["foreground"],
