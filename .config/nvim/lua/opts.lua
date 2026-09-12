@@ -50,3 +50,6 @@ vim.o.winborder = 'rounded'
 vim.opt.smoothscroll = true
 
 vim.opt.pumheight = 15
+
+-- Offer save/discard/cancel instead of failing when quitting a dirty buffer.
+vim.o.confirm = true
