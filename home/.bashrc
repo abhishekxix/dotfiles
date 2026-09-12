@@ -43,9 +43,39 @@ esac
 alias ls='ls --color=auto'
 PS1='[\u@\h \W]\$ '
 
+# fzf key bindings with scoped previews: file preview for Ctrl-T file
+# selection, directory preview for Alt-C, none for history/arbitrary input.
+if command -v fzf >/dev/null 2>&1; then
+  if [ -f ~/.fzf.bash ]; then
+    . ~/.fzf.bash
+  else
+    [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && . /usr/share/doc/fzf/examples/key-bindings.bash
+    [ -f /usr/share/doc/fzf/examples/completion.bash ] && . /usr/share/doc/fzf/examples/completion.bash
+  fi
+  if command -v bat >/dev/null 2>&1; then
+    export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always {}'"
+  elif command -v batcat >/dev/null 2>&1; then
+    export FZF_CTRL_T_OPTS="--preview 'batcat -n --color=always {}'"
+  fi
+  if command -v eza >/dev/null 2>&1; then
+    export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 {}'"
+  else
+    export FZF_ALT_C_OPTS="--preview 'ls -R {}'"
+  fi
+fi
+
 # fnm setup
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --shell bash)"
+fi
+
+# zoxide directory jumping (guarded) and direnv (guarded; inactive until
+# a directory is explicitly allowed with `direnv allow`).
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init bash)"
+fi
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook bash)"
 fi
 
 # bash-completion when installed

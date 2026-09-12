@@ -63,6 +63,22 @@ class ShellStartupTest(unittest.TestCase):
     def test_zsh_starship_guarded(self):
         self.assertRegex(ZSHRC, r"command -v starship[\s\S]*starship init")
 
+    def test_fzf_scoped_previews(self):
+        for rc, name in ((ZSHRC, ".zshrc"), (BASHRC, ".bashrc")):
+            self.assertNotRegex(
+                rc, r"(?m)^export FZF_DEFAULT_OPTS=.*--preview",
+                f"{name}: global fzf opts must carry no preview",
+            )
+            self.assertIn("FZF_CTRL_T_OPTS", rc)
+            self.assertIn("FZF_ALT_C_OPTS", rc)
+
+    def test_zoxide_direnv_guarded_init(self):
+        for rc, shell in ((ZSHRC, "zsh"), (BASHRC, "bash")):
+            self.assertRegex(
+                rc, r"command -v zoxide[\s\S]*zoxide init %s" % shell)
+            self.assertRegex(
+                rc, r"command -v direnv[\s\S]*direnv hook %s" % shell)
+
     def test_zsh_single_shared_history_mode(self):
         self.assertIn("set -o share_history", ZSHRC)
         self.assertNotIn("set -o append_history", ZSHRC)

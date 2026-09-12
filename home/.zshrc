@@ -55,7 +55,14 @@ if command -v fzf >/dev/null 2>&1; then
   fi
 fi
 _bat_preview() { command -v bat >/dev/null 2>&1 && print -r 'bat -n --color=always {}' || print -r 'batcat -n --color=always {}'; }
-export FZF_DEFAULT_OPTS="--info=inline --preview '$(_bat_preview)' --border --margin=1 --padding=1"
+_dir_preview() { command -v eza >/dev/null 2>&1 && print -r 'eza --tree --level=2 {}' || print -r 'ls -R {}'; }
+export FZF_DEFAULT_OPTS="--info=inline --border --margin=1 --padding=1"
+# Previews apply only to file/directory selection, never to history or
+# arbitrary input; each preview degrades when its command is unavailable.
+if command -v bat >/dev/null 2>&1 || command -v batcat >/dev/null 2>&1; then
+  export FZF_CTRL_T_OPTS="--preview '$(_bat_preview)'"
+fi
+export FZF_ALT_C_OPTS="--preview '$(_dir_preview)'"
 
 # Starship setup (guarded: provisioning may be partial)
 if command -v starship >/dev/null 2>&1; then
@@ -68,6 +75,15 @@ tty=$(tty 2>/dev/null) && export GPG_TTY="$tty"; unset tty
 # fnm setup
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
+# zoxide directory jumping (guarded) and direnv (guarded; inactive until
+# a directory is explicitly allowed with `direnv allow`).
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
 fi
 
 # Syntax highlighting runs last so earlier widgets are already defined.
