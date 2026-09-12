@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 17 |
 | Commit | `CONFIG(17): expand CI and operator documentation` |
 

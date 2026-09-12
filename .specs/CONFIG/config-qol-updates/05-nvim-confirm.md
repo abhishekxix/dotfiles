@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 05 |
 | Commit | `CONFIG(05): add safe Neovim exit confirmation` |
 

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 08 |
 | Commit | `CONFIG(08): reconcile Rofi and Dunst behavior` |
 

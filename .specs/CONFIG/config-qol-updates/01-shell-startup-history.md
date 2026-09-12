@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 01 |
 | Commit | `CONFIG(01): harden shell startup and history` |
 

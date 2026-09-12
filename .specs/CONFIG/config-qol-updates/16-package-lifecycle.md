@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 16 |
 | Commit | `CONFIG(16): define package lifecycle and integrity` |
 

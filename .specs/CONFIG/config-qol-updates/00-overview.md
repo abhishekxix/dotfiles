@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Component | CONFIG |
 | Created | 2026-09-12 |
 

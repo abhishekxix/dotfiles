@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 07 |
 | Commit | `CONFIG(07): correct Neovim LSP lifecycle` |
 

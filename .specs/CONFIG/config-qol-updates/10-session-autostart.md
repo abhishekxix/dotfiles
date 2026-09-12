@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 10 |
 | Commit | `CONFIG(10): establish one session and autostart owner` |
 

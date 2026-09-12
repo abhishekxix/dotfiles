@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 02 |
 | Commit | `CONFIG(02): scope fzf and add project-aware shell tools` |
 

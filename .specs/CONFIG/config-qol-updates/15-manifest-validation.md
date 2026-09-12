@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 15 |
 | Commit | `CONFIG(15): make manifest validation strict` |
 

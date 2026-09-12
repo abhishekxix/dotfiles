@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 13 |
 | Commit | `CONFIG(13): add environment health diagnostics` |
 

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 06 |
 | Commit | `CONFIG(06): make Neovim tool installation diagnosable` |
 

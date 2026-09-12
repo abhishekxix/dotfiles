@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 14 |
 | Commit | `CONFIG(14): strengthen installer preflight and link safety` |
 
