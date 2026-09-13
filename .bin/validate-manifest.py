@@ -87,6 +87,14 @@ def validate_packages(packages, repos, flatpak_remotes, errors):
             errors.append(
                 f"packages.json: '{name}': repo id '{entry['repo']}' not defined in repos.json"
             )
+        if "arches" in entry:
+            arches = entry["arches"]
+            if not isinstance(arches, list) or not arches or any(
+                not isinstance(a, str) or not a for a in arches
+            ):
+                errors.append(
+                    f"packages.json: '{name}': field 'arches' must be a non-empty list of non-empty strings"
+                )
         if source == "flatpak" and "remote" in entry and entry["remote"] not in flatpak_remote_ids:
             errors.append(
                 f"packages.json: '{name}': remote id '{entry['remote']}' not defined in flatpak-remotes.json"
@@ -104,6 +112,33 @@ def validate_packages(packages, repos, flatpak_remotes, errors):
                 errors.append(
                     f"packages.json: '{name}': unknown profiles {unknown} (choose from {sorted(PROFILES)})"
                 )
+
+
+def validate_repos(repos, errors):
+    if not isinstance(repos, dict):
+        errors.append("repos.json: top level must be an object")
+        return
+    for name, entry in repos.items():
+        if not isinstance(entry, dict):
+            errors.append(f"repos.json: '{name}': entry must be an object")
+            continue
+        for field in ("key_url", "keyring", "repo"):
+            value = entry.get(field)
+            if not isinstance(value, str) or not value:
+                errors.append(
+                    f"repos.json: '{name}': missing field '{field}' (non-empty string)"
+                )
+        debsig = entry.get("debsig")
+        if debsig is not None:
+            if not isinstance(debsig, dict):
+                errors.append(f"repos.json: '{name}': field 'debsig' must be an object")
+            else:
+                for field in ("policy_id", "policy_url"):
+                    value = debsig.get(field)
+                    if not isinstance(value, str) or not value:
+                        errors.append(
+                            f"repos.json: '{name}': debsig missing field '{field}' (non-empty string)"
+                        )
 
 
 def validate_deps(deps, packages, errors):
@@ -221,6 +256,7 @@ def main():
 
     errors = []
     validate_packages(packages, repos, flatpak_remotes, errors)
+    validate_repos(repos, errors)
     validate_deps(deps, packages, errors)
     validate_flatpak_remotes(flatpak_remotes, errors)
     validate_hooks(packages, args.hooks, errors)
