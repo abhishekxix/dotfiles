@@ -39,8 +39,10 @@ current branch is `main`, create and switch to
 and a short verb-led slug. For GitHub-issue-tracked work, branch instead as
 `<feature|fix|chore>/GH-<issue-number>-<slug>`, e.g.
 `fix/GH-42-repair-1password-arch-guard` (append `-<n>` for further
-iterations, e.g. `-2`). Ask the user only when the component or slug is
-uncertain. Never commit on `main`.
+iterations, e.g. `-2`). The `<slug>` is the GitHub issue title in kebab case
+(e.g. issue "CONFIG: shell startup, history, fzf/zoxide/direnv" →
+`shell-startup-history-fzf-zoxide-direnv`). Ask the user only when the
+component or slug is uncertain. Never commit on `main`.
 
 ## Spec-driven development
 

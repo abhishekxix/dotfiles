@@ -16,6 +16,12 @@ set -o pushdminus
 export EDITOR=vim
 export WINIT_X11_SCALE_FACTOR=1
 
+# GPG_TTY for pinentry (interactive shells with a tty only: fixes gpg after
+# tmux reattach without polluting scripts/cron)
+if [[ -t 0 ]]; then
+  export GPG_TTY=$(tty)
+fi
+
 # keybinds
 bindkey '^H' backward-kill-word
 bindkey "^[[1;5D" backward-word
@@ -53,12 +59,28 @@ if command -v fzf >/dev/null 2>&1; then
   fi
 fi
 _bat_preview() { command -v bat >/dev/null 2>&1 && print -r 'bat -n --color=always {}' || print -r 'batcat -n --color=always {}'; }
-export FZF_DEFAULT_OPTS="--info=inline --preview '$(_bat_preview)' --border --margin=1 --padding=1"
+export FZF_DEFAULT_OPTS="--info=inline --border --margin=1 --padding=1"
+# Scoped previews: file/dir widgets only (Ctrl-T/Alt-C). Ctrl-R stays
+# preview-free. Revert this hunk alone to restore the global preview.
+export FZF_CTRL_T_OPTS="--preview '$(_bat_preview)'"
+export FZF_ALT_C_OPTS="--preview '$(_bat_preview)'"
 
-# Starship setup
-eval "$(starship init zsh)"
+# Starship setup (guarded: keep shell usable when missing)
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
 
 # fnm setup
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
+# zoxide setup (guarded: keep shell usable when missing)
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+# direnv setup (guarded: keep shell usable when missing)
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
 fi

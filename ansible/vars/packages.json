@@ -139,6 +139,14 @@
     ],
     "source": "apt"
   },
+  "direnv": {
+    "package": "direnv",
+    "profiles": [
+      "workstation",
+      "server"
+    ],
+    "source": "apt"
+  },
   "docker-buildx-plugin": {
     "package": "docker-buildx-plugin",
     "profiles": [
@@ -885,6 +893,14 @@
     "package": "yaru-theme-gtk",
     "profiles": [
       "workstation"
+    ],
+    "source": "apt"
+  },
+  "zoxide": {
+    "package": "zoxide",
+    "profiles": [
+      "workstation",
+      "server"
     ],
     "source": "apt"
   },
