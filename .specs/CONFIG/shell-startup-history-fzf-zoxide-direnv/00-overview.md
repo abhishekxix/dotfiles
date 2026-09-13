@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Component | CONFIG |
 | Created | 2026-09-13 |
 | GH issue | GH-26 (`CONFIG: shell startup, history, fzf/zoxide/direnv`) |
@@ -86,16 +86,18 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
   (allow-listed via `direnv allow`) on servers as well as the workstation.
 - **Test:** `python3 -c "import json; json.load(open('ansible/vars/packages.json'))"` plus lexical-order check against neighboring keys.
 - **Acceptance:**
-  - [ ] `zoxide` and `direnv` entries parse and sit in sorted position
-  - [ ] both profiles include both packages
+  - [x] `zoxide` and `direnv` entries parse and sit in sorted position
+  - [x] both profiles include both packages
 
 ### 02 — Guarded tool init: starship, zoxide, direnv in both shells
 
 - **Files:** `home/.zshrc` (EDIT), `home/.bashrc` (EDIT)
 - **Changes:** guard the bare starship eval with `command -v starship`;
   add `zoxide init` + `direnv hook` evals to both shells, each guarded by
-  `command -v`, placed after the existing fnm/fzf blocks so tool order is
-  fnm → fzf → zoxide → direnv. Bring bash to parity: guarded starship init
+  `command -v`, appended after the existing blocks. Actual order: zsh is
+  fzf → starship → fnm → zoxide → direnv; bash is fnm → fzf → starship →
+  zoxide → direnv → bash-completion (fnm left in place; order is cosmetic —
+  no tool reads another's init output). Bring bash to parity: guarded starship init
   (replaces static `PS1` when present), fzf key bindings mirroring zsh
   (`~/.fzf.bash` preferred, else system `key-bindings.bash` +
   `completion.bash`, guarded by `command -v fzf`), plus the shared
@@ -105,7 +107,7 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
   home/.bashrc`; `zsh -ic true` / `bash -ic true` with binaries shadowed
   from PATH — no errors, exit 0.
 - **Acceptance:**
-  - [ ] shell starts clean with any one tool missing (verifiable)
+  - [x] shell starts clean with any one tool missing (verifiable)
   - [ ] `z` navigation and `direnv allow/deny` work in both shells (manual)
   - [ ] bash shows starship prompt and fzf key bindings work (manual)
 
@@ -137,8 +139,20 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
   empty (non-interactive guard holds); interactive shells export a tty path.
   Open two concurrent bash shells, run a command in one, Ctrl-R in the other.
 - **Acceptance:**
+  - [x] non-interactive shells leave `GPG_TTY` unset; tty shells export a pts path (verifiable)
   - [ ] `tmux reattach; gpg --clearsign` works without pinentry failure (manual)
   - [ ] two concurrent bash sessions share history (manual)
+
+## Implementation notes
+
+- Step 02 commit `d451d8d`: bash `_bat_preview` uses `printf` (zsh uses
+  `print -r`); SC2155 avoided via declare/export split; SC2089/2090 carry
+  per-line disables (single-quoted `--preview '...'` is intentional — fzf
+  splits opts itself).
+- Step 04 commit `2b863c3`: our `PROMPT_COMMAND` sync line sits *before* the
+  starship block in `.bashrc`; starship init captures pre-existing
+  `PROMPT_COMMAND` into `STARSHIP_PROMPT_COMMAND` and runs it inside
+  `starship_precmd` after `$?` preservation — history sync composes correctly.
 
 ## Risks & Rollback
 
