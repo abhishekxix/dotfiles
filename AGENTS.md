@@ -36,7 +36,10 @@ from the original request.
 Before writing approved changes, ensure the work is on a feature branch. If the
 current branch is `main`, create and switch to
 `feature/<component>/<verb-subject>` automatically, using a lowercase component
-and a short verb-led slug. Ask the user only when the component or slug is
+and a short verb-led slug. For GitHub-issue-tracked work, branch instead as
+`<feature|fix|chore>/GH-<issue-number>-<slug>`, e.g.
+`fix/GH-42-repair-1password-arch-guard` (append `-<n>` for further
+iterations, e.g. `-2`). Ask the user only when the component or slug is
 uncertain. Never commit on `main`.
 
 ## Spec-driven development
@@ -133,7 +136,12 @@ lifecycle changes.
 ## Pull requests
 
 - Title pull requests `<COMPONENT>: <imperative summary>`, using the component
-  rules above and omitting spec step numbers.
+  rules above and omitting spec step numbers. For GitHub-issue-tracked work,
+  title instead `GH-<issue-number>: <PR title>`, e.g. `GH-42: fix 1Password
+  arch guard`, and name the branch
+  `<feature|fix|chore>/GH-<issue-number>-<slug>`, e.g.
+  `fix/GH-42-repair-1password-arch-guard` (append `-<n>` for further
+  iterations).
 - Complete `.github/pull_request_template.md`; use `N/A` rather than removing a
   section that does not apply.
 - Creating a pull request requires explicit approval, separate from approval to
