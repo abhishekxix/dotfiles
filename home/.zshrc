@@ -53,7 +53,11 @@ if command -v fzf >/dev/null 2>&1; then
   fi
 fi
 _bat_preview() { command -v bat >/dev/null 2>&1 && print -r 'bat -n --color=always {}' || print -r 'batcat -n --color=always {}'; }
-export FZF_DEFAULT_OPTS="--info=inline --preview '$(_bat_preview)' --border --margin=1 --padding=1"
+export FZF_DEFAULT_OPTS="--info=inline --border --margin=1 --padding=1"
+# Scoped previews: file/dir widgets only (Ctrl-T/Alt-C). Ctrl-R stays
+# preview-free. Revert this hunk alone to restore the global preview.
+export FZF_CTRL_T_OPTS="--preview '$(_bat_preview)'"
+export FZF_ALT_C_OPTS="--preview '$(_bat_preview)'"
 
 # Starship setup (guarded: keep shell usable when missing)
 if command -v starship >/dev/null 2>&1; then

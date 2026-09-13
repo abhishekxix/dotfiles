@@ -35,6 +35,19 @@ if command -v fzf >/dev/null 2>&1; then
     [ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
   fi
 fi
+_bat_preview() { command -v bat >/dev/null 2>&1 && printf '%s\n' 'bat -n --color=always {}' || printf '%s\n' 'batcat -n --color=always {}'; }
+export FZF_DEFAULT_OPTS="--info=inline --border --margin=1 --padding=1"
+# Scoped previews: file/dir widgets only (Ctrl-T/Alt-C). Ctrl-R stays
+# preview-free. Revert this hunk alone to restore the global preview.
+# single-quoted preview cmd is intentional: fzf splits opts itself
+# shellcheck disable=SC2089
+FZF_CTRL_T_OPTS="--preview '$(_bat_preview)'"
+# shellcheck disable=SC2090
+export FZF_CTRL_T_OPTS
+# shellcheck disable=SC2089
+FZF_ALT_C_OPTS="--preview '$(_bat_preview)'"
+# shellcheck disable=SC2090
+export FZF_ALT_C_OPTS
 
 # Starship setup (guarded: replaces PS1 when present)
 if command -v starship >/dev/null 2>&1; then
