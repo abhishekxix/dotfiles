@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Component | CONFIG |
 | Created | 2026-09-13 |
 | GH issue | GH-26 (`CONFIG: shell startup, history, fzf/zoxide/direnv`) |
@@ -108,8 +108,8 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
   from PATH — no errors, exit 0.
 - **Acceptance:**
   - [x] shell starts clean with any one tool missing (verifiable)
-  - [ ] `z` navigation and `direnv allow/deny` work in both shells (manual)
-  - [ ] bash shows starship prompt and fzf key bindings work (manual)
+  - [x] `z` navigation and `direnv allow/deny` work in both shells (manual, user-confirmed 2026-09-13)
+  - [x] bash shows starship prompt and fzf key bindings work (manual, user-confirmed 2026-09-13)
 
 ### 03 — Scoped fzf previews (self-contained, easily reverted)
 
@@ -122,7 +122,7 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 - **Test:** `zsh -n` / `bash -n` / `shellcheck`; Ctrl-T/Alt-C show previews,
   Ctrl-R does not.
 - **Acceptance:**
-  - [ ] Ctrl-T/Alt-C show previews, Ctrl-R does not (manual)
+  - [x] Ctrl-T/Alt-C show previews, Ctrl-R does not (manual, user-confirmed 2026-09-13)
 
 ### 04 — GPG_TTY interactive-only + bash live-shared history
 
@@ -140,8 +140,8 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
   Open two concurrent bash shells, run a command in one, Ctrl-R in the other.
 - **Acceptance:**
   - [x] non-interactive shells leave `GPG_TTY` unset; tty shells export a pts path (verifiable)
-  - [ ] `tmux reattach; gpg --clearsign` works without pinentry failure (manual)
-  - [ ] two concurrent bash sessions share history (manual)
+  - [x] `tmux reattach; gpg --clearsign` works without pinentry failure (manual, user-confirmed 2026-09-13)
+  - [x] two concurrent bash sessions share history (manual, user-confirmed 2026-09-13)
 
 ## Implementation notes
 
