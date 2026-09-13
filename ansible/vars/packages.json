@@ -1,6 +1,9 @@
 {
   "$schema": "./packages.schema.json",
   "1password": {
+    "arches": [
+      "amd64"
+    ],
     "package": "1password",
     "profiles": [
       "workstation"

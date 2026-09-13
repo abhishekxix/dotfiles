@@ -23,7 +23,9 @@
     # active profile, in one apt transaction before any per-source task.
     dotfiles_deps_manifest: "{{ lookup('ansible.builtin.file', playbook_dir + '/vars/package-deps.json') | from_json | dict2items | rejectattr('key', 'equalto', '$schema') | items2dict }}"
     dotfiles_deps_apt: "{{ dotfiles_deps_manifest | dict2items | selectattr('key', 'in', dotfiles_packages_selected | map(attribute='key') | list) | map(attribute='value') | flatten | unique | list }}"
-    dotfiles_packages_selected: "{{ dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | list }}"
+    # Optional per-entry `arches` allowlist (Debian arch names): entries
+    # declaring it are skipped on non-matching hosts (e.g. amd64-only repos).
+    dotfiles_packages_selected: "{{ dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | rejectattr('value.arches', 'defined') | list + dotfiles_manifest | dict2items | selectattr('value.profiles', 'contains', dotfiles_profile) | selectattr('value.arches', 'defined') | selectattr('value.arches', 'contains', dotfiles_deb_arch) | list }}"
     dotfiles_repos_selected: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | selectattr('value.repo', 'defined') | map(attribute='value.repo') | unique | list }}"
     dotfiles_flatpak_remotes_selected: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'flatpak') | map(attribute='value.remote') | unique | list }}"
     dotfiles_pkgs_apt: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'apt') | list }}"

@@ -87,6 +87,14 @@ def validate_packages(packages, repos, flatpak_remotes, errors):
             errors.append(
                 f"packages.json: '{name}': repo id '{entry['repo']}' not defined in repos.json"
             )
+        if "arches" in entry:
+            arches = entry["arches"]
+            if not isinstance(arches, list) or not arches or any(
+                not isinstance(a, str) or not a for a in arches
+            ):
+                errors.append(
+                    f"packages.json: '{name}': field 'arches' must be a non-empty list of non-empty strings"
+                )
         if source == "flatpak" and "remote" in entry and entry["remote"] not in flatpak_remote_ids:
             errors.append(
                 f"packages.json: '{name}': remote id '{entry['remote']}' not defined in flatpak-remotes.json"
