@@ -16,6 +16,12 @@ set -o pushdminus
 export EDITOR=vim
 export WINIT_X11_SCALE_FACTOR=1
 
+# GPG_TTY for pinentry (interactive shells with a tty only: fixes gpg after
+# tmux reattach without polluting scripts/cron)
+if [[ -t 0 ]]; then
+  export GPG_TTY=$(tty)
+fi
+
 # keybinds
 bindkey '^H' backward-kill-word
 bindkey "^[[1;5D" backward-word

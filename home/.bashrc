@@ -11,11 +11,20 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-# history: large, shared feel, verify expansions (matches zsh opts)
+# history: large, live-shared across sessions, verify expansions
 HISTSIZE=100000
 HISTFILESIZE=100000
 HISTCONTROL=ignoredups:erasedups
 shopt -s histappend histverify 2>/dev/null
+# Live-share history across concurrent sessions (append-style: never clobbers
+# tool hooks like direnv/fnm that extend PROMPT_COMMAND)
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }history -a; history -c; history -r"
+
+# GPG_TTY for pinentry (interactive shells with a tty only: fixes gpg after
+# tmux reattach without polluting scripts/cron)
+if [ -t 0 ]; then
+  GPG_TTY=$(tty); export GPG_TTY
+fi
 
 alias ls='ls --color=auto'
 PS1='[\u@\h \W]\$ '
