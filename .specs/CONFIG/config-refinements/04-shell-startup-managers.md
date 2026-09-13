@@ -2,9 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | Planning |
+| Status | Approved |
 | Step | 04 |
 | Commit | `CONFIG(04): cached compinit, lazy fnm, single node manager, guarded fzf/bat` |
+| GH issue | GH-26 (step verified against live tree 2026-09-13; mostly already-satisfied, no implementation diff) |
+| Verified | 2026-09-13: `zsh -ic true` 0.060s total, `bash -ic true` 0.014s total; fzf/fnm/starship/batcat present, `bat` absent, system-nvm/`NODE_ENV` absent |
+| Decisions (2026-09-13) | compinit `-C -d` already in place — keep as-is. fnm is the single manager in both shells — user elected to **keep eager eval** (no lazy-load). fzf one-or-other sourcing — keep as-is. `_bat_preview` helper — keep as-is (user). `EDITOR=vim` — keep (user; revisit in step 05 alongside git editor + alias convergence). `NODE_ENV` — no export in tree; already-satisfied. |
 
 ## Files
 
