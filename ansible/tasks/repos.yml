@@ -105,7 +105,7 @@
   ansible.builtin.apt:
     name: debsig-verify
     state: present
-  when: (dotfiles_repos_selected | select('in', dotfiles_repos_manifest) | select('extract', dotfiles_repos_manifest) | selectattr('debsig', 'defined') | list | length) > 0
+  when: (dotfiles_repos_selected | map('extract', dotfiles_repos_manifest) | selectattr('debsig', 'defined') | list | length) > 0
   tags:
     - packages
 
