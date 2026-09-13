@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Approved |
 | Component | ANSIBLE |
 | Created | 2026-09-13 |
-| Verification notes | Automated checks pass (validator, syntax-check, malformed-debsig rejection). Pending: real playbook run on x86_64 (repo/keyring/debsig files, apt install 1password, idempotent re-run). |
+| Verification notes | Automated checks pass (validator, syntax-check, malformed-debsig rejection). Pending: real playbook run on x86_64 (repo/keyring/debsig files, apt install 1password, idempotent re-run). Steps 03-04 drafted from PR #34 review; awaiting approval. |
 
 ## Goal
 
@@ -45,6 +45,8 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
 - [x] 01 — 1Password repo + package manifest entries (01-repo-package-entry.md)
 - [x] 02 — debsig-verify policy support in repos pipeline (02-debsig-policy.md)
+- [ ] 03 — fix debsig-verify install condition (03-debsig-when-fix.md)
+- [ ] 04 — amd64-only arch guard for 1password (04-arch-guard.md)
 
 ## Risks & Rollback
 
