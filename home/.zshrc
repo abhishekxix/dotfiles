@@ -55,10 +55,22 @@ fi
 _bat_preview() { command -v bat >/dev/null 2>&1 && print -r 'bat -n --color=always {}' || print -r 'batcat -n --color=always {}'; }
 export FZF_DEFAULT_OPTS="--info=inline --preview '$(_bat_preview)' --border --margin=1 --padding=1"
 
-# Starship setup
-eval "$(starship init zsh)"
+# Starship setup (guarded: keep shell usable when missing)
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
 
 # fnm setup
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
+# zoxide setup (guarded: keep shell usable when missing)
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+# direnv setup (guarded: keep shell usable when missing)
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
 fi
