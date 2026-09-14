@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | Done |
 | Component | CONFIG |
 | Created | 2026-09-14 |
 | GH issue | GH-27 (`CONFIG: git conflict tools and tmux sessions`) |
-| Verification notes | None |
+| Verification notes | Manual gates user-confirmed 2026-09-14: spaced-path diff/merge in nvim, per-file difftool prompt, tmux destroy-switch + titles. |
 
 > GH-27 is part 2/8 of the PR #25 split. PR #25 was closed unmerged; its spec
 > (`.specs/CONFIG/config-qol-updates/`, steps 03–04) no longer exists in the
@@ -78,9 +78,9 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 - **Test:** `git config --file home/.gitconfig --list`; spaced-path diff/merge
   dry run. Manual only, no automated tests (per issue).
 - **Acceptance:**
-  - [ ] spaced paths open correctly in difftool/mergetool without word-split
-  - [ ] `git difftool` still prompts per file (unchanged behavior)
-  - [ ] conflicts render compact zdiff3 (manual, pending user confirm)
+  - [x] spaced paths open correctly in difftool/mergetool without word-split
+  - [x] `git difftool` still prompts per file (unchanged behavior — no prompt key in section)
+  - [x] conflicts render compact zdiff3 (throwaway-repo merge + manual, user-confirmed 2026-09-14)
 
 ### 02 — tmux destroy-switch, message time, titles
 
@@ -92,8 +92,8 @@ Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
   destroy attached session, observe client switch + titles. Manual only, no
   automated tests (per issue).
 - **Acceptance:**
-  - [ ] destroying the attached session switches client, never detaches (manual, pending user confirm)
-  - [ ] titles show session + command; messages stay readable (manual, pending user confirm)
+  - [x] destroying the attached session switches client, never detaches (manual, user-confirmed 2026-09-14)
+  - [x] titles show session + command; messages stay readable (manual, user-confirmed 2026-09-14)
 
 ## Risks & Rollback
 
