@@ -17,7 +17,10 @@ python3 "$HOME/.config/qtile/config_parts/monitors.py"
 export WINIT_X11_SCALE_FACTOR=1
 
 # Launch only if installed — keeps fresh machines boot-noise-free.
+# Skip if already running — lxsession autostart may own the same daemons.
 try_launch() {
+  # -f: applets like nm-applet run under python, so exact-name match misses.
+  pgrep -f "$1" >/dev/null 2>&1 && return 0
   command -v "$1" >/dev/null 2>&1 && "$@" &
 }
 
