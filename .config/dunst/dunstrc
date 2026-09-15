@@ -129,7 +129,7 @@
     # Set to 0 to disable.
     # A client can set the 'transient' hint to bypass this. See the rules
     # section for how to disable this if necessary
-    # idle_threshold = 120
+    idle_threshold = 120
 
     ### Text ###
 
@@ -240,8 +240,8 @@
 
     ### Misc/Advanced ###
 
-    # dmenu path.
-    dmenu = /usr/bin/dmenu -p dunst:
+    # dmenu path (rofi: this desktop has no dmenu installed).
+    dmenu = /usr/bin/rofi -dmenu -p dunst:
 
     # Browser for opening urls in context menu.
     browser = /usr/bin/xdg-open
@@ -405,9 +405,9 @@ timeout = 0
 
 # Disable the transient hint so that idle_threshold cannot be bypassed from the
 # client
-#[transient_disable]
-#    match_transient = yes
-#    set_transient = no
+[transient_disable]
+    match_transient = yes
+    set_transient = no
 #
 # Make the handling of transient notifications more strict by making them not
 # be placed in history.
@@ -421,11 +421,11 @@ timeout = 0
 #        If the notification is already drawn, it won't get undrawn.
 # pushback: same as delay, but when switching into fullscreen, the notification will get
 #           withdrawn from screen again and will get delayed like a new notification
-#[fullscreen_delay_everything]
-#    fullscreen = delay
-#[fullscreen_show_critical]
-#    msg_urgency = critical
-#    fullscreen = show
+[fullscreen_delay_everything]
+    fullscreen = delay
+[fullscreen_show_critical]
+    msg_urgency = critical
+    fullscreen = show
 
 #[espeak]
 #    summary = "*"
