@@ -1,8 +1,0 @@
-#!/bin/sh
-# X session environment for Qtile logins.
-# Sourced by X session startup (display manager / startx); keep it minimal —
-# session daemons and monitors belong in .config/qtile/autostart.sh.
-
-export XDG_CURRENT_DESKTOP=qtile
-export XDG_SESSION_DESKTOP=qtile
-export XDG_SESSION_TYPE=x11
