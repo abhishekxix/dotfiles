@@ -36,6 +36,7 @@ try_launch copyq
 try_launch nm-applet
 # try_launch blueberry
 try_launch blueman-applet
+try_launch kdeconnect-indicator
 try_launch xscreensaver --nosplash
 # try_launch mictray
 
