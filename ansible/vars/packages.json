@@ -360,6 +360,13 @@
     "repo": "corretto",
     "source": "apt"
   },
+  "kdeconnect": {
+    "package": "kdeconnect",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "libavcodec-extra": {
     "package": "libavcodec-extra",
     "profiles": [
