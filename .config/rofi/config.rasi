@@ -2,6 +2,7 @@
 
 configuration {
   modes: "drun,run,window,ssh";
+  combi-display-format: "{text}";
   show-icons: true;
   lines: 12;
   columns: 1;
