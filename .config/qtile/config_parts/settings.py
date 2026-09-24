@@ -27,8 +27,11 @@ my_config_dict = {
         "border_focus": colors["accent"],
         "border_normal": "#000000",
     },
-    "menu": "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
-    "run_launcher": "rofi -show run",
+    # -normal-window: rofi skips its active keyboard grab (rofi 1.7.5 has no
+    # toggle for it), so the xbindkeys PrtSc -> flameshot grab keeps working
+    # while rofi is open. Requires the rofi float rule in layouts.py.
+    "menu": "rofi -normal-window -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
+    "run_launcher": "rofi -normal-window -show run",
     "web_browser": "google-chrome",
     "file_manager": "nautilus",
     "pavu": "pavucontrol",
