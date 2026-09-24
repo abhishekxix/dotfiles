@@ -77,6 +77,12 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
         ),
         Key([modkey, controlkey], "r", lazy.reload_config(), desc="Reload the config"),
         Key([modkey, controlkey], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+        Key(
+            [modkey, controlkey],
+            "p",
+            lazy.spawn(my_config_dict["power_menu"]),
+            desc="Power menu (lock, logout, suspend, reboot, shutdown)",
+        ),
         Key([modkey], "r", lazy.spawn(my_config_dict["menu"]), desc="Launch rofi run"),
         Key(
             [modkey],
