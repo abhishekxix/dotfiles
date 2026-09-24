@@ -30,5 +30,7 @@ def build_floating_layout():
             Match(wm_class="blueman-manager"),
             Match(wm_class="pavucontrol"),
             Match(wm_class="gnome-system-monitor"),
+            # Rofi launched with -normal-window is a managed window and must float.
+            Match(wm_class="rofi"),
         ]
     )
