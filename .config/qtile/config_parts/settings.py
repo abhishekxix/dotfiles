@@ -28,7 +28,7 @@ my_config_dict = {
         "border_normal": "#000000",
     },
     "menu": "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
-    "run_launcher": "rofi -combi-modi run -show combi",
+    "run_launcher": "rofi -show run",
     "web_browser": "google-chrome",
     "file_manager": "nautilus",
     "pavu": "pavucontrol",
