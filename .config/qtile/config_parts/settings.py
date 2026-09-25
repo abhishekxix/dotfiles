@@ -1,5 +1,13 @@
 """Shared settings for Qtile configuration."""
 
+from pathlib import Path
+
+# Resolved from this file's real location (the config is symlinked into
+# ~/.config), so .bin scripts are found wherever the repo lives. Needed
+# because lazy.spawn shlex-splits the command and shutil.which()es the first
+# token, so paths must be literal — no $HOME expansion, no shell.
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
 colors = {
     "background": "#1e1e2e",
     "surface": "#313244",
@@ -27,8 +35,12 @@ my_config_dict = {
         "border_focus": colors["accent"],
         "border_normal": "#000000",
     },
-    "menu": "rofi -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
-    "run_launcher": "rofi -combi-modi run -show combi",
+    # -normal-window: rofi skips its active keyboard grab (rofi 1.7.5 has no
+    # toggle for it), so the xbindkeys PrtSc -> flameshot grab keeps working
+    # while rofi is open. Requires the rofi float rule in layouts.py.
+    "menu": "rofi -normal-window -combi-modi window,drun,ssh -show combi -icon-theme 'Papirus' -show-icons",
+    "run_launcher": "rofi -normal-window -show run",
+    "power_menu": str(REPO_ROOT / ".bin" / "power-menu.sh"),
     "web_browser": "google-chrome",
     "file_manager": "nautilus",
     "pavu": "pavucontrol",

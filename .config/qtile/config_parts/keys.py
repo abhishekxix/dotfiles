@@ -11,12 +11,6 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
         Key([modkey], "j", lazy.layout.down(), desc="Move focus down"),
         Key([modkey], "k", lazy.layout.up(), desc="Move focus up"),
         Key(
-            [modkey],
-            "space",
-            lazy.layout.next(),
-            desc="Move window focus to other window",
-        ),
-        Key(
             [modkey, shiftkey],
             "h",
             lazy.layout.shuffle_left(),
@@ -83,9 +77,15 @@ def build_keys(modkey, shiftkey, tabkey, controlkey, my_config_dict):
         ),
         Key([modkey, controlkey], "r", lazy.reload_config(), desc="Reload the config"),
         Key([modkey, controlkey], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+        Key(
+            [modkey, controlkey],
+            "p",
+            lazy.spawn(my_config_dict["power_menu"]),
+            desc="Power menu (lock, logout, suspend, reboot, shutdown)",
+        ),
         Key([modkey], "r", lazy.spawn(my_config_dict["menu"]), desc="Launch rofi run"),
         Key(
-            ["mod1"],
+            [modkey],
             "space",
             lazy.spawn(my_config_dict["run_launcher"]),
             desc="Spawn a command using a prompt widget",
