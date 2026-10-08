@@ -402,6 +402,14 @@
     ],
     "source": "apt"
   },
+  "localsend": {
+    "package": "org.localsend.localsend_app",
+    "profiles": [
+      "workstation"
+    ],
+    "remote": "flathub",
+    "source": "flatpak"
+  },
   "loupe": {
     "package": "loupe",
     "profiles": [
@@ -735,6 +743,13 @@
   },
   "system-config-printer-udev": {
     "package": "system-config-printer-udev",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "testdisk": {
+    "package": "testdisk",
     "profiles": [
       "workstation"
     ],
