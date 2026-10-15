@@ -147,6 +147,14 @@
     ],
     "source": "apt"
   },
+  "digikam": {
+    "package": "org.kde.digikam",
+    "profiles": [
+      "workstation"
+    ],
+    "remote": "flathub",
+    "source": "flatpak"
+  },
   "docker-buildx-plugin": {
     "package": "docker-buildx-plugin",
     "profiles": [
