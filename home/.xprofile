@@ -1,0 +1,2 @@
+# Make Electron apps (Claude, VS Code, etc.) use GNOME Keyring under qtile
+export XDG_CURRENT_DESKTOP=GNOME
