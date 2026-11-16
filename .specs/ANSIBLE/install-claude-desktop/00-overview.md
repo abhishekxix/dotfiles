@@ -45,12 +45,14 @@ gets it the same way this machine already does by hand.
 - No server-profile install (desktop GUI app).
 - No sign-in, MCP, or app configuration.
 - No live playbook run as part of this spec (check mode only).
+- No other check-mode fixes in the repo pipeline beyond step 02.
 
 ## Steps
 
 Each step maps to exactly one commit, named `<COMPONENT>(<NN>): <summary>`.
 
 - [ ] 01 — Claude Desktop repo + package manifest entries (01-repo-package-entry.md)
+- [ ] 02 — check-mode-safe keyring permissions task (02-check-mode-keyring-perms.md)
 
 ## Risks & Rollback
 
