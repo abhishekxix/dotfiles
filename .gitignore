@@ -6,7 +6,7 @@
 !/.bin/
 !/.github/
 !/.pre-commit-config.yaml
-!/.specs/
+!/docs/
 !/ansible/
 !/ansible.cfg
 !/home/
