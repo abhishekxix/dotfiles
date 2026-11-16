@@ -14,10 +14,14 @@
     - packages
 
 # AI-17: one task, one apt transaction for all selected apt packages.
+# Recommends are off so only declared packages (and hard Depends) land;
+# e.g. lxsession's Recommends otherwise pull in the whole LXDE desktop.
+# Anything a package only Recommends must be declared in packages.json.
 - name: Install apt packages
   become: true
   ansible.builtin.apt:
     name: "{{ dotfiles_pkgs_apt | map(attribute='value.package') | list }}"
+    install_recommends: false
     state: present
   when: (dotfiles_pkgs_apt | length) > 0
   tags:
@@ -29,6 +33,7 @@
   become: true
   ansible.builtin.apt:
     name: "{{ dotfiles_deps_apt }}"
+    install_recommends: false
     state: present
   when: (dotfiles_deps_apt | length) > 0
   tags:
