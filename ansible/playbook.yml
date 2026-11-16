@@ -38,8 +38,8 @@
     dotfiles_pkgs_flatpak: "{{ dotfiles_packages_selected | selectattr('value.source', 'equalto', 'flatpak') | list }}"
     # Required Debian components for the manifest: plain `non-free` is
     # needed by fonts-ubuntu/nvidia-*, `contrib` by mscorefonts. Normalized
-    # into debian.sources by tasks/components.yml (see
-    # .specs/ANSIBLE/enable-nonfree-components/).
+    # into debian.sources by tasks/components.yml (see the archived
+    # enable-nonfree-components spec in #47).
     dotfiles_apt_components: main contrib non-free non-free-firmware
     # AI-01/AI-27: map kernel arch names to Debian apt arch names; anything
     # unmapped fails fast in validation instead of writing a broken arch= line.
