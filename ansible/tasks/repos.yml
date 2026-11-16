@@ -168,8 +168,11 @@
 - name: Update APT metadata after adding third-party repos
   become: true
   ansible.builtin.apt:
+    # No cache_valid_time: the task is already gated on a key/repo change,
+    # and a <1h-old cache (e.g. a manual `apt update` just before the run)
+    # would otherwise skip the refresh, leaving the new repo's index
+    # unloaded ("No package matching 'docker-buildx-plugin'").
     update_cache: true
-    cache_valid_time: 3600
   # AI-03: only refresh when a key or repo actually changed.
   when: dotfiles_key_download is changed or dotfiles_key_dearmor is changed or dotfiles_repo_purge is changed or dotfiles_repo_add is changed
   tags:
