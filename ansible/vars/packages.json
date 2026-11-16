@@ -496,6 +496,13 @@
     ],
     "source": "apt"
   },
+  "nautilus-dropbox": {
+    "package": "nautilus-dropbox",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
   "neovim": {
     "creates": "~/.local/src/nvim/bin/nvim",
     "dest": "~/.local/src/nvim",
@@ -660,6 +667,13 @@
   },
   "pulseaudio-utils": {
     "package": "pulseaudio-utils",
+    "profiles": [
+      "workstation"
+    ],
+    "source": "apt"
+  },
+  "python3-gpg": {
+    "package": "python3-gpg",
     "profiles": [
       "workstation"
     ],
