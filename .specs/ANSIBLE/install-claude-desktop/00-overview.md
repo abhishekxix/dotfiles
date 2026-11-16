@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | Approved |
+| Status | In progress |
 | Component | ANSIBLE |
 | Created | 2026-11-16 |
-| Verification notes | None |
+| Verification notes | Validator and syntax-check pass. Step 02 syntax-check passes. Pending: check-mode re-run from a real terminal and post-run apt check. |
 
 ## Goal
 

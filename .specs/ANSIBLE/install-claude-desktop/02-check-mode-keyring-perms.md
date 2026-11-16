@@ -13,7 +13,7 @@
   user runs `ansible-playbook --check --diff --tags packages -K ansible/playbook.yml`
   from a real terminal.
 - **Acceptance:**
-  - [ ] Playbook syntax check passes.
+  - [x] Playbook syntax check passes.
   - [ ] Manual: check mode completes without failing on the missing
     `claude-desktop` keyring, and the diff shows `claude-desktop.list` moving
     its signed-by to the `.gpg` keyring with no other repo changes.

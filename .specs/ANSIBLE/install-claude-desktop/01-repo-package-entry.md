@@ -12,9 +12,9 @@
   `ansible-playbook --check --diff --tags packages ansible/playbook.yml`
   (check mode only; may need become password).
 - **Acceptance:**
-  - [ ] Validator passes with the new `claude-desktop` repo id referenced by
+  - [x] Validator passes with the new `claude-desktop` repo id referenced by
     the new `claude-desktop` package entry.
-  - [ ] Playbook syntax check passes.
+  - [x] Playbook syntax check passes.
   - [ ] Check-mode diff plans `claude-desktop.list` with the `.gpg`
     signed-by and `arch=amd64`, and touches no other repo or package.
   - [ ] Manual: after a real run, `apt-cache policy claude-desktop` still
