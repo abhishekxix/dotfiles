@@ -7,8 +7,8 @@
 # A legacy one-line sources.list is auto-migrated to canonical deb822 — but
 # only when every URI in it is a default mirror (deb.debian.org or
 # security.debian.org); custom mirrors and source-less hosts fail fast.
-# See .specs/ANSIBLE/enable-nonfree-components/ and
-# .specs/ANSIBLE/migrate-legacy-apt-sources/.
+# See the archived enable-nonfree-components and migrate-legacy-apt-sources
+# specs in #47.
 - name: Check apt source files
   ansible.builtin.stat:
     path: "{{ item }}"

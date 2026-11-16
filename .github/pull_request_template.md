@@ -6,7 +6,7 @@
 
 ## Change Control
 
-- Spec or quick-change approval: <!-- path/link, or "Quick change approved" -->
+- Issue or quick-change approval: <!-- Closes #<n> / Refs #<n>, or "Quick change approved" -->
 
 ## Validation
 
