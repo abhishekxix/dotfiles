@@ -9,114 +9,97 @@
 # on a fresh host the .list files exist before their keyrings do (dearmor
 # runs later), so an earlier update would abort with "repository is not
 # signed".
-- name: Remove foreign deb822 repo definitions
+# GH-51: repo/key changes are wrapped so a failure anywhere in here — a
+# looped task failing on a later item, the keyring prereqs — still leaves
+# the persistent refresh marker behind. Without it a re-run sees every
+# repo/key task `ok` and the change-gated refresh never fires again.
+- name: Configure third-party apt repositories and keys
   become: true
-  ansible.builtin.file:
-    path: "/etc/apt/sources.list.d/{{ item }}.sources"
-    state: absent
-  loop: "{{ dotfiles_repos_selected }}"
-  register: dotfiles_repo_purge
   tags:
     - packages
+  block:
+    - name: Remove foreign deb822 repo definitions
+      ansible.builtin.file:
+        path: "/etc/apt/sources.list.d/{{ item }}.sources"
+        state: absent
+      loop: "{{ dotfiles_repos_selected }}"
+      register: dotfiles_repo_purge
 
-# apt_repository is deliberately not used: it only appends its line and
-# never removes foreign ones, so the drift above would survive forever.
-# copy owns the exact file content instead — drift is overwritten on the
-# next run, and a matching file stays ok (idempotent).
-- name: Add third-party apt repositories
-  become: true
-  ansible.builtin.copy:
-    dest: "/etc/apt/sources.list.d/{{ item }}.list"
-    # 09-12: @ARCH@/@RELEASE@ are plain (non-Jinja) placeholders, expanded
-    # here with the Debian arch (amd64/arm64) and the release codename.
-    content: "{{ dotfiles_repos_manifest[item].repo | replace('@ARCH@', dotfiles_deb_arch) | replace('@RELEASE@', ansible_facts.distribution_release) }}\n"
-    mode: "0644"
-  loop: "{{ dotfiles_repos_selected }}"
-  register: dotfiles_repo_add
-  tags:
-    - packages
+    # apt_repository is deliberately not used: it only appends its line and
+    # never removes foreign ones, so the drift above would survive forever.
+    # copy owns the exact file content instead — drift is overwritten on the
+    # next run, and a matching file stays ok (idempotent).
+    - name: Add third-party apt repositories
+      ansible.builtin.copy:
+        dest: "/etc/apt/sources.list.d/{{ item }}.list"
+        # 09-12: @ARCH@/@RELEASE@ are plain (non-Jinja) placeholders, expanded
+        # here with the Debian arch (amd64/arm64) and the release codename.
+        content: "{{ dotfiles_repos_manifest[item].repo | replace('@ARCH@', dotfiles_deb_arch) | replace('@RELEASE@', ansible_facts.distribution_release) }}\n"
+        mode: "0644"
+      loop: "{{ dotfiles_repos_selected }}"
+      register: dotfiles_repo_add
 
-# GH-51: persistent refresh marker. The change-gated refresh at the end of
-# this file only fires on the run that changed a repo/key; if anything in
-# between fails (keyring prereqs, debsig), a re-run sees every repo/key task
-# `ok` and would never refresh. The marker survives the failed run, and is
-# set as soon as a change is seen (here, and again after the key tasks).
-- name: Mark apt index refresh pending after repo changes
-  become: true
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: "{{ item.state }}"
-    mode: "{{ item.mode }}"
-    modification_time: preserve
-    access_time: preserve
-  loop:
-    - { path: "{{ dotfiles_apt_refresh_marker | dirname }}", state: directory, mode: "0755" }
-    - { path: "{{ dotfiles_apt_refresh_marker }}", state: touch, mode: "0644" }
-  when: dotfiles_repo_purge is changed or dotfiles_repo_add is changed
-  tags:
-    - packages
+    # -- Toolchain prerequisites (AI-11: before any gpg/dearmor use) --------
+    # No update_cache here: on a fresh host the .list files above already
+    # reference keyrings that don't exist until the dearmor task runs; the
+    # gated refresh at the end of this file covers the index instead.
+    - name: Ensure keyring prerequisites are installed
+      ansible.builtin.apt:
+        name:
+          - gnupg
+          - ca-certificates
+        state: present
+      when: (dotfiles_repos_selected | length) > 0
 
-# -- Toolchain prerequisites (AI-11: before any gpg/dearmor use) --------
-# No update_cache here: on a fresh host the .list files above already
-# reference keyrings that don't exist until the dearmor task runs; the
-# gated refresh at the end of this file covers the index instead.
-- name: Ensure keyring prerequisites are installed
-  become: true
-  ansible.builtin.apt:
-    name:
-      - gnupg
-      - ca-certificates
-    state: present
-  when: (dotfiles_repos_selected | length) > 0
-  tags:
-    - packages
+    - name: Download third-party apt signing keys
+      ansible.builtin.get_url:
+        url: "{{ dotfiles_repos_manifest[item].key_url }}"
+        dest: "{{ dotfiles_repos_manifest[item].keyring }}.asc"
+        mode: "0644"
+      loop: "{{ dotfiles_repos_selected }}"
+      when: dotfiles_repos_manifest[item].key_url is defined
+      register: dotfiles_key_download
 
-- name: Download third-party apt signing keys
-  become: true
-  ansible.builtin.get_url:
-    url: "{{ dotfiles_repos_manifest[item].key_url }}"
-    dest: "{{ dotfiles_repos_manifest[item].keyring }}.asc"
-    mode: "0644"
-  loop: "{{ dotfiles_repos_selected }}"
-  when: dotfiles_repos_manifest[item].key_url is defined
-  register: dotfiles_key_download
-  tags:
-    - packages
+    - name: Dearmor third-party apt signing keys
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --batch
+          - --yes
+          - --dearmor
+          - -o
+          - "{{ dotfiles_repos_manifest[item].keyring }}"
+          - "{{ dotfiles_repos_manifest[item].keyring }}.asc"
+      args:
+        creates: "{{ dotfiles_repos_manifest[item].keyring }}"
+      loop: "{{ dotfiles_repos_selected }}"
+      when: dotfiles_repos_manifest[item].key_url is defined
+      register: dotfiles_key_dearmor
+  always:
+    # default({}): a task after the failing one never registered.
+    - name: Record whether a third-party repo or key changed
+      ansible.builtin.set_fact:
+        dotfiles_repo_changes_seen: >-
+          {{ (dotfiles_repo_purge | default({})) is changed or
+             (dotfiles_repo_add | default({})) is changed or
+             (dotfiles_key_download | default({})) is changed or
+             (dotfiles_key_dearmor | default({})) is changed }}
 
-- name: Dearmor third-party apt signing keys
-  become: true
-  ansible.builtin.command:
-    argv:
-      - gpg
-      - --batch
-      - --yes
-      - --dearmor
-      - -o
-      - "{{ dotfiles_repos_manifest[item].keyring }}"
-      - "{{ dotfiles_repos_manifest[item].keyring }}.asc"
-  args:
-    creates: "{{ dotfiles_repos_manifest[item].keyring }}"
-  loop: "{{ dotfiles_repos_selected }}"
-  when: dotfiles_repos_manifest[item].key_url is defined
-  register: dotfiles_key_dearmor
-  tags:
-    - packages
+    - name: Ensure the dotfiles state directory exists
+      ansible.builtin.file:
+        path: "{{ dotfiles_apt_refresh_marker | dirname }}"
+        state: directory
+        mode: "0755"
+      when: dotfiles_repo_changes_seen | bool
 
-# GH-51: see the first marker task; set before the debsig tasks, which can fail.
-- name: Mark apt index refresh pending after key changes
-  become: true
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: "{{ item.state }}"
-    mode: "{{ item.mode }}"
-    modification_time: preserve
-    access_time: preserve
-  loop:
-    - { path: "{{ dotfiles_apt_refresh_marker | dirname }}", state: directory, mode: "0755" }
-    - { path: "{{ dotfiles_apt_refresh_marker }}", state: touch, mode: "0644" }
-  when: dotfiles_key_download is changed or dotfiles_key_dearmor is changed
-  tags:
-    - packages
+    - name: Mark apt index refresh pending
+      ansible.builtin.file:
+        path: "{{ dotfiles_apt_refresh_marker }}"
+        state: touch
+        mode: "0644"
+        modification_time: preserve
+        access_time: preserve
+      when: dotfiles_repo_changes_seen | bool
 
 # 09-18/VG-01: the .asc copy is kept (never deleted) so get_url converges
 # on content comparison — deleting it made download + removal report
@@ -211,27 +194,25 @@
 - name: Update APT metadata after adding third-party repos
   become: true
   ansible.builtin.apt:
-    # No cache_valid_time: the task is already gated on a key/repo change,
-    # and a <1h-old cache (e.g. a manual `apt update` just before the run)
-    # would otherwise skip the refresh, leaving the new repo's index
-    # unloaded ("No package matching 'docker-buildx-plugin'").
+    # No cache_valid_time: the task is already gated (below), and a
+    # <1h-old cache (e.g. a manual `apt update` just before the run) would
+    # otherwise skip the refresh, leaving the new repo's index unloaded
+    # ("No package matching 'docker-buildx-plugin'").
     update_cache: true
   # AI-03: only refresh when a key or repo actually changed, or (GH-51) an
-  # earlier run changed one but failed before refreshing.
-  when: >-
-    dotfiles_key_download is changed or dotfiles_key_dearmor is changed or
-    dotfiles_repo_purge is changed or dotfiles_repo_add is changed or
-    dotfiles_apt_refresh_pending.stat.exists
+  # earlier run changed one but failed before refreshing. Both conditions
+  # are needed: check mode never creates the marker, so the marker alone
+  # would hide this run's refresh.
+  when: dotfiles_repo_changes_seen | bool or dotfiles_apt_refresh_pending.stat.exists
   register: dotfiles_apt_refresh
   tags:
     - packages
 
-# Only reached when the refresh succeeded (a failure ends the play first).
 - name: Clear the pending apt index refresh marker
   become: true
   ansible.builtin.file:
     path: "{{ dotfiles_apt_refresh_marker }}"
     state: absent
-  when: dotfiles_apt_refresh is not skipped
+  when: dotfiles_apt_refresh is succeeded and dotfiles_apt_refresh is not skipped
   tags:
     - packages
