@@ -37,6 +37,9 @@ try_launch nm-applet
 # try_launch blueberry
 try_launch blueman-applet
 try_launch kdeconnect-indicator
+# First run (`dropbox start -i`) downloads the daemon to ~/.dropbox-dist;
+# until then `dropbox start` only prints a hint.
+try_launch dropbox start
 try_launch xscreensaver --nosplash
 # try_launch mictray
 
