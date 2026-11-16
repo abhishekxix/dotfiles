@@ -110,6 +110,18 @@
     "source": "script",
     "url": "https://claude.ai/install.sh"
   },
+  "claude-desktop": {
+    "arches": [
+      "amd64",
+      "arm64"
+    ],
+    "package": "claude-desktop",
+    "profiles": [
+      "workstation"
+    ],
+    "repo": "claude-desktop",
+    "source": "apt"
+  },
   "copyq": {
     "package": "copyq",
     "profiles": [
