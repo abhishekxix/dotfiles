@@ -41,6 +41,9 @@
     # into debian.sources by tasks/components.yml (see the archived
     # enable-nonfree-components spec in #47).
     dotfiles_apt_components: main contrib non-free non-free-firmware
+    # GH-51: present while a third-party repo/key change still awaits an apt
+    # index refresh (survives a failed run; see tasks/repos.yml).
+    dotfiles_apt_refresh_marker: /var/lib/dotfiles/apt-refresh-pending
     # AI-01/AI-27: map kernel arch names to Debian apt arch names; anything
     # unmapped fails fast in validation instead of writing a broken arch= line.
     dotfiles_deb_arch_map:
