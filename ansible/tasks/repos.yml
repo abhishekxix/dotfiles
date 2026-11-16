@@ -93,7 +93,12 @@
     state: file
     mode: "0644"
   loop: "{{ dotfiles_repos_selected }}"
-  when: dotfiles_repos_manifest[item].key_url is defined
+  # Check mode never runs the dearmor command (it only reports changed), so
+  # a keyring that would be created doesn't exist yet; skip it here instead
+  # of failing with "file ... is absent". Real runs are unaffected.
+  when:
+    - dotfiles_repos_manifest[item].key_url is defined
+    - not (ansible_check_mode and (dotfiles_key_dearmor.results | selectattr('item', 'equalto', item) | selectattr('changed') | list | length) > 0)
   tags:
     - packages
 
