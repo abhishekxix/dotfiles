@@ -36,6 +36,26 @@
   tags:
     - packages
 
+# GH-51: persistent refresh marker. The change-gated refresh at the end of
+# this file only fires on the run that changed a repo/key; if anything in
+# between fails (keyring prereqs, debsig), a re-run sees every repo/key task
+# `ok` and would never refresh. The marker survives the failed run, and is
+# set as soon as a change is seen (here, and again after the key tasks).
+- name: Mark apt index refresh pending after repo changes
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    mode: "{{ item.mode }}"
+    modification_time: preserve
+    access_time: preserve
+  loop:
+    - { path: "{{ dotfiles_apt_refresh_marker | dirname }}", state: directory, mode: "0755" }
+    - { path: "{{ dotfiles_apt_refresh_marker }}", state: touch, mode: "0644" }
+  when: dotfiles_repo_purge is changed or dotfiles_repo_add is changed
+  tags:
+    - packages
+
 # -- Toolchain prerequisites (AI-11: before any gpg/dearmor use) --------
 # No update_cache here: on a fresh host the .list files above already
 # reference keyrings that don't exist until the dearmor task runs; the
@@ -79,6 +99,22 @@
   loop: "{{ dotfiles_repos_selected }}"
   when: dotfiles_repos_manifest[item].key_url is defined
   register: dotfiles_key_dearmor
+  tags:
+    - packages
+
+# GH-51: see the first marker task; set before the debsig tasks, which can fail.
+- name: Mark apt index refresh pending after key changes
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    mode: "{{ item.mode }}"
+    modification_time: preserve
+    access_time: preserve
+  loop:
+    - { path: "{{ dotfiles_apt_refresh_marker | dirname }}", state: directory, mode: "0755" }
+    - { path: "{{ dotfiles_apt_refresh_marker }}", state: touch, mode: "0644" }
+  when: dotfiles_key_download is changed or dotfiles_key_dearmor is changed
   tags:
     - packages
 
@@ -165,6 +201,13 @@
   tags:
     - packages
 
+- name: Check for a pending apt index refresh
+  ansible.builtin.stat:
+    path: "{{ dotfiles_apt_refresh_marker }}"
+  register: dotfiles_apt_refresh_pending
+  tags:
+    - packages
+
 - name: Update APT metadata after adding third-party repos
   become: true
   ansible.builtin.apt:
@@ -173,7 +216,22 @@
     # would otherwise skip the refresh, leaving the new repo's index
     # unloaded ("No package matching 'docker-buildx-plugin'").
     update_cache: true
-  # AI-03: only refresh when a key or repo actually changed.
-  when: dotfiles_key_download is changed or dotfiles_key_dearmor is changed or dotfiles_repo_purge is changed or dotfiles_repo_add is changed
+  # AI-03: only refresh when a key or repo actually changed, or (GH-51) an
+  # earlier run changed one but failed before refreshing.
+  when: >-
+    dotfiles_key_download is changed or dotfiles_key_dearmor is changed or
+    dotfiles_repo_purge is changed or dotfiles_repo_add is changed or
+    dotfiles_apt_refresh_pending.stat.exists
+  register: dotfiles_apt_refresh
+  tags:
+    - packages
+
+# Only reached when the refresh succeeded (a failure ends the play first).
+- name: Clear the pending apt index refresh marker
+  become: true
+  ansible.builtin.file:
+    path: "{{ dotfiles_apt_refresh_marker }}"
+    state: absent
+  when: dotfiles_apt_refresh is not skipped
   tags:
     - packages
