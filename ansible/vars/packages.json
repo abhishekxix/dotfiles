@@ -372,8 +372,8 @@
     "url": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz",
     "url_arm64": "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.tar.xz"
   },
-  "java-21-amazon-corretto-jdk": {
-    "package": "java-21-amazon-corretto-jdk",
+  "java-25-amazon-corretto-jdk": {
+    "package": "java-25-amazon-corretto-jdk",
     "profiles": [
       "workstation"
     ],
